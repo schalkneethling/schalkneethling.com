@@ -1,0 +1,26 @@
+.page-header h1::before {
+  display: block;
+  content: "";
+  background: transparent url("scripting-on-caffeine.30756439.svg") 0 0 no-repeat;
+  width: 450px;
+  height: 150px;
+}
+
+body {
+  background-color: #fff;
+}
+
+.visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  /* !important required to ensure element is hidden when mixin is applied */
+  position: absolute !important;
+  /* stylelint-disable-line declaration-no-important */
+  width: 1px;
+}
+
+/*# sourceMappingURL=main.31b31d70.css.map */

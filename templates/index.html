@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="keywords" content="%page.keywords%" />
+    <meta name="description" content="%page.description%" />
+    %canonical%
+    <title>%page.title%</title>
+    <link rel="stylesheet" href="../libs/css/prism.css" media="screen" />
+    <link rel="stylesheet" href="../sass/main.scss" media="screen" />
+</head>
+
+<body>
+    {= {
+    "roboType": "include",
+    "file": "header.html"
+    } =}
+    <main role="main">%content%</main>
+    {= {
+    "roboType": "include",
+    "file": "footer.html"
+    } =}
+</body>
+
+</html>

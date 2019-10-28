@@ -1,0 +1,10 @@
+@import "./mixins/util-mixins";
+@import "./structure/header";
+
+body {
+  background-color: #fff;
+}
+
+.visually-hidden {
+  @include visually-hidden();
+}

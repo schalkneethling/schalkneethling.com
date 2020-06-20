@@ -1,10 +1,12 @@
 {
   "name": "schalkneethling.me",
   "version": "1.0.0",
-  "description": "Personal blog",
+  "description": "My personal blog",
   "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
   "scripts": {
-    "build": "node ./lib/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -12,10 +14,10 @@
     "url": "git+https://github.com/schalkneethling/schalkneethling.me.git"
   },
   "keywords": [
-    "html",
-    "css",
+    "blog",
+    "nodejs",
     "javascript",
-    "node"
+    "markdown"
   ],
   "author": "Schalk Neethling",
   "license": "MIT",
@@ -23,13 +25,8 @@
     "url": "https://github.com/schalkneethling/schalkneethling.me/issues"
   },
   "homepage": "https://github.com/schalkneethling/schalkneethling.me#readme",
+  "dependencies": {},
   "devDependencies": {
-    "fs-extra": "8.1.0",
-    "parcel-bundler": "1.12.3",
-    "prismjs": "1.17.1",
-    "sass": "^1.22.9",
-    "stylelint": "10.1.0",
-    "stylelint-config-recommended-scss": "3.3.0",
-    "stylelint-scss": "3.9.4"
+    "fs-extra": "^9.0.1"
   }
 }

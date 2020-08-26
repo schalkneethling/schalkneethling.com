@@ -1,9 +1,3 @@
----
-title: "Hacktoberfest Sign Up and Get Your Git On"
-date: 2018-11-03T14:37:04+02:00
-draft: true
----
-
 It’s October, which means pumpkins, candy, costumes, and Hacktoberfest 🎃 If you are completely new to open source and
 contributing on Github, but want to join in the fun, read on. This is the first in a series of posts I will write
 everyday to help newcomers get the most out of Hacktoberfest. So let us start the journey.
@@ -36,12 +30,12 @@ the Git website.
 On MacOS and Windows, the quickest way is simply [installing Github Desktop](https://desktop.github.com/). Not only does
 this give you a graphical user interface into Git and Github itself, it also:
 
-* Brings along a command line version of Git if the command line is more your style
-* Works well with [Powershell](https://github.com/powershell/powershell)
-* Sets up solid credential caching
-* And sane [CRLF
-settings](https://stackoverflow.com/questions/1552749/difference-between-cr-lf-lf-and-cr-line-break-types)
-* That is a long way of saying, it’s pretty dang sweet ;p
+- Brings along a command line version of Git if the command line is more your style
+- Works well with [Powershell](https://github.com/powershell/powershell)
+- Sets up solid credential caching
+- And sane [CRLF
+  settings](https://stackoverflow.com/questions/1552749/difference-between-cr-lf-lf-and-cr-line-break-types)
+- That is a long way of saying, it’s pretty dang sweet ;p
 
 You can of course install Git by itself without Github Desktop. To do that, head over to the [Git website and download
 an installer](https://git-scm.com/downloads) for your operating system.

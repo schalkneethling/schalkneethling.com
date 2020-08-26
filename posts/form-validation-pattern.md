@@ -1,11 +1,3 @@
-{= {
-"roboType": "meta",
-"template": "index.html",
-"pageTitle": "First post",
-"metaKeywords": "first, post, robo, nodejs",
-"metaDescription": "This is the first post of this blog",
-"destinationFilename": "first-post.html"
-} =}
 Completing forms can be challenging, especially on mobile devices. We, therefore, want to be as clear as possible when
 requesting data from our users and, if there is an error, present feedback to the user in the context of the error. A
 number, perhaps even most, backend framework comes with a form of form validation that makes it easy to accomplish this.
@@ -449,7 +441,7 @@ res.json(validate.contactUs(req.body));
 As we are returning an Object from our validator, we can simply return its return value. To test our validation we are
 going to tell the browser to not validate on submit by adding the `novalidate` attribute to the form element as follows:
 
-```
+````
 <form id="contact-us" name="contact-us" action="/contact" method="post" novalidate>
     ```
 
@@ -671,3 +663,4 @@ going to tell the browser to not validate on submit by adding the `novalidate` a
     With all of that in place, go ahead and reload the page and test out the form. Now you will see that, if both fields
     are empty, the two error messages show up but, should you fix one or both and click submit, only the relevant
     message is displayed.
+````

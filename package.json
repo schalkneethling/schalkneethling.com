@@ -7,7 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:dev": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -25,8 +26,34 @@
     "url": "https://github.com/schalkneethling/schalkneethling.me/issues"
   },
   "homepage": "https://github.com/schalkneethling/schalkneethling.me#readme",
-  "dependencies": {},
+  "dependencies": {
+    "dotenv": "^8.2.0"
+  },
   "devDependencies": {
-    "fs-extra": "^9.0.1"
+    "eslint": "^7.7.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jest": "^23.20.0",
+    "fs-extra": "^9.0.1",
+    "jest": "^26.4.2",
+    "klaw-sync": "^6.0.0",
+    "marked": "^1.1.0",
+    "mock-fs": "^4.13.0",
+    "node-sass-chokidar": "^1.5.0",
+    "prettier": "^2.1.0",
+    "sass": "^1.26.10",
+    "stylelint": "^13.6.1",
+    "stylelint-a11y": "^1.2.3",
+    "stylelint-config-prettier": "^8.0.2",
+    "stylelint-config-recommended": "^3.0.0",
+    "stylelint-config-sass-guidelines": "^7.0.0",
+    "stylelint-prettier": "^1.1.2",
+    "stylelint-scss": "^3.18.0"
+  },
+  "calavera": {
+    "sass": true,
+    "eslint": true,
+    "jest": true,
+    "prettier": true
   }
 }

@@ -1,2 +1,3 @@
 # schalkneethling.me
-Personal blog
+
+My personal blog 🤘

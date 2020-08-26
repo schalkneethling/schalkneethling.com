@@ -1,5 +1,7 @@
 name: test-scripting-on-caffeine
 on: [pull_request]
+env: OUTPUT_DIR=./public
+  POSTS_ROOT=./posts
 
 jobs:
   test:

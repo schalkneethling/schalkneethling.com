@@ -1,6 +1,6 @@
 const mock = require("mock-fs");
 
-const fileUtils = require("./fileUtils");
+import { getPosts } from "./fileUtils";
 
 const fileSystem = {
   ".env": `
@@ -25,7 +25,7 @@ describe("getPosts", () => {
   it("returns a list of posts in directory", () => {
     mock(fileSystem);
 
-    const posts = fileUtils.getPosts();
+    const posts = getPosts();
 
     expect(posts).toHaveLength(3);
   });
@@ -33,7 +33,7 @@ describe("getPosts", () => {
   it("returns a list with the expected file names", () => {
     mock(fileSystem);
 
-    const posts = fileUtils.getPosts();
+    const posts = getPosts();
 
     posts.forEach((post, index) => {
       expect(post.fileName).toMatch(expectedFileNames[index]);

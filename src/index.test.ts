@@ -1,5 +1,4 @@
 const mock = require("mock-fs");
-
 const fs = require("fs");
 const klawSync = require("klaw-sync");
 const path = require("path");
@@ -11,6 +10,7 @@ const filesystem = {
     OUTPUT_DIR: "./public"
     POSTS_ROOT: "./posts"
   `,
+  "tmpl/_base.html": mock.load(path.resolve(__dirname, "../mocks/_base.html")),
   "posts/post-one.md": mock.load(
     path.resolve(__dirname, "../mocks/post-one.md")
   ),
@@ -38,7 +38,7 @@ describe("parseDoc", () => {
       );
       let fileContents = fs.readFileSync(file.path, "utf8");
 
-      expect(fileContents).toMatch(expected);
+      expect(fileContents).toBe(expected);
     });
   });
 });

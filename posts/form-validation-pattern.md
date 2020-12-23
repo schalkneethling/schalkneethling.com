@@ -1,7 +1,14 @@
+---
+title: Form Validation Patterns
+description: A simple framework for form validation
+template: _base.html
+---
+
+# Form Validation Patterns
+
 Completing forms can be challenging, especially on mobile devices. We, therefore, want to be as clear as possible when
 requesting data from our users and, if there is an error, present feedback to the user in the context of the error. A
-number, perhaps even most, backend framework comes with a form of form validation that makes it easy to accomplish this.
-One does not always want to reach for a big framework simply to have this capability.
+number, perhaps even most, backend framework comes with a form of form validation that makes it easy to accomplish this. One does not always want to reach for a big framework simply to have this capability.
 
 Personally, I have run into this a number of times over the last couple of months with a stack that is typically,
 

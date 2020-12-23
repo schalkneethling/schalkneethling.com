@@ -1,3 +1,11 @@
+---
+title: HocktoberFest ~ Signup and get your Git on
+description: It’s October, which means pumpkins, candy, costumes, and Hacktoberfest 🎃 If you are completely new to open source and contributing on Github, but want to join in the fun, read on.
+template: _base.html
+---
+
+# HocktoberFest ~ Signup and get your Git on
+
 It’s October, which means pumpkins, candy, costumes, and Hacktoberfest 🎃 If you are completely new to open source and
 contributing on Github, but want to join in the fun, read on. This is the first in a series of posts I will write
 everyday to help newcomers get the most out of Hacktoberfest. So let us start the journey.

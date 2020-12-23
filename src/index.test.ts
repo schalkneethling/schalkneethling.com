@@ -25,10 +25,12 @@ describe("parseDoc", () => {
   });
 
   it("reads, parses and writes the resulting HTML to disk", () => {
+    // deepcode ignore WrongNumberOfArgs/test: this is a false positive
     mock(filesystem);
 
     parseDoc();
 
+    // deepcode ignore ExpectsArray/test: this is a false positive
     const files = klawSync("./public", { nodir: true });
     expect(files).toHaveLength(2);
     files.forEach((file) => {

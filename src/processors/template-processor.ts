@@ -3,20 +3,25 @@ import path from "path";
 
 require("dotenv").config();
 
-function loadTemplate() {
+function loadTemplate(templateName: string) {
   try {
-    const tmpl = path.resolve(
-      __dirname,
-      `../../${process.env.TEMPLATE_DIR}/_base.html`
-    );
+    const tmplDir = `../../${process.env.TEMPLATE_DIR}`;
+    const tmpl = path.resolve(__dirname, `${tmplDir}/${templateName}`);
     return fse.readFileSync(tmpl, "utf8");
   } catch (error) {
     throw new Error(`Error while reading template: ${error.toString()}`);
   }
 }
 
-function addMain(markdown: string, tmpl: string) {
-  return tmpl.replace("{{ main }}", markdown);
+function setMetadata(metadata, tmpl: string) {
+  tmpl = tmpl.replace("{{ title }}", metadata.title);
+  tmpl = tmpl.replace("{{ description }}", metadata.description);
+
+  return tmpl;
 }
 
-export { loadTemplate, addMain };
+function setMain(postHTML: string, tmpl: string) {
+  return tmpl.replace("{{ main }}", postHTML);
+}
+
+export { loadTemplate, setMain, setMetadata };

@@ -34,9 +34,14 @@ describe("parseDoc", () => {
     const files = klawSync("./public", { nodir: true });
     expect(files).toHaveLength(2);
     files.forEach((file) => {
+      const pathPartsArray = path.dirname(file.path).split(path.sep);
+      const postFolderPath = pathPartsArray[pathPartsArray.length - 1];
       let fileName = path.basename(file.path);
       let expected = mock.bypass(() =>
-        fs.readFileSync(path.resolve(__dirname, `../mocks/${fileName}`), "utf8")
+        fs.readFileSync(
+          path.resolve(__dirname, `../mocks/${postFolderPath}/${fileName}`),
+          "utf8"
+        )
       );
       let fileContents = fs.readFileSync(file.path, "utf8");
 

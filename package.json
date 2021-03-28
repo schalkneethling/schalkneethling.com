@@ -60,11 +60,5 @@
     "stylelint-config-sass-guidelines": "^7.0.0",
     "stylelint-prettier": "^1.1.2",
     "stylelint-scss": "^3.18.0"
-  },
-  "calavera": {
-    "sass": true,
-    "eslint": true,
-    "jest": true,
-    "prettier": true
   }
 }

@@ -17,7 +17,7 @@ const fileSystem = {
     path.resolve(__dirname, "../../mocks/_base.html")
   ),
   "public/post-one.html": mock.load(
-    path.resolve(__dirname, "../../mocks/post-one.html")
+    path.resolve(__dirname, "../../mocks/post-one/index.html")
   ),
 };
 

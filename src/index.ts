@@ -35,7 +35,7 @@ const parseDoc = () => {
     processed = setMain(postHTML, processed);
 
     fse.outputFileSync(
-      `${OUTPUT_DIR}/${post.fileName}.html`,
+      `${OUTPUT_DIR}/${post.fileName}/index.html`,
       processed,
       "utf-8"
     );

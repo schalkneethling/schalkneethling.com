@@ -13,7 +13,7 @@ function loadTemplate(templateName: string) {
   }
 }
 
-function setMetadata(metadata, tmpl: string) {
+function setMetadata(metadata: { [x: string]: string }, tmpl: string) {
   tmpl = tmpl.replace("{{ title }}", metadata.title);
   tmpl = tmpl.replace("{{ description }}", metadata.description);
 

@@ -7,8 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "build": "tsc",
-    "build:blog": "node ./lib/index.js",
+    "build:platform": "tsc",
+    "build:content": "node ./lib/index.js",
     "test": "jest",
     "test:dev": "jest --watch"
   },

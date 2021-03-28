@@ -9,6 +9,7 @@
   "scripts": {
     "build:platform": "tsc",
     "build:content": "node ./lib/index.js",
+    "build": "build:platform && build:content",
     "test": "jest",
     "test:dev": "jest --watch"
   },

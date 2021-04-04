@@ -8,7 +8,7 @@ template: _base.html
 
 This is difficult, and something I have not even considered for what seems like forever. Every now and again I like to revisit the beginnings of a language I have been using for a long time. Recently, I re-watched the updated version of [“Getting started with JavaScript” by Kyle Simpson on FrontendMasters](https://frontendmasters.com/courses/getting-started-javascript-v2/). One topic Kyle touches on is equality, and it got me thinking about an aspect of JavaScript I never really thought about.
 
-## What is the real difference between `==` and `===`
+## What is the real difference between `==` and `===`?
 
 If someone asked me this question two days ago I would have answered, "The first does a loose comparison between the two operands and the second a strict comparison". I have always thought it kinda strange that just reading that all by itself does not _really_ explain the difference. You need to also provide a code example such as this:
 

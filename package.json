@@ -54,7 +54,7 @@
     "node-sass-chokidar": "^1.5.0",
     "prettier": "^2.4.0",
     "sass": "^1.32.8",
-    "stylelint": "^13.12.0",
+    "stylelint": "^13.13.1",
     "stylelint-a11y": "^1.2.3",
     "stylelint-config-prettier": "^8.0.2",
     "stylelint-config-recommended": "^4.0.0",

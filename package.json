@@ -41,7 +41,7 @@
     "@types/jest": "^26.0.22",
     "@types/klaw-sync": "^6.0.0",
     "@types/node": "^14.14.37",
-    "babel-jest": "^26.6.3",
+    "babel-jest": "^27.1.1",
     "eslint": "^7.23.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.22.1",

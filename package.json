@@ -46,7 +46,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-jest": "^24.4.0",
-    "fs-extra": "^9.1.0",
+    "fs-extra": "^10.0.0",
     "jest": "^27.1.1",
     "klaw-sync": "^6.0.0",
     "marked": "^3.0.3",

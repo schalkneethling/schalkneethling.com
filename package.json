@@ -60,6 +60,6 @@
     "stylelint-config-recommended": "^4.0.0",
     "stylelint-config-sass-guidelines": "^8.0.0",
     "stylelint-prettier": "^1.2.0",
-    "stylelint-scss": "^3.19.0"
+    "stylelint-scss": "^3.21.0"
   }
 }

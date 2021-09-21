@@ -9,7 +9,7 @@
   "scripts": {
     "build:platform": "tsc",
     "build:content": "node ./lib/index.js",
-    "build": "yarn build:platform && yarn build:content",
+    "build": "yarn build:platform && yarn build:content && cp -R ./assets ./public/",
     "test": "yarn build && jest",
     "test:dev": "jest --watch"
   },

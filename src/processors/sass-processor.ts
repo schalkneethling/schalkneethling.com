@@ -7,20 +7,28 @@ require("dotenv").config();
 
 export const processSASS = (tmpl) => {
   const outputStyle =
-    process.env.NODE_ENV === "production" ? "compressed" : "nested";
+    process.env.NODE_ENV === "production" ? "compressed" : "expanded";
   const sourceMap = process.env.NODE_ENV === "production" ? true : false;
   const $ = cheerio.load(tmpl);
+  const outputFile = "public/css/main.css";
   const sassEntry = $("link[type='text/sass']");
   const sassFile = sassEntry.attr("href");
 
   try {
     const result = sass.renderSync({
-      file: fse.readFileSync(sassFile, "utf-8"),
+      file: sassFile,
       outputStyle: outputStyle,
       sourceMap: sourceMap,
+      outfile: outputFile,
     });
-    return result.css.toString();
+
+    fse.outputFileSync(outputFile, result.css, "utf-8");
+
+    sassEntry.attr("href", outputFile.replace("public", ".."));
+    sassEntry.attr("type", "text/css");
+
+    return $.html();
   } catch (error) {
-    console.log(error);
+    console.error(`Error while processing SASS: ${error.toString()}`);
   }
 };

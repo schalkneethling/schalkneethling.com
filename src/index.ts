@@ -5,8 +5,9 @@ import * as matter from "gray-matter";
 
 import { getPosts } from "./fileUtils";
 import {
-  setMain,
   loadTemplate,
+  sassToCSS,
+  setMain,
   setMetadata,
 } from "./processors/template-processor";
 
@@ -31,6 +32,7 @@ const parseDoc = () => {
     const tmpl = loadTemplate(grayMatter.data.template);
 
     let processed = setMetadata(grayMatter.data, tmpl);
+    processed = sassToCSS(tmpl);
     let postHTML = marked(grayMatter.content);
     processed = setMain(postHTML, processed);
 

@@ -1,6 +1,8 @@
 import fse from "fs-extra";
 import path from "path";
 
+import { processSASS } from "./sass-processor";
+
 require("dotenv").config();
 
 function loadTemplate(templateName: string) {
@@ -20,8 +22,12 @@ function setMetadata(metadata: { [x: string]: string }, tmpl: string) {
   return tmpl;
 }
 
+function sassToCSS(tmpl: string) {
+  return processSASS(tmpl);
+}
+
 function setMain(postHTML: string, tmpl: string) {
   return tmpl.replace("{{ main }}", postHTML);
 }
 
-export { loadTemplate, setMain, setMetadata };
+export { loadTemplate, sassToCSS, setMain, setMetadata };

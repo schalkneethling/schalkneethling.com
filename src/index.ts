@@ -20,7 +20,7 @@ const parseDoc = () => {
 
   posts.forEach((post) => {
     console.info(`Processing ${post.path}`);
-    const fileContents = fse.readFileSync(post.path, "utf-8");
+    const fileContents = fse.readFileSync(post.path, "utf8");
     const grayMatter = matter.default(fileContents);
 
     if (!grayMatter.data.template) {
@@ -32,14 +32,14 @@ const parseDoc = () => {
     const tmpl = loadTemplate(grayMatter.data.template);
 
     let processed = setMetadata(grayMatter.data, tmpl);
-    processed = sassToCSS(tmpl);
+    processed = sassToCSS(processed);
     let postHTML = marked(grayMatter.content);
     processed = setMain(postHTML, processed);
 
     fse.outputFileSync(
       `${OUTPUT_DIR}/${post.fileName}/index.html`,
       processed,
-      "utf-8"
+      "utf8"
     );
   });
 };

@@ -6,10 +6,10 @@ import sass from "sass";
 require("dotenv").config();
 
 export const processSASS = (tmpl) => {
-  const outputStyle =
-    process.env.NODE_ENV === "production" ? "compressed" : "expanded";
-  const sourceMap = process.env.NODE_ENV === "production" ? true : false;
-  const $ = cheerio.load(tmpl);
+  const environment = process.env.NODE_ENV || "development";
+  const outputStyle = environment === "production" ? "compressed" : "expanded";
+  const sourceMap = environment === "production" ? true : false;
+  const $ = cheerio.load(tmpl, { xmlMode: true });
   const outputFile = "public/css/main.css";
   const sassEntry = $("link[type='text/sass']");
   const sassFile = sassEntry.attr("href");
@@ -22,7 +22,7 @@ export const processSASS = (tmpl) => {
       outfile: outputFile,
     });
 
-    fse.outputFileSync(outputFile, result.css, "utf-8");
+    fse.outputFileSync(outputFile, result.css, "utf8");
 
     sassEntry.attr("href", outputFile.replace("public", ".."));
     sassEntry.attr("type", "text/css");

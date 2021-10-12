@@ -61,5 +61,5 @@ typings/
 .next
 
 # project specific
-lib
+/lib
 public

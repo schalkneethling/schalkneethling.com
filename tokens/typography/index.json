@@ -1,0 +1,62 @@
+{
+  "size": {
+    "font": {
+      "display": {
+        "value": 5.61,
+        "comment": "this is larger that h1 and is used sparingly",
+        "attributes": {
+          "category": "typography"
+        }
+      },
+      "xxl-font-size": {
+        "value": 4.209,
+        "comment": "heading level 1 font size",
+        "attributes": {
+          "category": "typography"
+        }
+      },
+      "xl-font-size": {
+        "value": 3.157,
+        "comment": "heading level 2 font size",
+        "attributes": {
+          "category": "typography"
+        }
+      },
+      "large-font-size": {
+        "value": 2.369,
+        "comment": "heading level 3 font size",
+        "attributes": {
+          "category": "typography"
+        }
+      },
+      "medium-font-size": {
+        "value": 1.777,
+        "comment": "heading level 4 font size",
+        "attributes": {
+          "category": "typography"
+        }
+      },
+      "small-medium-font-size": {
+        "value": 1.333,
+        "comment": "heading level 5 font size",
+        "attributes": {
+          "category": "typography"
+        }
+      },
+      "content-font-size": {
+        "value": 1,
+        "comment": "font size for general content",
+        "attributes": {
+          "category": "typography"
+        }
+      },
+      "tiny-font-size": {
+        "value": 0.75,
+        "comment": "font size used for footnotes, etc.",
+        "attributes": {
+          "category": "typography"
+        }
+      }
+    }
+  }
+}

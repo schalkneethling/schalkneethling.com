@@ -1,0 +1,10 @@
+{
+  "layout": {
+    "max-width": {
+      "value": 1440,
+      "attributes": {
+        "category": "layout"
+      }
+    }
+  }
+}

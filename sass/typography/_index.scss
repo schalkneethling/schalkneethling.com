@@ -1,0 +1,33 @@
+@use "../tokens/styleguide";
+
+body {
+  font: 100%/1.7 sans-serif;
+}
+
+h1 {
+  font-size: styleguide.$xxl-font-size;
+}
+
+h2 {
+  font-size: styleguide.$xl-font-size;
+}
+
+h3 {
+  font-size: styleguide.$large-font-size;
+}
+
+h4 {
+  font-size: styleguide.$medium-font-size;
+}
+
+h5 {
+  font-size: styleguide.$small-medium-font-size;
+}
+
+.display {
+  font-size: styleguide.$display;
+}
+
+.tiny-font {
+  font-size: styleguide.$tiny-font-size;
+}

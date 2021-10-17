@@ -1,1 +1,4 @@
 @use "./lib/reset" as *;
+
+@use "./base/index" as *;
+@use "./typography/index" as *;

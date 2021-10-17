@@ -1,0 +1,5 @@
+@use "../mixins/layout";
+
+body {
+  @include layout.girdle();
+}

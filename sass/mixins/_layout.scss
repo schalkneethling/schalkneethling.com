@@ -1,0 +1,6 @@
+@use "../tokens/styleguide";
+
+@mixin girdle() {
+  margin: 0 auto;
+  max-width: styleguide.$max-width;
+}

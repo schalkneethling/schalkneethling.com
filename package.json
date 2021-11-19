@@ -12,8 +12,13 @@
     "build:content": "node ./lib/index.js",
     "build": "yarn build:platform && yarn build:content && cp -R ./assets ./public/",
     "style:build": "yarn style-dictionary build",
-    "test": "yarn build && jest",
-    "test:dev": "jest --watch"
+    "test": "yarn build && NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:dev": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
+  },
+  "jest": {
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ]
   },
   "repository": {
     "type": "git",

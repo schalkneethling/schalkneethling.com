@@ -1,5 +1,34 @@
+@use "../tokens/styleguide";
 @use "../mixins/layout";
+
+:root {
+  --color-heading-text-primary: #{styleguide.$color-neutral900};
+  --color-content-text-primary: #{styleguide.$color-neutral700};
+}
 
 body {
   @include layout.girdle();
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  background-color: styleguide.$color-neutral50;
+  font: 300 100% /#{styleguide.$content-line-height}
+    styleguide.$font-family-copy;
+}
+
+.main-content {
+  @include layout.max-line-length();
+  color: var(--color-content-text-primary);
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    color: var(--color-heading-text-primary);
+    font-family: styleguide.$font-family-heading;
+  }
+
+  li {
+    margin-bottom: 1.2rem;
+  }
 }

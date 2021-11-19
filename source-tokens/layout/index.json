@@ -5,6 +5,12 @@
       "attributes": {
         "category": "layout"
       }
+    },
+    "max-line-length-fallback": {
+      "value": 35,
+      "attributes": {
+        "category": "layout-em"
+      }
     }
   }
 }

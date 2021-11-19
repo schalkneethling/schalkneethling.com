@@ -58,5 +58,21 @@
         }
       }
     }
+  },
+  "line-height": {
+    "heading-line-height": {
+      "value": 1.125
+    },
+    "content-line-height": {
+      "value": 1.7
+    }
+  },
+  "font-family": {
+    "font-family-heading": {
+      "value": "\"Roboto Slab\", serif"
+    },
+    "font-family-copy": {
+      "value": "\"M PLUS 1\", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    }
   }
 }

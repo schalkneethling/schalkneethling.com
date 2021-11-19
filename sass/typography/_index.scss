@@ -1,9 +1,5 @@
 @use "../tokens/styleguide";
 
-body {
-  font: 100%/1.7 sans-serif;
-}
-
 h1 {
   font-size: styleguide.$xxl-font-size;
 }
@@ -22,6 +18,23 @@ h4 {
 
 h5 {
   font-size: styleguide.$small-medium-font-size;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  line-height: styleguide.$heading-line-height;
+}
+
+h1,
+p {
+  margin-bottom: 24px;
+}
+
+.main-content {
+  font-size: 1.2rem;
 }
 
 .display {

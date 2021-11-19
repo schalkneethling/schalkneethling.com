@@ -2,8 +2,9 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "module": "commonjs",
-    "target": "ES6",
+    "module": "es2020",
+    "moduleResolution": "node",
+    "target": "es5",
     "outDir": "lib",
     "allowJs": true,
     "declaration": true,

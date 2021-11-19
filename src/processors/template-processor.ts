@@ -1,13 +1,16 @@
 import fse from "fs-extra";
 import path from "path";
+import { fileURLToPath } from "url";
 
-import { processSASS } from "./sass-processor";
+import { processSASS } from "./sass-processor.js";
 
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 function loadTemplate(templateName: string) {
   try {
     const tmplDir = `../../${process.env.TEMPLATE_DIR}`;
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
     const tmpl = path.resolve(__dirname, `${tmplDir}/${templateName}`);
     return fse.readFileSync(tmpl, "utf8");
   } catch (error) {

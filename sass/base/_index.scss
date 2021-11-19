@@ -7,7 +7,6 @@
 }
 
 body {
-  @include layout.girdle();
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   background-color: styleguide.$color-neutral50;
@@ -16,6 +15,7 @@ body {
 }
 
 .main-content {
+  @include layout.girdle();
   @include layout.max-line-length();
   color: var(--color-content-text-primary);
 

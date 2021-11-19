@@ -1,6 +1,6 @@
 import klawSync from "klaw-sync";
-
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 const POSTS_ROOT = process.env.POSTS_ROOT;
 

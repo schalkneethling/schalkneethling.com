@@ -1,4 +1,4 @@
-const mock = require("mock-fs");
+import mock from "mock-fs";
 
 import { getPosts } from "./fileUtils";
 

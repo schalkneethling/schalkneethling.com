@@ -1,12 +1,19 @@
-const mock = require("mock-fs");
-const fs = require("fs");
-const path = require("path");
-const matter = require("gray-matter");
+import mock from "mock-fs";
+import fs from "fs";
+import path from "path";
+import matter from "gray-matter";
+import { fileURLToPath } from "url";
 
-import marked from "marked";
+import { marked } from "marked";
 
-import { loadTemplate, setMain, setMetadata } from "./template-processor";
+import {
+  loadTemplate,
+  setMain,
+  setMetadata,
+} from "../../lib/processors/template-processor.js";
 
+// @ts-ignore
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fileSystem = {
   ".env": `
     OUTPUT_DIR="./public"

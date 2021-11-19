@@ -1,10 +1,13 @@
-const mock = require("mock-fs");
-const fs = require("fs");
-const klawSync = require("klaw-sync");
-const path = require("path");
+import mock from "mock-fs";
+import fs from "fs";
+import klawSync from "klaw-sync";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const parseDoc = require("./index");
+import { parseDoc } from "../lib/index.js";
 
+// @ts-ignore
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const filesystem = {
   ".env": `
     OUTPUT_DIR: "./public"
@@ -22,6 +25,11 @@ const filesystem = {
   ),
 };
 
+const mockOptions = {
+  createCwd: true,
+  createTmp: true,
+};
+
 describe("parseDoc", () => {
   afterEach(() => {
     mock.restore();
@@ -29,7 +37,7 @@ describe("parseDoc", () => {
 
   it("reads, parses and writes the resulting HTML to disk", () => {
     // deepcode ignore WrongNumberOfArgs/test: this is a false positive
-    mock(filesystem);
+    mock(filesystem, mockOptions);
 
     parseDoc();
 

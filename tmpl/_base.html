@@ -8,6 +8,8 @@
     <title>{{ title }}</title>
     <meta name="description" content="{{ description }}" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="canonical" href="{{ canonical_url }}" />
 
     <link rel="shortcut icon" href="/media/favicon.ico" type="image/x-icon" />
@@ -36,11 +38,21 @@
     <meta name="twitter:image" content="" />
     <meta name="twitter:image:alt" content="" />
 
+    <link
+        href="https://fonts.googleapis.com/css2?family=M+PLUS+1:wght@300&family=Roboto+Slab:wght@300&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" type="text/sass" href="sass/main.scss" media="screen" />
 </head>
 
 <body>
-    {{ main }}
+    <div class="top-accent-border">
+        <div class="brand-dark"><br /></div>
+        <div class="brand-accent-primary"><br /></div>
+    </div>
+    <main class="main-content">
+        {{ main }}
+    </main>
 </body>
 
 </html>

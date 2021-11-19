@@ -3,7 +3,8 @@ import fse from "fs-extra";
 import * as cheerio from "cheerio";
 import sass from "sass";
 
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 export const processSASS = (tmpl) => {
   const environment = process.env.NODE_ENV || "development";

@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 import fse from "fs-extra";
-import marked from "marked";
+import { marked } from "marked";
 import * as matter from "gray-matter";
 
-import { getPosts } from "./fileUtils";
+import { getPosts } from "./fileUtils.js";
 import {
   loadTemplate,
   sassToCSS,
   setMain,
   setMetadata,
-} from "./processors/template-processor";
+} from "./processors/template-processor.js";
 
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 const OUTPUT_DIR = process.env.OUTPUT_DIR;
 
-const parseDoc = () => {
+export const parseDoc = () => {
   const posts = getPosts();
 
   posts.forEach((post) => {
@@ -45,5 +46,3 @@ const parseDoc = () => {
 };
 
 parseDoc();
-
-module.exports = parseDoc;

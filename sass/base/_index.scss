@@ -31,4 +31,9 @@ body {
   li {
     margin-bottom: 1.2rem;
   }
+
+  pre {
+    @include layout.max-line-length();
+    overflow: auto;
+  }
 }

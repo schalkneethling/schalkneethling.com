@@ -25,7 +25,7 @@ This is actually an old and deprecated version. So, the first step is to switch 
 
 ## The steps
 
-First, we need to remove `babel-eslint` and replace it with `@babel-eslint`.
+First, we need to remove `babel-eslint` and replace it with `@babel/eslint-parser`.
 
 ```bash
 yarn remove babel-eslint
@@ -34,10 +34,10 @@ yarn remove babel-eslint
 and then:
 
 ```bash
-yarn add -D @babel-core @babel-eslint
+yarn add -D @babel-core @babel/eslint-parser
 ```
 
-Next, update your `eslintrc` to use `@babel-eslint` instead of `babel-eslint`.
+Next, update your `eslintrc` to use `@babel/eslint-parser` instead of `babel-eslint`.
 
 ```json
 "parser": "@babel/eslint-parser",

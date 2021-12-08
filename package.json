@@ -48,7 +48,7 @@
     "@types/jest": "^27.0.3",
     "@types/klaw-sync": "^6.0.1",
     "@types/marked": "^4.0.1",
-    "@types/node": "^16.11.11",
+    "@types/node": "^16.11.12",
     "babel-jest": "^27.4.2",
     "cheerio": "^1.0.0-rc.10",
     "eslint": "^8.4.1",

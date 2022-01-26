@@ -16,8 +16,9 @@ dotenv.config();
 
 const OUTPUT_DIR = process.env.OUTPUT_DIR;
 
-export const parseDoc = () => {
+export const build = () => {
   const posts = getPosts();
+  console.info(`Number of posts ${posts.length}`);
 
   posts.forEach((post) => {
     console.info(`Processing ${post.path}`);
@@ -45,4 +46,4 @@ export const parseDoc = () => {
   });
 };
 
-parseDoc();
+build();

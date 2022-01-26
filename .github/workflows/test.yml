@@ -16,7 +16,3 @@ jobs:
       - name: Run tests
         run: |
           yarn test
-        env:
-          OUTPUT_DIR: ./public
-          POSTS_ROOT: ./posts
-          TEMPLATE_DIR: ./tmpl

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import fse from "fs-extra";
+import fs from "fs";
 import { marked } from "marked";
 import * as matter from "gray-matter";
 
 import { getPosts } from "./fileUtils.js";
+import { processSASS } from "./processors/sass-processor.js";
 import {
   loadTemplate,
-  sassToCSS,
   setMain,
   setMetadata,
 } from "./processors/template-processor.js";
@@ -21,7 +21,7 @@ export const parseDoc = () => {
 
   posts.forEach((post) => {
     console.info(`Processing ${post.path}`);
-    const fileContents = fse.readFileSync(post.path, "utf8");
+    const fileContents = fs.readFileSync(post.path, "utf8");
     const grayMatter = matter.default(fileContents);
 
     if (!grayMatter.data.template) {
@@ -33,11 +33,11 @@ export const parseDoc = () => {
     const tmpl = loadTemplate(grayMatter.data.template);
 
     let processed = setMetadata(grayMatter.data, tmpl);
-    processed = sassToCSS(processed);
+    processed = processSASS(processed);
     let postHTML = marked(grayMatter.content);
     processed = setMain(postHTML, processed);
 
-    fse.outputFileSync(
+    fs.writeFileSync(
       `${OUTPUT_DIR}/${post.fileName}/index.html`,
       processed,
       "utf8"

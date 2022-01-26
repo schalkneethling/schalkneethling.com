@@ -25,12 +25,8 @@ function setMetadata(metadata: { [x: string]: string }, tmpl: string) {
   return tmpl;
 }
 
-function sassToCSS(tmpl: string) {
-  return processSASS(tmpl);
-}
-
 function setMain(postHTML: string, tmpl: string) {
   return tmpl.replace("{{ main }}", postHTML);
 }
 
-export { loadTemplate, sassToCSS, setMain, setMetadata };
+export { loadTemplate, setMain, setMetadata };

@@ -8,10 +8,11 @@ import { parseDoc } from "../lib/index.js";
 
 // @ts-ignore
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const filesystem = {
+const fileSystem = {
   ".env": `
-    OUTPUT_DIR: "./public"
-    POSTS_ROOT: "./posts"
+    OUTPUT_DIR="./public"
+    POSTS_ROOT="./posts"
+    TEMPLATE_DIR="./tmpl"
   `,
   "tmpl/_base.html": mock.load(path.resolve(__dirname, "../mocks/_base.html")),
   "sass/main.scss": mock.load(
@@ -25,23 +26,18 @@ const filesystem = {
   ),
 };
 
-const mockOptions = {
-  createCwd: true,
-  createTmp: true,
-};
-
 describe("parseDoc", () => {
+  beforeEach(() => {
+    mock(fileSystem);
+  });
+
   afterEach(() => {
     mock.restore();
   });
 
   it("reads, parses and writes the resulting HTML to disk", () => {
-    // deepcode ignore WrongNumberOfArgs/test: this is a false positive
-    mock(filesystem, mockOptions);
-
     parseDoc();
 
-    // deepcode ignore ExpectsArray/test: this is a false positive
     const files = klawSync("./public", {
       nodir: true,
       filter: (item) => {

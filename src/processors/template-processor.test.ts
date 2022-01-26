@@ -29,13 +29,15 @@ const fileSystem = {
 };
 
 describe("Template Processor", () => {
+  beforeEach(() => {
+    mock(fileSystem);
+  });
+
   afterEach(() => {
     mock.restore();
   });
 
   it("loads and returns the template HTML", () => {
-    // deepcode ignore WrongNumberOfArgs/test: this is a false positive
-    mock(fileSystem);
     let expected = mock.bypass(() =>
       fs.readFileSync(path.resolve(__dirname, "../../mocks/_base.html"), "utf8")
     );
@@ -44,9 +46,6 @@ describe("Template Processor", () => {
   });
 
   it("replaces {{ main }} in template with post content", () => {
-    // deepcode ignore WrongNumberOfArgs/test: this is a false positive
-    mock(fileSystem);
-
     const markdown = mock.bypass(() =>
       fs.readFileSync(
         path.resolve(__dirname, "../../mocks/post-one.md"),
@@ -65,9 +64,6 @@ describe("Template Processor", () => {
   });
 
   it("replaces {{ title }} and {{ description }} in template with frontmatter", () => {
-    // deepcode ignore WrongNumberOfArgs/test: this is a false positive
-    mock(fileSystem);
-
     const markdown = mock.bypass(() =>
       fs.readFileSync(
         path.resolve(__dirname, "../../mocks/post-one.md"),

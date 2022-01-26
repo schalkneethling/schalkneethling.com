@@ -28,6 +28,7 @@
     "blog",
     "nodejs",
     "javascript",
+    "typescript",
     "markdown"
   ],
   "author": "Schalk Neethling",
@@ -72,6 +73,6 @@
     "stylelint-scss": "^3.21.0"
   },
   "engines": {
-    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+    "node": "^14.13.1 || >=16.0.0"
   }
 }

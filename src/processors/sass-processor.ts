@@ -16,11 +16,9 @@ export const processSASS = (tmpl) => {
   const sassFile = sassEntry.attr("href");
 
   try {
-    const result = sass.renderSync({
-      file: sassFile,
-      outputStyle: outputStyle,
+    const result = sass.compile(sassFile, {
+      style: outputStyle,
       sourceMap: sourceMap,
-      outfile: outputFile,
     });
 
     fse.outputFileSync(outputFile, result.css, "utf8");

@@ -58,7 +58,7 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-jest": "^26.0.0",
     "fs-extra": "^10.0.0",
-    "jest": "^27.4.7",
+    "jest": "^27.5.1",
     "klaw-sync": "^6.0.0",
     "marked": "^4.0.12",
     "mock-fs": "^5.1.2",

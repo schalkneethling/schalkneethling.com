@@ -1,7 +1,11 @@
-import { Link, useLoaderData } from "remix";
+import { Link, LinksFunction, useLoaderData } from "remix";
 
 import { getPosts } from "~/posts";
 import type { Post } from "~/posts";
+
+import styles from "~/styles/posts/index.css";
+
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async () => {
   return getPosts();
@@ -10,7 +14,7 @@ export const loader = async () => {
 export default function Posts() {
   const posts = useLoaderData();
   return (
-    <>
+    <div className="standard-layout">
       <h1>My posts</h1>
       <ul>
         {posts.map((post: Post) => (
@@ -22,6 +26,6 @@ export default function Posts() {
           </li>
         ))}
       </ul>
-    </>
+    </div>
   );
 }

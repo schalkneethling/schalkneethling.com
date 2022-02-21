@@ -1,0 +1,5 @@
+.logo {
+  background: transparent url("/assets/logo.svg") center center no-repeat;
+  height: 200px;
+  width: 200px;
+}

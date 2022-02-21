@@ -1,10 +1,7 @@
 ---
 title: Starting a new Nuxtjs project
 description: A run through starting a new Nuxtjs project and creating a landing page
-template: _base.html
 ---
-
-# Starting a new Nuxtjs project
 
 I have been toying with a side-project for some time now called [Ourbackyard.co.za](https://ourbackyard.co.za). When I started it I wanted to quickly get something in front of users to get a sense of the interest in the idea. I wrote everything using [Expressjs](expressjs.com/), [Pug templates](https://pugjs.org/) and [SASS](https://sass-lang.com/). I also used [Auth0](https://auth0.com/) for authentication and am hosting the [MongoDB](https://www.mongodb.com/) database on [Atlas](https://www.mongodb.com/atlas).
 

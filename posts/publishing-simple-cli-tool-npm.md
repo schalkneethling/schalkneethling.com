@@ -1,10 +1,7 @@
 ---
 title: Publishing a simple CLI tool on NPM
 description: A step by step guide to publishing a simple CLI tool to the NPM registry
-template: _base.html
 ---
-
-# Publishing a simple CLI tool on NPM
 
 Developers, like other artisans, are dependent on great tools. From complex tools such as code editors to tools that automate away the mundane, libraries, and simple command-line utilities. For a lot of these, in the JavaScript world, we look to package registries such as NPM. In this post we will look at a recent utility I published to NPM and go over the steps you need to take to publish _your_ own.
 

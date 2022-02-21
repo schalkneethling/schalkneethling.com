@@ -1,10 +1,7 @@
 ---
 title: Form Validation Patterns
 description: A simple framework for form validation
-template: _base.html
 ---
-
-# Form Validation Patterns
 
 Completing forms can be challenging, especially on mobile devices. We, therefore, want to be as clear as possible when
 requesting data from our users and, if there is an error, present feedback to the user in the context of the error. A

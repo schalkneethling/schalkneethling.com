@@ -1,10 +1,7 @@
 ---
 title: Reconsidering double equals in JavaScript
 description: Could it be that the == operator in JavaScript had a bad rap and it’s time to reconsider it?
-template: _base.html
 ---
-
-# Should we reconsider the `==` operator in JavaScript?
 
 This is difficult, and something I have not even considered for what seems like forever. Every now and again I like to revisit the beginnings of a language I have been using for a long time. Recently, I re-watched the updated version of [“Getting started with JavaScript” by Kyle Simpson on FrontendMasters](https://frontendmasters.com/courses/getting-started-javascript-v2/). One topic Kyle touches on is equality, and it got me thinking about an aspect of JavaScript I never really thought about.
 

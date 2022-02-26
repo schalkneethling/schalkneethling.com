@@ -1,0 +1,12 @@
+{
+    "extends": [
+        "stylelint-config-recommended",
+        "stylelint-a11y/recommended",
+        "stylelint-prettier/recommended"
+    ],
+    "rules": {
+        "max-nesting-depth": 2,
+        "declaration-no-important": true,
+        "font-weight-notation": "named-where-possible"
+    }
+}

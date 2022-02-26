@@ -12,6 +12,7 @@ export type Post = {
 
 export type PostMarkdownAttributes = {
   description: string;
+  draft?: boolean;
   title: string;
 };
 
@@ -37,20 +38,24 @@ export async function getPost(slug: string) {
 
 export async function getPosts() {
   const dir = await fs.readdir(postsPath);
-
-  return Promise.all(
+  const posts = await Promise.all(
     dir.map(async (filename) => {
       const file = await fs.readFile(path.join(postsPath, filename), "utf8");
       const { attributes } = parseFrontmatter(file.toString());
+
       invariant(
         isValidPostAttributes(attributes),
         `${filename} has bad metadata`
       );
+
       return {
         slug: filename.replace(/\.md$/, ""),
         description: attributes.description,
+        draft: attributes.draft,
         title: attributes.title,
       };
     })
   );
+
+  return posts.filter((post) => !post.draft);
 }

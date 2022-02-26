@@ -1,6 +1,7 @@
 ---
 title: Opening Developer Tools In Your Browser And Switch To Responsive Mode
 description: A quick overview of how to open developer tools in Firefox, Edge, Chrome and Safari on desktop.
+draft: true
 ---
 
 ## Firefox

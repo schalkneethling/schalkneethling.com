@@ -1,11 +1,15 @@
 import { Link, LinksFunction, useLoaderData } from "remix";
 
+import { Card, links as CardStyles } from "~/components/organisms/card";
 import { getPosts } from "~/posts";
 import type { Post } from "~/posts";
 
 import styles from "~/styles/posts/index.css";
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [
+  ...CardStyles(),
+  { rel: "stylesheet", href: styles },
+];
 
 export const loader = async () => {
   return getPosts();
@@ -18,12 +22,12 @@ export default function Posts() {
       <h1>My posts</h1>
       <ul>
         {posts.map((post: Post) => (
-          <li key={post.slug} className="post-card">
+          <Card type="listItem" key={post.slug}>
             <h3>
               <Link to={post.slug}>{post.title}</Link>
             </h3>
             <p>{post.description}</p>
-          </li>
+          </Card>
         ))}
       </ul>
     </div>

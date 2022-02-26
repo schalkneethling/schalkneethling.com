@@ -1,3 +1,21 @@
+:root {
+  /* Color Palette */
+  --color-primary-bright003: #e5e528;
+  --color-primary-bright002: #a0da44;
+  --color-primary-bright001: #5bcb60;
+  --color-primary-mid004: #00b878;
+  --color-primary-mid003: #00a289;
+  --color-primary-mid002: #008c8f;
+  --color-primary-mid001: #00748a;
+  --color-primary-dark003: #005d7b;
+  --color-primary-dark002: #114763;
+  --color-primary-dark001: #243247;
+
+  --border-radius-default: 0.5rem;
+
+  --padding-default: 1rem;
+}
+
 .visually-hidden {
   position: absolute;
   overflow: hidden;

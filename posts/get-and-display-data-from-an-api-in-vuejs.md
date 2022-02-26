@@ -1,6 +1,7 @@
 ---
 title: Get and display data from an API in VueJS
 description: A introduction to using Vuejs to get data from and API and display the results in the browser.
+draft: true
 ---
 
 On [MDN Web Docs](https://developer.mozilla.org) our content team manages writing the release notes and API docs for new or changed features in every release of Firefox. While they do their work on [GitHub](https://github.com/mdn), the Firefox team uses [Bugzilla](https://bugzilla.mozilla.org). A colleague of mine, [Ruth John](https://twitter.com/Rumyra), came up with the idea of building a release dashboard from which we can then build all kinds of useful automation.

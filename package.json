@@ -27,7 +27,7 @@
     "autoprefixer": "^10.4.2",
     "cross-env": "^7.0.3",
     "prettier": "^2.5.1",
-    "stylelint": "^14.5.2",
+    "stylelint": "^14.6.0",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-recommended": "^7.0.0",
     "stylelint-prettier": "^2.0.0",

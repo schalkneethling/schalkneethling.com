@@ -69,6 +69,7 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <div className="top-accent-border" />
         <Outlet />
         <ScrollRestoration />
         <Scripts />

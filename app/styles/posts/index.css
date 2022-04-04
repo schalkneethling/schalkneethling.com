@@ -1,4 +1,9 @@
-.standard-layout {
-  margin: 0 auto;
-  max-width: 90em;
+.posts-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.posts-list li {
+  flex-basis: 45%;
 }

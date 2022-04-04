@@ -188,7 +188,7 @@ If you inspect the `h1` you should see that it is using whichever font family an
 
 Ok, let’s dig into some components. Inside the `components` folder go ahead and create a new file called `SiteHeader.vue`. As I am focusing on things relevant to Ourbackyard, I won’t share to much code here as it will probably irrelevant to you. With that said, here is your first opportunity to use one of the Vue snippets if you are using VSCode. With the new file open, type `vbase`. When it is highlighted, hit enter. You should now have code similar to the following:
 
-```vue
+```js
 <template>
   <div></div>
 </template>
@@ -234,7 +234,7 @@ export default {
 
 Next, update the `template` code to the following:
 
-```vue
+```js
 <template>
   <div class="site-wrapper">
     <SiteHeader />
@@ -245,7 +245,7 @@ Next, update the `template` code to the following:
 
 Here is my basic `SiteHeader` component:
 
-```vue
+```js
 <template>
   <header class="site-header">
     <h1 class="logo">
@@ -274,7 +274,7 @@ If your server has been running, it should have reloaded and you should now see 
 
 For the site footer you are going to follow the exact same steps and you should end up with a `template` like this:
 
-```vue
+```js
 <template>
   <div class="site-wrapper">
     <SiteHeader />
@@ -286,7 +286,7 @@ For the site footer you are going to follow the exact same steps and you should 
 
 Sometimes you constrain the maximum width of you `site-wrapper` to say `1400px`(`87.5em`) but, you do not want to constrain the footer. In that case your `template` can look like this:
 
-```vue
+```js
 <template>
   <div class="site-wrapper">
     <SiteHeader />

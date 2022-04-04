@@ -1,0 +1,6 @@
+.top-accent-border {
+  background: transparent url("/assets/top-accent-border.svg") 0 0 no-repeat;
+  background-size: cover;
+  height: 9px;
+  width: 100%;
+}

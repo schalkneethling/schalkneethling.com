@@ -1,8 +1,11 @@
 import path from "path";
 import { promises as fs } from "fs";
-import parseFrontmatter from "front-matter";
+
 import invariant from "tiny-invariant";
 import { marked } from "marked";
+import parseFrontmatter from "front-matter";
+
+import { renderer } from "./renderer";
 
 export type Post = {
   description: string;
@@ -32,6 +35,10 @@ export async function getPost(slug: string) {
     isValidPostAttributes(attributes),
     `Post ${filepath} is missing attributes`
   );
+  marked.use({
+    gfm: true,
+    renderer,
+  });
   const html = marked(body);
   return { slug, html, title: attributes.title };
 }

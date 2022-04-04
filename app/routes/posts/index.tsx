@@ -19,8 +19,8 @@ export default function Posts() {
   const posts = useLoaderData();
   return (
     <div className="standard-layout">
-      <h1>My posts</h1>
-      <ul>
+      <h1>My writing</h1>
+      <ul className="reset-list posts-list">
         {posts.map((post: Post) => (
           <Card type="listItem" key={post.slug}>
             <h3>

@@ -1,3 +1,8 @@
+@import url("./tokens/styleguide.css");
+
+@import url("./atoms/top-accent-border.css");
+@import url("./typography/index.css");
+
 :root {
   /* Color Palette */
   --color-primary-bright003: #e5e528;
@@ -14,6 +19,43 @@
   --border-radius-default: 0.5rem;
 
   --padding-default: 1rem;
+}
+
+body {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--color-neutral50);
+  font: 300 100% / var(--content-line-height) var(--font-family-copy);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: var(--color-neutral900);
+  font-family: var(--font-family-heading);
+}
+
+.standard-layout {
+  margin: 0 auto;
+  max-width: 90em;
+}
+
+.girdle {
+  margin: 0 auto;
+  max-width: var(--max-width);
+}
+
+.max-line-length {
+  max-width: var(--max-line-length-fallback);
+  max-width: 85ch;
+}
+
+.reset-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .visually-hidden {

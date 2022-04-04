@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "Roboto Slab";
+  src: url("../../assets/typography/RobotoSlab-VariableFont_wght.woff2")
+    format("woff2-variations");
+  font-weight: 600 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "MPLUS1";
+  src: url("../../assets/typography/MPLUS1-VariableFont_wght.woff2")
+    format("woff2-variations");
+  font-weight: 100 700;
+  font-style: normal;
+}

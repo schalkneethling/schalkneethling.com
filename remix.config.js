@@ -6,6 +6,7 @@ module.exports = {
   assetsBuildDirectory: "public/build",
   publicPath: "/build/",
   serverBuildDirectory: "netlify/functions/server/build",
+  serverDependenciesToBundle: ["marked"],
   devServerPort: 8002,
-  ignoredRouteFiles: [".*"]
+  ignoredRouteFiles: [".*"],
 };

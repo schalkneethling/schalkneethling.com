@@ -1,5 +1,5 @@
 import path from "path";
-import { promises as fs } from "fs";
+import fs from "fs/promises";
 
 import invariant from "tiny-invariant";
 import { marked } from "marked";

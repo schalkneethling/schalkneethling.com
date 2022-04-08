@@ -17,15 +17,13 @@
   --color-primary-dark001: #243247;
 
   --border-radius-default: 0.5rem;
-
-  --padding-default: 1rem;
 }
 
 body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   background-color: var(--color-neutral50);
-  font: 300 100% / var(--content-line-height) var(--font-family-copy);
+  font: 400 100% / var(--content-line-height) var(--font-family-copy);
 }
 
 h1,
@@ -35,6 +33,10 @@ h4,
 h5 {
   color: var(--color-neutral900);
   font-family: var(--font-family-heading);
+}
+
+p {
+  margin-bottom: var(--spacing-paragraph);
 }
 
 .standard-layout {

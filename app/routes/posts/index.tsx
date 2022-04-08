@@ -18,7 +18,7 @@ export const loader = async () => {
 export default function Posts() {
   const posts = useLoaderData();
   return (
-    <div className="standard-layout">
+    <main className="standard-layout">
       <h1>My writing</h1>
       <ul className="reset-list posts-list">
         {posts.map((post: Post) => (
@@ -30,6 +30,6 @@ export default function Posts() {
           </Card>
         ))}
       </ul>
-    </div>
+    </main>
   );
 }

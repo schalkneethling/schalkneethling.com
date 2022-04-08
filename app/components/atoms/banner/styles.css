@@ -1,0 +1,27 @@
+.announcement-banner {
+  background-color: var(--color-primary900);
+  border-bottom: 3px solid var(--color-accent-primary);
+  color: var(--color-neutral50);
+  padding: var(--padding-default);
+  text-align: center;
+}
+
+.announcement-banner p {
+  margin-bottom: 0;
+}
+
+.announcement-banner a:link {
+  color: var(--color-neutral50);
+  border-bottom: 1px solid var(--color-neutral50);
+  text-decoration: none;
+}
+
+.announcement-banner a:visited {
+  color: var(--color-neutral50);
+  border-bottom-color: var(--color-accent-primary);
+}
+
+.announcement-banner a:hover,
+.announcement-banner a:focus {
+  border-bottom-color: var(--color-primary900);
+}

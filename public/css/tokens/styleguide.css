@@ -1,11 +1,12 @@
 /**
  * Do not edit directly
- * Generated on Sun, 06 Mar 2022 20:26:43 GMT
+ * Generated on Fri, 08 Apr 2022 17:20:56 GMT
  */
 
 :root {
   --max-width: 1440px;
   --max-line-length-fallback: 35em;
+  --padding-default: 1rem;
   --color-primary900: #243247;
   --color-accent-primary: #e5e528;
   --color-neutral900: #212121;
@@ -28,6 +29,7 @@
   --tiny-font-size: 0.75rem; /* font size used for footnotes, etc. */
   --heading-line-height: 1.125;
   --content-line-height: 1.7;
+  --spacing-paragraph: 2rem;
   --font-family-heading: "Roboto Slab", serif;
   --font-family-copy: "MPLUS1", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }

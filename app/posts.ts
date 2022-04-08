@@ -1,11 +1,10 @@
-import path from "path";
 import fs from "fs/promises";
+import path from "path";
 
 import invariant from "tiny-invariant";
-import { marked } from "marked";
 import parseFrontmatter from "front-matter";
 
-import { renderer } from "./renderer";
+import { getContents } from "./content-utils";
 
 export type Post = {
   description: string;
@@ -21,7 +20,7 @@ export type PostMarkdownAttributes = {
 
 const postsPath = path.join(__dirname, "../../../..", "posts");
 
-function isValidPostAttributes(
+export function isValidPostAttributes(
   attributes: any
 ): attributes is PostMarkdownAttributes {
   return attributes?.title && attributes?.description;
@@ -29,18 +28,8 @@ function isValidPostAttributes(
 
 export async function getPost(slug: string) {
   const filepath = path.join(postsPath, `${slug}.md`);
-  const file = await fs.readFile(filepath, "utf8");
-  const { attributes, body } = parseFrontmatter(file.toString());
-  invariant(
-    isValidPostAttributes(attributes),
-    `Post ${filepath} is missing attributes`
-  );
-  marked.use({
-    gfm: true,
-    renderer,
-  });
-  const html = marked(body);
-  return { slug, html, title: attributes.title };
+  const { html, title } = await getContents(filepath);
+  return { slug, html, title };
 }
 
 export async function getPosts() {

@@ -11,6 +11,9 @@
       "attributes": {
         "category": "layout-em"
       }
+    },
+    "padding-default": {
+      "value": "1rem"
     }
   }
 }

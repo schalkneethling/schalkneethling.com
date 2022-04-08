@@ -67,6 +67,11 @@
       "value": 1.7
     }
   },
+  "spacing": {
+    "spacing-paragraph": {
+      "value": "2rem"
+    }
+  },
   "font-family": {
     "font-family-heading": {
       "value": "\"Roboto Slab\", serif"

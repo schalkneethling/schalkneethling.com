@@ -8,6 +8,8 @@ import {
 } from "remix";
 import type { LinksFunction, MetaFunction } from "remix";
 
+import { Banner, links as BannerStyles } from "./components/atoms/banner/";
+
 export const meta: MetaFunction = () => {
   return {
     title: "Scripting on Decaf ~ Schalk Neethling",
@@ -56,6 +58,7 @@ export const links: LinksFunction = () => {
       rel: "stylesheet",
       type: "text/css",
     },
+    ...BannerStyles(),
   ];
 };
 
@@ -69,6 +72,7 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <Banner />
         <div className="top-accent-border" />
         <Outlet />
         <ScrollRestoration />

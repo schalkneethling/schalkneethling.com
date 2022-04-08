@@ -9,6 +9,7 @@
 
 [functions]
   included_files = ["posts/**"]
+  included_files = ["pages/**"]
 
 [[redirects]]
   from = "/*"

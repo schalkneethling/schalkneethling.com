@@ -12,7 +12,8 @@ export default function Index() {
   return (
     <div className="homepage-container">
       <Logo />
-      <Link to="/posts">Posts</Link>
+      <Link to="/pages/about">About Me</Link>
+      <Link to="/posts">My Writing</Link>
     </div>
   );
 }

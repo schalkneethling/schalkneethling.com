@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@netlify/functions": "^0.10.0",
-    "@remix-run/netlify": "^1.4.1",
+    "@remix-run/netlify": "^1.4.3",
     "@remix-run/react": "^1.4.3",
     "@types/marked": "^4.0.3",
     "front-matter": "^4.0.2",

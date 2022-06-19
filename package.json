@@ -19,7 +19,7 @@
     "marked": "^4.0.16",
     "react": "^18.1.0",
     "react-dom": "^18.2.0",
-    "remix": "^1.5.1",
+    "remix": "^1.6.0",
     "tiny-invariant": "^1.2.0"
   },
   "devDependencies": {

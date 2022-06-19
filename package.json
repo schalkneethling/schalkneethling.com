@@ -12,7 +12,7 @@
   "dependencies": {
     "@netlify/functions": "^0.10.0",
     "@remix-run/netlify": "^1.5.1",
-    "@remix-run/react": "^1.5.1",
+    "@remix-run/react": "^1.6.0",
     "@types/marked": "^4.0.3",
     "front-matter": "^4.0.2",
     "highlight.js": "^11.5.1",
@@ -23,18 +23,18 @@
     "tiny-invariant": "^1.2.0"
   },
   "devDependencies": {
-    "@remix-run/dev": "^1.5.1",
+    "@remix-run/dev": "^1.6.0",
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.5",
     "autoprefixer": "^10.4.7",
     "cross-env": "^7.0.3",
-    "prettier": "^2.6.2",
+    "prettier": "^2.7.1",
     "style-dictionary": "^3.7.0",
     "stylelint": "^14.8.5",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-recommended": "^8.0.0",
     "stylelint-prettier": "^2.0.0",
-    "typescript": "^4.7.2"
+    "typescript": "^4.7.4"
   },
   "engines": {
     "node": ">=14"

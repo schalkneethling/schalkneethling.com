@@ -1,4 +1,5 @@
-import { Link, LinksFunction } from "remix";
+import { LinksFunction } from "@remix-run/node";
+import { Link } from "@remix-run/react";
 
 import styles from "./styles.css";
 

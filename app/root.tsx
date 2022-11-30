@@ -5,8 +5,9 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-} from "remix";
-import type { LinksFunction, MetaFunction } from "remix";
+} from "@remix-run/react";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import {ExternalScripts, ExternalScriptsFunction} from "remix-utils";
 
 import { Banner, links as BannerStyles } from "./components/atoms/banner/";
 
@@ -62,6 +63,17 @@ export const links: LinksFunction = () => {
   ];
 };
 
+let scripts: ExternalScriptsFunction = () => {
+  return [
+    {
+      async: true,
+      defer: true,
+      src: "ttps://scripts.simpleanalyticscdn.com/latest.js",
+      crossOrigin: "anonymous",
+    },
+  ];
+};
+
 export default function App() {
   return (
     <html lang="en">
@@ -76,6 +88,7 @@ export default function App() {
         <div className="top-accent-border" />
         <Outlet />
         <ScrollRestoration />
+        <ExternalScripts />
         <Scripts />
         {process.env.NODE_ENV === "development" && <LiveReload />}
       </body>

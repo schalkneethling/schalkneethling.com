@@ -1,4 +1,5 @@
-import { Link, LinksFunction, useLoaderData } from "remix";
+import { LinksFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 
 import { Card, links as CardStyles } from "~/components/organisms/card";
 import { getPosts } from "~/posts";

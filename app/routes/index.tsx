@@ -1,4 +1,5 @@
-import { Link, LinksFunction } from "remix";
+import { LinksFunction } from "@remix-run/node";
+import { Link } from "@remix-run/react";
 
 import { Logo, links as LogoStyles } from "~/components/atoms/logo";
 import styles from "~/styles/index.css";

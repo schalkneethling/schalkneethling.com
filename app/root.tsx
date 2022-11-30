@@ -74,6 +74,8 @@ let scripts: ExternalScriptsFunction = () => {
   ];
 };
 
+export let handle = { scripts };
+
 export default function App() {
   return (
     <html lang="en">

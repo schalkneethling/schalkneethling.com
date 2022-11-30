@@ -68,7 +68,7 @@ let scripts: ExternalScriptsFunction = () => {
     {
       async: true,
       defer: true,
-      src: "ttps://scripts.simpleanalyticscdn.com/latest.js",
+      src: "https://scripts.simpleanalyticscdn.com/latest.js",
       crossOrigin: "anonymous",
     },
   ];

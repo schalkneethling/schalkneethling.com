@@ -13,8 +13,9 @@ export type Post = {
 };
 
 export type PostMarkdownAttributes = {
-  description: string;
   draft?: boolean;
+  tags?: string[];
+  description: string;
   title: string;
 };
 

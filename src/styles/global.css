@@ -87,3 +87,12 @@ h1 {
   padding: 0;
   margin: 0;
 }
+
+html.dark {
+  background-color: #0d0950;
+  color: #fff;
+}
+
+.dark .nav-links a {
+  color: #fff;
+}

@@ -1,0 +1,45 @@
+---
+import Social from "./Social.astro";
+
+const platform = "github";
+const username = "schalkneethling";
+
+const socialLinks = [
+  {
+    baseURL: "https://www.twitter.com/schalkneethling",
+    platform: "Twitter",
+  },
+  {
+    baseURL: "https://www.github.com/schalkneethling",
+    platform: "GitHub",
+  },
+];
+---
+
+<footer>
+  <p>
+    Learn more about my projects and follow me!
+    <ul class="social-links">
+      <li>
+        <Social platform="GitHub" username="schalkneethling" />
+      </li>
+      <li>
+        <Social platform="Twitter" username="schalkneethling" />
+      </li>
+    </ul>
+  </p>
+</footer>
+
+<script>
+  import "../scripts/menu.js";
+</script>
+
+<style>
+  .social-links {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+</style>

@@ -19,3 +19,71 @@ h1 {
   margin: 1rem 0;
   font-size: 2.5rem;
 }
+
+/* nav styles */
+.hamburger {
+  padding-right: 20px;
+  cursor: pointer;
+}
+
+.hamburger .line {
+  display: block;
+  width: 40px;
+  height: 5px;
+  margin-bottom: 10px;
+  background-color: #ff9776;
+}
+
+.nav-links {
+  display: none;
+  gap: 1rem;
+  width: 100%;
+  top: 5rem;
+  left: 48px;
+  background-color: #ff9776;
+  margin: 0;
+}
+
+.nav-links a {
+  display: block;
+  text-align: center;
+  padding: 10px 0;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.nav-links a:hover,
+.nav-links a:focus {
+  background-color: #ff9776;
+}
+
+.expanded {
+  display: flex;
+}
+
+@media screen and (min-width: 636px) {
+  .nav-links {
+    display: flex;
+    margin-left: 5em;
+    position: static;
+    width: auto;
+    background: none;
+  }
+
+  .nav-links a {
+    display: inline-block;
+    padding: 15px 20px;
+  }
+
+  .hamburger {
+    display: none;
+  }
+}
+
+.reset-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}

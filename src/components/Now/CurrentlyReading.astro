@@ -1,0 +1,39 @@
+---
+import { Picture } from "astro:assets";
+import bookCover from "@assets/now/subtract-book-cover.jpg";
+---
+
+<h3>What I am reading</h3>
+<section class="currently-reading">
+  <div class="book-details">
+    <hgroup class="book-title-author">
+      <h3>Subtract: The Untapped Science of Less</h3>
+      <p>Author: Leidy Klotz</p>
+    </hgroup>
+    <h4>Book excerpt from Subtract</h4>
+    <blockquote class="extract">
+      We pile on “to-dos” but don’t consider “stop-doings.” We create incentives
+      for good behavior, but don’t get rid of obstacles to it. We collect
+      new-and-improved ideas, but don’t prune the outdated ones. Every day,
+      across challenges big and small, we neglect a basic way to make things
+      better: we don’t subtract. Leidy Klotz’s pioneering research shows us what
+      is true whether we’re building Lego models, cities, grilled-cheese
+      sandwiches, or strategic plans: Our minds tend to add before taking away,
+      and this is holding us back.
+    </blockquote>
+    <a href="https://us.macmillan.com/books/9781250249937/subtract"
+      >Interested? Learn more about Subtract.</a
+    >
+  </div>
+  <div class="book-cover">
+    <Picture
+      class="book-cover"
+      widths={[158, 355, 493]}
+      width="493"
+      sizes={`(max-width: 360px) 158px, (max-width: 720px) 355px, (max-width: 1600px) 493px`}
+      formats={["avif", "webp"]}
+      src={bookCover}
+      alt=""
+    />
+  </div>
+</section>

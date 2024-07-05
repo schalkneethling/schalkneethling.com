@@ -1,0 +1,9 @@
+---
+import BlogPost from "./BlogPost.astro";
+
+const { posts } = Astro.props;
+---
+
+<ul>
+  {posts.map((post) => <BlogPost frontMatter={post.frontmatter} post={post} />)}
+</ul>

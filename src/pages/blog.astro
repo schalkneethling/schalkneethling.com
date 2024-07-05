@@ -1,18 +1,63 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import BlogPost from "../components/BlogPost.astro";
+import Tags from "@components/Tags.astro";
+import Posts from "@components/Posts.astro";
 
-const allPosts = await Astro.glob("../pages/posts/*.md");
-const pageTitle = "My Astro Learning Blog";
+const pageTitle = "My thoughts, ideas, experiences, and ramblings";
+
+const posts = await Astro.glob("../pages/posts/*.{md,mdx}");
+const tags = [...new Set(posts.map((post) => post.frontmatter.tags).flat())];
 ---
 
 <BaseLayout pageTitle={pageTitle}>
-  <p>This is where I will post about my journey learning Astro.</p>
-  <ul>
-    {
-      allPosts.map((post) => (
-        <BlogPost url={post.url} title={post.frontmatter.title} />
-      ))
-    }
-  </ul>
+  <main class="main-content" id="main-content">
+    <h1>{pageTitle}</h1>
+    <p>
+      My writing on this website will span many different topics, ranging from
+      web standards, tutorials, mental health, thoughts and ideas, and general
+      musings. While the bulk of my writing will be technical in nature it will
+      vary from long form to short form and sometimes include video and audio.
+      Some content will be beginner-friendly, while other pieces will be geared
+      towards those who have been building for the web for some time.
+    </p>
+    <p>
+      On the last point, please note that I might occasionally misjudge the
+      experience level required for certain content. If you find something where
+      you believe I've got it wrong, <a
+        href="https://github.com/schalkneethling/schalkneethling.com/issues"
+        >please let me know on GitHub</a
+      >, and I would be happy to correct it.
+    </p>
+    <p>
+      To help you find the content you're interested in, I offer different ways
+      to browse my writing. Below, you'll find a list of tags to filter content
+      by topic. Additionally, all my writing is listed chronologically, allowing
+      you to scroll through or use your browser's find-in-page functionality to
+      locate something specific.
+    </p>
+    <p>
+      As with most things, this website will evolve and improve over time based
+      on the time I have to work on it and your feedback and suggestions.
+    </p>
+    <p>
+      One of the first features I want to add is the ability to search for
+      content across the blog. I believe a well-implemented search feature is
+      one of the most powerful navigational tools, enhancing usability and
+      accessibility. I plan to experiment with different implementations, and
+      once available, I would appreciate your feedback on the search results to
+      ensure the best possible experience.
+    </p>
+    <p>I hope you find value in the writing you discover here.</p>
+
+    <section aria-labelledby="tags-section">
+      <h2 id="tags-section">Browse posts by tags</h2>
+      <Tags tags={tags} />
+    </section>
+
+    <section aria-labelledby="chronological">
+      <h2 id="chronological">Browse all posts</h2>
+      <Posts posts={posts} />
+    </section>
+  </main>
 </BaseLayout>

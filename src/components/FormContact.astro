@@ -1,0 +1,23 @@
+<form name="contact" action="/" method="post">
+  <fieldset>
+    <legend>Send me your details and I will be in touch</legend>
+    <div class="form-element-group">
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name" required />
+    </div>
+    <div class="form-element-group">
+      <label for="email">Email address</label>
+      <input type="email" name="email" id="email" required />
+      <p class="help-text">
+        Your email is not stored and never shared. I need your email so I can
+        get back to you.
+      </p>
+    </div>
+    <div class="form-element-group">
+      <label for="message">How can I help?</label>
+      <textarea cols="60" rows="10" name="message" id="message" required
+      ></textarea>
+    </div>
+  </fieldset>
+  <button class="button button-primary" type="submit">Send your message</button>
+</form>

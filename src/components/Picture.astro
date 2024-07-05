@@ -1,0 +1,32 @@
+---
+interface Props {
+  alt?: string;
+  cssClass: string;
+  loading?: "lazy" | "eager";
+  pictureSrc: string;
+  width: number;
+  height: number;
+}
+
+const {
+  alt = "",
+  cssClass,
+  loading = "lazy",
+  pictureSrc,
+  width,
+  height,
+} = Astro.props;
+---
+
+<picture>
+  <source srcset={`${pictureSrc}@2x.avif`} type="image/avif" />
+  <source srcset={`${pictureSrc}@2x.webp`} type="image/webp" />
+  <img
+    alt={alt}
+    class={cssClass}
+    width={width}
+    height={height}
+    src={`${pictureSrc}.png`}
+    loading={loading}
+  />
+</picture>

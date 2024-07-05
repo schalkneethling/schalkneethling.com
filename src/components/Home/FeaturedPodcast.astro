@@ -1,0 +1,24 @@
+---
+interface Props {
+  featuredEpisode: {
+    description: string;
+    guest: string;
+    linkLabel: string;
+    title: string;
+    url: string;
+  };
+}
+
+const { featuredEpisode } = Astro.props;
+---
+
+<section>
+  <hgroup>
+    <h2 class="gradient-text episode-title">{featuredEpisode.title}</h2>
+    <p class="episode-guest">{featuredEpisode.guest}</p>
+  </hgroup>
+  <p class="episode-description">{featuredEpisode.description}</p>
+  <a class="button primary-button" href={featuredEpisode.url}
+    >{featuredEpisode.linkLabel}</a
+  >
+</section>

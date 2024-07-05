@@ -1,9 +1,14 @@
 import { defineConfig } from "astro/config";
 
-import preact from "@astrojs/preact";
+import mdx from "@astrojs/mdx";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://astros-blog.netlify.app/",
-  integrations: [preact()]
+  site: "https://schalkneethling.com/",
+  integrations: [
+    mdx({
+      syntaxHighlight: "shiki",
+      shikiConfig: { theme: "dracula" },
+    }),
+  ],
 });

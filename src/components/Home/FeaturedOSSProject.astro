@@ -1,0 +1,19 @@
+---
+interface Props {
+  project: {
+    name: string;
+    description: string;
+    url: string;
+  };
+}
+
+const { project } = Astro.props;
+---
+
+<div class="project-card">
+  <h3 class="project-name">{project.name}</h3>
+  <p>
+    {project.description}
+  </p>
+  <a href={project.url}>Learn how you can support {project.name} »</a>
+</div>

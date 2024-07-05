@@ -1,11 +1,114 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Greeting from "../components/Greeting";
 
-const pageTitle = "Home Page";
+import AreaOfInterestCard from "../components/Home/AreaOfInterestCard.astro";
+import FeaturedPodcast from "../components/Home/FeaturedPodcast.astro";
+import CommunityFeature from "../components/Home/CommunityFeature.astro";
+import HomepageHero from "../components/Home/HomepageHero.astro";
+import TheCollective from "../components/Home/TheCollective.astro";
+
+const frontendEngineer = [
+  {
+    icon: "github",
+    title: "Collaborate on GitHub",
+    url: "https://github.com/schalkneethling",
+    description:
+      "Let’s create, sustain, and collaborate on open-source together.",
+  },
+  {
+    icon: "book",
+    title: "HTML: A Comprehensive Guide",
+    url: "https://schalkneethling.github.io/html-comprehensive-guide/",
+    description:
+      "A book about HTML, written in public, and released as open source.",
+  },
+  {
+    icon: "pencil",
+    title: "Blog: Scripting on Caffeine",
+    url: "https://schalkneethling.com/blog",
+    description:
+      "My blog serves as a comprehensive guide to navigating the ever-evolving landscape of accessible, standards-based frontend web development.",
+  },
+];
+export const podcaster = [
+  {
+    icon: "microphone",
+    title: "The Mechanical Ink podcast",
+    url: "https://schalkneethling.substack.com/s/mechanical-ink-podcast",
+    description:
+      "Conversations about open source, the open web, and those who want to make the web and the world, a better place.",
+  },
+  {
+    icon: "microphone",
+    title: "Mental Health in Tech",
+    url: "https://schalkneethling.substack.com/s/mental-health-in-tech",
+    description: "Honest conversations about difficult topics.",
+  },
+  {
+    icon: "microphone",
+    title: "The Mycelium Network podcast",
+    url: "https://schalkneethling.substack.com/s/the-mycelium-network-podcast",
+    description:
+      "A podcast with and for junior web developers. Share your story, share your dreams.",
+  },
+];
+export const openSource = [
+  {
+    icon: "heart",
+    title: "Qilin",
+    url: "https://github.com/schalkneethling/qilin-open-source-project-starter-template",
+    description: "A starter template for open source projects.",
+  },
+  {
+    icon: "heart",
+    title: "Developer Toolchest",
+    url: "https://github.com/schalkneethling/developer-toolchest",
+    description: "Collect all your tools. Tag, filter, find, and use.",
+  },
+  {
+    icon: "heart",
+    title: "minimalist",
+    url: "https://github.com/schalkneethling/minimalist",
+    description: "Minimal pure CSS framework for web projects.",
+  },
+  {
+    icon: "heart",
+    title: "Fiori",
+    url: "https://github.com/schalkneethling/common-components",
+    description:
+      "A collection of commonly used components as either HTML or Web Components",
+  },
+  {
+    icon: "heart",
+    title: "IndieCaster",
+    url: "https://github.com/mechanical-ink/indiecaster-core",
+    description: "A complete website toolkit for Indie podcasters.",
+  },
+];
+const featuredEpisode = {
+  description:
+    "In this episode of the Mechanical Ink podcast, Schalk Neethling sits down with Daniel Beck, a documentation engineer writer based in Amsterdam. Daniel discusses his extensive career in software documentation, emphasizing the importance of understanding the audience and balancing quality content with effective tooling. He elaborates on the challenges of identifying with job titles such as writer, engineer, or documentation engineer, and reflects on his experiences working on MDN Web Docs. The conversation explores the intricacies of contributing to open-source projects, highlighting the need for soft skills.",
+  guest: "Daniel Beck",
+  linkLabel: "Listen to the episode",
+  title: "Job Titles, Documentation Engineering, Baseline and Web Features",
+  url: "https://schalkneethling.substack.com/p/job-titles-documentation-engineering",
+};
+const pageTitle = "Scripting on Caffeine";
 ---
 
 <BaseLayout pageTitle={pageTitle}>
-  <h2>My awesome blog subtitle</h2>
-  <Greeting client:load messages={["Hej", "Hallo", "Hola", "Habari"]} />
+  <HomepageHero />
+  <main class="main-content" id="main-content">
+    <section aria-label="Areas of Interest" class="areas-of-interest-container">
+      <AreaOfInterestCard title="Frontend Engineer" topics={frontendEngineer} />
+      <AreaOfInterestCard title="Podcaster" topics={podcaster} />
+      <AreaOfInterestCard title="Open Source" topics={openSource} />
+    </section>
+
+    <FeaturedPodcast featuredEpisode={featuredEpisode} />
+
+    <CommunityFeature />
+
+    <TheCollective />
+  </main>
 </BaseLayout>

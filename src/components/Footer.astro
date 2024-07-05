@@ -1,45 +1,50 @@
 ---
 import Social from "./Social.astro";
 
-const platform = "github";
-const username = "schalkneethling";
-
 const socialLinks = [
   {
-    baseURL: "https://www.twitter.com/schalkneethling",
-    platform: "Twitter",
+    linkLabel: "Collaborate with me on GitHub",
+    url: "https://github.com/schalkneethling",
   },
   {
-    baseURL: "https://www.github.com/schalkneethling",
-    platform: "GitHub",
+    linkLabel: "Learn with me on YouTube",
+    url: "https://www.youtube.com/channel/UCaIC2hpfo9av8-R7g9qE2sw",
+  },
+  {
+    linkLabel: "Let's chat on Mastodon (Hachyderm)",
+    url: "https://hachyderm.io/@schalkneethling",
+  },
+  {
+    linkLabel: "Get the newsletters on Substack",
+    url: "https://schalkneethling.substack.com/",
+  },
+  {
+    linkLabel: "Connect with me on LinkedIn",
+    url: "https://www.linkedin.com/in/schalkneethling/",
+  },
+  {
+    linkLabel: "Still on Twitter? Let's connect!",
+    url: "https://x.com/schalkneethling",
   },
 ];
 ---
 
-<footer>
-  <p>
-    Learn more about my projects and follow me!
-    <ul class="social-links">
-      <li>
-        <Social platform="GitHub" username="schalkneethling" />
-      </li>
-      <li>
-        <Social platform="Twitter" username="schalkneethling" />
-      </li>
+<footer class="page-footer">
+  <nav aria-label="Social links">
+    <ul>
+      {
+        socialLinks.map((link) => (
+          <li>
+            <Social {...link} />
+          </li>
+        ))
+      }
     </ul>
+  </nav>
+  <p>
+    Thanks to <a href="https://www.opendoodles.com/"
+      >Open Doodles for the great graphics</a
+    >. Ain’t open-source great?!
   </p>
+  <p>Copyright © {new Date().getFullYear()} - Schalk Neethling</p>
 </footer>
-
-<script>
-  import "../scripts/menu.js";
-</script>
-
-<style>
-  .social-links {
-    display: flex;
-    gap: 1rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-</style>

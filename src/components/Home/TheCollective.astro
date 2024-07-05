@@ -1,0 +1,31 @@
+---
+import FeaturedOSSProject from "./FeaturedOSSProject.astro";
+
+const project = {
+  name: "Astro",
+  description:
+    "The web framework for content-driven websites. Astro powers the world's fastest websites, client-side web apps, dynamic API endpoints, and everything in-between.",
+  url: "https://astro.build",
+};
+---
+
+<section>
+  <h2 class="gradient-text collective-title">The Collective</h2>
+  <p>
+    There are many ways to support the sustainability of open-source and the
+    people and communities that maintain it. One way is through financial
+    sponsorship. Each month I will feature a different project I rely on and
+    encourage you to support it or use this as inspiration to find and support
+    the projects you rely on.
+  </p>
+  <p>
+    If you run a business, it makes business sense to sponsor the project to
+    ensure it remains healthy and actively maintained for years to come. If you
+    are an individual, you can of course still contribute financially, but you
+    can also show your support by talking about the project, writing blog posts,
+    making videos, and writing tutorials. If you are in a position to do so,
+    consider suggesting to your employer to financially support the project.
+  </p>
+
+  <FeaturedOSSProject project={project} />
+</section>

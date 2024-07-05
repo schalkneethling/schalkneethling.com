@@ -1,0 +1,124 @@
+---
+import CurrentlyLearning from "@components/Now/CurrentlyLearning.astro";
+import CurrentlyReading from "../components/Now/CurrentlyReading.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { openSource, podcaster } from "./index.astro";
+
+const pageTitle = "What I'm doing now";
+---
+
+<BaseLayout pageTitle={pageTitle}>
+  <main class="main-content" id="main-content">
+    <h1>What I'm doing now</h1>
+
+    <p>
+      I live in <a href="https://www.openstreetmap.org/relation/594484"
+        >Pretoria, South Africa</a
+      > with my wife, three kids, five dogs and three cats. Like some folks at work
+      said, at this point the pets have us. 😃
+    </p>
+
+    <p>
+      I am also <a
+        href="https://schalkneethling.github.io/html-comprehensive-guide/"
+        >writing a book on HTML called HTML, a comprehensive guide</a
+      >. <a href="https://github.com/schalkneethling/html-comprehensive-guide"
+        >It is written in the open, available as open source</a
+      > and your feedback is welcomed and encouraged. I write the book by <a
+        href="https://html.spec.whatwg.org/#toc-semantics"
+        >reading the HTML specification</a
+      > and other resources such as <a
+        href="https://developer.mozilla.org/en-US/docs/web/html">MDN Web Docs</a
+      >, and have a core focus on teaching you how to use HTML to make more
+      semantic and accessible web experiences.
+    </p>
+
+    <h2>Work</h2>
+    <p>
+      Starting on 21 May 2024, I am a senior frontend engineer at <a
+        href="https://factorial.io">Factorial Gmbh</a
+      >. More than an agency we develop customer experiences with a focus on web
+      accessibility, the open web platform, privacy, ethical tech, and open
+      source.
+    </p>
+
+    <h3>My current focus areas</h3>
+    <p>
+      For the longest time I was running around chasing my own tail trying to
+      keep up with everything and constantly suffering from the fear of missing
+      out (FOMO). For me, this has not been a very successful way to try and
+      manage my time and energy. It took me some time, critical thinking and
+      being brutally honest with myself, but in the end I do believe that
+      focused attention will be more effective than what I have doing for the
+      past year.
+    </p>
+    <p>
+      For the coming year my primary focus will be on my work at Factorial. In
+      support of this I am refining my overall focus to the following areas:
+    </p>
+
+    <ul>
+      <li>HTML</li>
+      <li>CSS</li>
+      <li>JavaScript</li>
+      <li>Web APIs</li>
+    </ul>
+
+    <p>
+      When learning, writing about, and expanding my knowledge of these areas my
+      focus will be on web accessibility, performance, and the effective use of
+      web components. Unless I am guest posting, all my writing will happen on
+      this blog. On the open source side I will be focusing on completing my
+      book on HTML, finishing the first version of the CSS library minimalist,
+      and iteratively improving the Developer Toolchest.
+    </p>
+
+    <p>
+      The only other project I will be spening time on will be the Ctrl+C
+      non-profit project I am starting with some friends. All the podcasts and
+      the Mycelium Network community will now be co-managed by all of us under
+      the Ctrl+C non-profit. I am excited to see how the next year (starting on
+      23 June 2024) will play out with this renewed focus.
+    </p>
+
+    <CurrentlyReading />
+
+    <CurrentlyLearning />
+
+    <h3>My open source projects</h3>
+    <ul>
+      {
+        openSource.map((topic) => (
+          <li>
+            <h3 class={`topic-icon icon-${topic.icon}`}>
+              <a href={topic.url}>{topic.title}</a>
+            </h3>
+            <p>{topic.description}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <h4>I also make podcasts</h4>
+    <ul>
+      {
+        podcaster.map((podcast) => (
+          <li>
+            <h3 class={`icon icon-${podcast.icon}`}>
+              <a href={podcast.url}>{podcast.title}</a>
+            </h3>
+            <p>{podcast.description}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p>
+      What now? Go <a href="https://sive.rs/nowff"
+        >read about the origin of the <code>/now</code> page movement</a
+      >, <a href="https://nownownow.com/"
+        >discover some other great pages on nownownow.com</a
+      >, and create your own.
+    </p>
+  </main>
+</BaseLayout>

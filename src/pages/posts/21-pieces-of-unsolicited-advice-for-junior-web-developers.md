@@ -44,7 +44,6 @@ I hope you found at least some of these unsolicited pieces of advice helpful. If
 ### Communities
 
 - [VirtualCoffee](https://virtualcoffee.io/) founded and run by @bekahhw
-- [Codenewbies](https://twitter.com/CodeNewbies)
 - [CHAOSS Community](https://chaoss.community/)
 - The Mycelium Network ([Slack](https://join.slack.com/t/mechanical-ink-group/shared_invite/zt-22yg9uryr-YiNd2tO1E5qrckQldruWsw), [Discord](https://discord.gg/hXdd2MFdGm)) founded and run by yours truly aka me 🙈
 - [freeCodeCamp on Discord](https://discord.gg/freecodecamp)

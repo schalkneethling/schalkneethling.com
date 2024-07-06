@@ -229,7 +229,7 @@ Issue opened by: schalkneethling
 Total open issues: 3
 ```
 
-I will leave it up to you to add an additional handler for another event that happens on your repository. I would love to see what you come up with. You can Tweet me at [@schalkneethling](https://twitter.com/schalkneethling).
+I will leave it up to you to add an additional handler for another event that happens on your repository. I would love to see what you come up with.
 
 ## Other methods on `EventEmitter`
 

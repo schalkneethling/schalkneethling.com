@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/MarkdownPostLayout.astro
 title: Watched It - The Good, The Bad, and The Web Components - Zach Leatherman
-pubDate: 2024-07-08
+pubDate: 2024-07-31
 description: "My takeaways from Zach Leatherman's talk on web components at the 2023 JSHeroes conference."
 author: "Schalk Neethling"
 tags: ["watched-it", "web-components"]

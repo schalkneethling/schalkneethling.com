@@ -2,7 +2,7 @@
 layout: ../../layouts/MarkdownPostLayout.astro
 title: When Claude does not get your git
 pubDate: 2024-07-08
-description: "Perhaps it is the social bubble I find myself in, but it seems there is a lot of talk about gatekeeping happening at the moment. While the bubble metaphor does not quite work for what will follow, I do not have a better one, so humor me."
+description: "Why you should be careful copying and pasting proposed solutions from LLMs."
 author: "Schalk Neethling"
 tags: ["git"]
 ---

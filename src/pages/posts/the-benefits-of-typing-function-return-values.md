@@ -51,7 +51,7 @@ function getUserStatus(lastLogin: Date): "active" | "inactive" | "dormant" {
 }
 ```
 
-If you enter this code into the TypeScript Playground, you will immediately be presented with an error:
+If you [enter this code into the TypeScript Playground](https://www.typescriptlang.org/play/#code/GYVwdgxgLglg9mABAcwKZQKoGdUCcDKUAhlCFgBQA2RWUAMnMjGAFyIAiJqAlGwERFoMAG6o+iAD6I+zQbFHipfACZxcAWyJgo4gN4AoRIggJaiZUQCeWfMwioGTJAF5DRxOU5RUAOjBwAd3JuRABaRGpaR2YfNCgAFRh1VGCQgHoPAEYABlzEACpEADZsguLSwoAmABZuAG59NxhgDwtrW0gHRmZEAB5EAHYQg3dEXHQQXCQBIQUGowBfRqNm1qsbOy6nPsQAZmzhtyNx0inpWVmxecQlhaA), you will immediately be presented with an error:
 
 > Function lacks ending return statement and return type does not include 'undefined'.
 

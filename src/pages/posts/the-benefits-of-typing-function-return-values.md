@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/MarkdownPostLayout.astro
 title: "Raise The Red Flag Early: The Power of Explicit Return Types in TypeScript"
-pubDate: 2022-06-01
+pubDate: 2024-12-10
 description: Learn how explicit return types in TypeScript can help you catch potential bugs early, improve code reliability, and create more predictable and maintainable TypeScript applications.
 author: "Schalk Neethling"
 tags: ["typescript"]

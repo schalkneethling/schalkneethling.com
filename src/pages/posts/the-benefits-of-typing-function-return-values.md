@@ -84,6 +84,20 @@ The benefits are immediate and powerful:
 
 3. **Improved Code Readability**: Explicit return types serve as documentation. They clearly communicate what a function is expected to return.
 
+### Update: 11 December 2024
+
+A reader ([Pierre Spring](https://hachyderm.io/@caillou@fosstodon.org)) [reminded me on Mastodon](https://hachyderm.io/@caillou@fosstodon.org/113633302092394767) that you can configure TypeScript to prevent you from not defining a return. You can do this by setting the `noImplicitReturns` flag to `true` in your `tsconfig.json` file.
+
+```json
+{
+  "compilerOptions": {
+    "noImplicitReturns": true
+  }
+}
+```
+
+Learn more about this flag in the [TypeScript documentation](https://www.typescriptlang.org/tsconfig/#noImplicitReturns).
+
 ## Credit Where It's Due
 
 This approach was inspired by a lesson from [Mike North's TypeScript course on Frontend Masters](https://frontendmasters.com/courses/typescript-v4/). It's a testament to how small, intentional typing choices can significantly improve code quality and usability.

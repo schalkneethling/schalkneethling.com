@@ -1,6 +1,5 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import BlogPost from "../components/BlogPost.astro";
 import Tags from "@components/Tags.astro";
 import Posts from "@components/Posts.astro";
 
@@ -8,6 +7,11 @@ const pageTitle = "My thoughts, ideas, experiences, and ramblings";
 
 const posts = await Astro.glob("../pages/posts/*.{md,mdx}");
 const tags = [...new Set(posts.map((post) => post.frontmatter.tags).flat())];
+const sortedPosts = posts.toSorted(
+  (a, b) =>
+    new Date(b.frontmatter.pubDate).getTime() -
+    new Date(a.frontmatter.pubDate).getTime()
+);
 ---
 
 <BaseLayout pageTitle={pageTitle}>
@@ -57,7 +61,7 @@ const tags = [...new Set(posts.map((post) => post.frontmatter.tags).flat())];
 
     <section aria-labelledby="chronological">
       <h2 id="chronological">Browse all posts</h2>
-      <Posts posts={posts} />
+      <Posts posts={sortedPosts} />
     </section>
   </main>
 </BaseLayout>

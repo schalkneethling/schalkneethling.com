@@ -1,5 +1,7 @@
 # My Musings and Writing - schalkneethling.com
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/ab99bc54-9a7a-4cdc-8907-c8105deb01bd/deploy-status)](https://app.netlify.com/sites/schalkneethling-com/deploys)
+
 This is the code for my personal blog where I write about my thoughts, experiences, and learnings. I use this blog as a way to document my journey and share my knowledge with others.
 
 ## 🧞 Commands

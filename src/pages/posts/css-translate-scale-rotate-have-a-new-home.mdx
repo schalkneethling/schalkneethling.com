@@ -1,0 +1,166 @@
+---
+layout: ../../layouts/MarkdownPostLayout.astro
+title: CSS translate, scale, and rotate have a new home and it’s splendid! Come on in.
+pubDate: 2024-12-17
+description: "Unlock simpler web development with CSS's new individual transform properties—cleaner syntax, more intuitive styling, and delightful animations."
+author: "Schalk Neethling"
+tags: ["css"]
+---
+
+import { BaselineStatus } from 'astro-embed';
+
+As web developers, we're always excited when a specification evolves to make our lives easier. Today, I want to share a change in CSS that simplifies how we handle element transformations—the new rotate, scale, and translate properties.
+
+## The Classical Way: Transform Function Gymnastics
+
+Traditionally, we've been wrestling with [the CSS `transform` property](https://developer.mozilla.org/en-US/docs/Web/CSS/transform), combining multiple functions into a single line:
+
+```css
+svg {
+  transform: rotate(180deg) scale(0.5) translate(0, 25rem);
+  transform-origin: 50%;
+}
+```
+
+This approach always felt a bit clunky. You're juggling multiple functions, have to remember whether values are space or comma-separated and then there is the fun with getting [`transform-origin` just right](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin).
+
+<details>
+  <summary>Demo: Simple classical transform</summary>
+  <p class="codepen" data-height="300" data-default-tab="html,result" data-slug-hash="OPLMqZK" data-pen-title="PeekFox - Old School transform" data-user="schalkneethling" style="height: 450px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
+    <span>See the Pen <a href="https://codepen.io/schalkneethling/pen/OPLMqZK">
+    PeekFox - Old School transform</a> by Schalk Neethling (<a href="https://codepen.io/schalkneethling">@schalkneethling</a>)
+    on <a href="https://codepen.io">CodePen</a>.</span>
+  </p>
+</details>
+
+
+## A New Transformed Fox: Individual Transformation Properties
+
+Since being introduced in August 2022, we can now use `translate`, `scale`, and `rotate` as standalone properties, which feels nice and cozy and generally more intuitive:
+
+### Baseline Support Status for Individual Transformation Properties
+
+<BaselineStatus id="individual-transforms" />
+
+```css
+svg {
+  rotate: 180deg;
+  scale: 0.5;
+  translate: 0 25rem;
+}
+```
+
+### A Delightful Side Effect: Predictable Transform Origin
+
+What's fascinating is how these new properties handle `transform-origin`. When I first tried them out to make the demo below, it felt like `transform-origin` was doing what I expected out of the box. A delightful surprise!
+
+I decided to peek under the hood using the browser's developer tools and discovered that the browser now sets the `transform-origin` based on the inline (width) and block (height) size of the element. In other words, for the little fox, the `transform-origin` matches its intrinsic size:
+
+```css
+transform-origin: 302.383px 320px;
+```
+
+If _you_ want to inspect this, ensure you target the SVG element, switch to the Computed pane in the Elements panel, and check the Show All checkbox. You can then filter the list down to `transform-origin`.
+
+## Animation: The Peek Fox Demo
+
+Let's bring this to life with an animated example I'm calling "Peek Fox". We'll use the SVG Fox, and create a playful sliding animation.
+
+### Using @keyframes
+
+First, an approach that might be familiar to you, `@keyframes`:
+
+#### Baseline Support Status for keyframes
+
+<BaselineStatus id="animations-css" />
+
+```css
+svg {
+  block-size: 40rem;
+  inline-size: auto;
+
+  rotate: 180deg;
+  scale: 0.5;
+
+  animation: peek 1s forwards;
+}
+
+@keyframes peek {
+  from {
+    translate: 0 -40rem;
+  }
+
+  to {
+    translate: 0 -12.5rem;
+  }
+}
+```
+
+<details>
+  <summary>Demo: Peek Fox with @keyframes</summary>  
+  <p class="codepen" data-height="300" data-default-tab="html,result" data-slug-hash="NPKdQzm" data-pen-title="PeekFox - Gotta keep em separated and animated" data-user="schalkneethling" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
+    <span>See the Pen <a href="https://codepen.io/schalkneethling/pen/NPKdQzm">
+    PeekFox - Gotta keep em separated and animated</a> by Schalk Neethling (<a href="https://codepen.io/schalkneethling">@schalkneethling</a>)
+    on <a href="https://codepen.io">CodePen</a>.</span>
+  </p>
+</details>
+
+
+### Enter @starting-style: Simplifying Animations
+
+But wait, there's more! 🙃 CSS is constantly evolving. We are in a time where all the amazing specification authors, people dreaming up and proposing new features for CSS, and the amazing browser engineers bringing it all to life are spoiling front-end web developers.
+
+#### Baseline Support Status for keyframes
+
+<BaselineStatus id="starting-style" />
+
+One of these new features that has been added to CSS is `@starting-style`. If we switch to using `@starting-style` instead of `@keyframes`, just look at how expressive our CSS is and we get the exact same end result.
+
+```css
+svg {
+  block-size: 40rem;
+  inline-size: auto;
+
+  rotate: 180deg;
+  scale: 0.5;
+
+  translate: 0 -12.5rem;
+  transition: translate 1s;
+
+  @starting-style {
+    translate: 0 -40rem;
+  }
+}
+```
+
+<details>
+  <summary>Demo: Peek Fox with @starting-style</summary>  
+  <p class="codepen" data-height="300" data-default-tab="html,result" data-slug-hash="ZYzLgjb" data-pen-title="PeekFox - with @starting-style" data-user="schalkneethling" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
+    <span>See the Pen <a href="https://codepen.io/schalkneethling/pen/ZYzLgjb">
+    PeekFox - with @starting-style</a> by Schalk Neethling (<a href="https://codepen.io/schalkneethling">@schalkneethling</a>)
+    on <a href="https://codepen.io">CodePen</a>.</span>
+  </p>
+</details>
+
+## Why This Matters
+
+1. **Readability**: Each transformation is now its own property, making the code more readable.
+2. **Predictability**: More intuitive transform-origin behavior.
+3. **Flexibility**: Easier to animate and modify individual transformations.
+4. **Concise and Expressive:** Which of these code examples would you rather write?
+
+## Conclusion
+
+CSS continues to evolve, making our styling more intuitive and powerful. These new transformation properties are a testament to the web platform's commitment to developer experience and great user experiences.
+
+Happy coding, and may your transforms be smooth and your fox animations delightful! 🦊✨
+
+### Further Reading
+
+- [The `rotate` property on MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/rotate)
+- [The `scale` property on MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/scale)
+- [The `translate` property on MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/translate)
+- [Learn more about `@keyframes` on MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/@keyframes)
+- [Learn more about `@starting-style` on MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/@starting-style)
+
+<script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>

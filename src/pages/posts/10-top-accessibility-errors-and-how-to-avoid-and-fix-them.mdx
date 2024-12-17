@@ -40,7 +40,7 @@ You might have seen code like this. We use an anchor link with a `mailto` and th
 
 > **Note:** You can get into the same problem when using a `button` element and the solutions are the same. To not make this post longer than it already is, I will not dig into the details, but feel free to ask me for more information in the comments.
 
-<Video videoSrc="a11y-10/svg-no-link-text.mp4" width="600" />
+<Video videoSrc="a11y-10/svg-no-link-text-optim.mp4" width="600" />
 
 The screen reader user therefore has no idea what this link will do if they trigger it. With the SVG nested in the HTML, we can use the `title` SVG element to fix the problem.
 
@@ -114,7 +114,7 @@ It is very easy to fix though.
 
 The video below walks through this as well.
 
-<Video videoSrc="a11y-10/a11y-link-text.mp4" width="600" />
+<Video videoSrc="a11y-10/a11y-link-text-optim.mp4" width="600" />
 
 ## Positive `tab-index` and non-interactive elements in the tab order
 
@@ -203,7 +203,7 @@ The labels here refer to the labels used with form elements. While it is critica
 <input type="email" name="email" id="email" />
 ```
 
-<Video videoSrc="a11y-10/form-elements-no-for.mp4" width="600" />
+<Video videoSrc="a11y-10/form-elements-no-for-optim.mp4" width="600" />
 
 **Please, please** ensure that you _always_ provide unique, clear label text, associated with the relevant input. What do I mean by associating a label with an input? This is achieved by a combination of the `for` attribute on the `label` element and an associated `id` attribute on the form element.
 

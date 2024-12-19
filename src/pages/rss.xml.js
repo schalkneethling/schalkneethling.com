@@ -1,6 +1,8 @@
 import rss, { pagesGlobToRssItems } from "@astrojs/rss";
 
-const defaultSort = await pagesGlobToRssItems(import.meta.glob("./**/*.md"));
+const defaultSort = await pagesGlobToRssItems(
+  import.meta.glob("./**/*.{md,mdx}")
+);
 const sortedPosts = defaultSort.toSorted(
   (a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
 );

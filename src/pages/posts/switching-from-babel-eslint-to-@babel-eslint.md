@@ -4,7 +4,7 @@ title: Switching from babel-eslint to @babel-eslint
 pubDate: 2022-06-01
 description: There are a couple of steps to take when switching from the older babel-eslint to the newer @babel-eslint. No worries, I'll show you how.
 author: "Schalk Neethling"
-tags: ["javascript", "tooling"]
+tags: ["javascript"]
 ---
 
 Recently we got a dependabot pull request on [the interactive-examples repository](https://github.com/mdn/interactive-examples) to update our version of `eslint` to `v8.2.0` but, our continues integration tests were failing. The really scary part was, it showed 533 errors. Thankfully the fix is trivial once you know what to do. Phew!

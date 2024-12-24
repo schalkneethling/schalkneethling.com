@@ -4,7 +4,7 @@ title: Filter by size of Array - MongoDB Compass
 pubDate: 2022-07-01
 description: Learn how to filter documents in a MongoDB collection by the size of an array field.
 author: "Schalk Neethling"
-tags: ["mongodb", "how-to", "quick-tip"]
+tags: ["byte-sized"]
 ---
 
 I recently wanted to filter documents in a [MongoDB](https://www.mongodb.com) collection based on the number of entries in one of the fields, which was an `Array` type, using [MongoDB Compass](https://www.mongodb.com/products/compass). For example, a document would look like this:

@@ -4,7 +4,7 @@ title: Starting a Vue Project with Vite
 pubDate: 2022-09-01
 description: This post will look at starting a new Vue project using the Vite toolchain.
 author: "Schalk Neethling"
-tags: ["vuejs", "vite", "tooling"]
+tags: ["vuejs"]
 ---
 
 This post will look at starting a new Vuejs project using the Vite frontend toolchain.

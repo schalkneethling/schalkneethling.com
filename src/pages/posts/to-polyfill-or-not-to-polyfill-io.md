@@ -5,7 +5,7 @@ pubDate: 2024-03-06
 canonical: "https://dev.to/schalkneethling/to-polyfill-or-not-to-polyfillio-5ggd"
 description: The topic of Polyfill.io and its sale came across my radar about a week ago when Tobie Langel shared a link to LinkedIn on the OpenJS Foundation Slack.
 author: "Schalk Neethling"
-tags: ["security", "javascript"]
+tags: ["general"]
 ---
 
 The topic of Polyfill.io and its sale came across my radar about a week ago when Tobie Langel shared a link to LinkedIn on the OpenJS Foundation Slack.

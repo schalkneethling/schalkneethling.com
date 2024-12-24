@@ -1,0 +1,11 @@
+@layer minimalist-reset, minimalist-utils, minimalist-core;
+
+@import url("./utils/reset.css") layer(minimalist-reset);
+@import url("./utils/utils.css") layer(minimalist-utils);
+@import url("./tokens/custom-properties.css") layer(minimalist-core);
+@import url("./atoms/button.css") layer(minimalist-core);
+@import url("./atoms/typography.css") layer(minimalist-core);
+@import url("./atoms/text.css") layer(minimalist-core);
+@import url("./atoms/forms.css") layer(minimalist-core);
+@import url("./atoms/table.css") layer(minimalist-core);
+@import url("./atoms/media.css") layer(minimalist-core);

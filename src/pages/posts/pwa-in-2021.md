@@ -4,7 +4,7 @@ title: Progressive Web Apps (PWA) in 2021
 pubDate: 2021-07-01
 description: Some thoughts on the current state and challenges with regards to building a PWA in 2021.
 author: "Schalk Neethling"
-tags: ["javascript", "pwa"]
+tags: ["javascript"]
 ---
 
 Let me start by saying that I am by no means a [progressive web application (PWA)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps) expert. I worked with [OpenUP](https://openup.org.za/) to build a PWA for the municipality of [Cape Agulhas](https://en.wikipedia.org/wiki/Cape_Agulhas), and have learned a lot which I am happy to share.

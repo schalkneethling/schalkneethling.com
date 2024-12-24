@@ -5,7 +5,7 @@ pubDate: 2024-04-03
 canonical: "https://dev.to/schalkneethling/21-pieces-of-unsolicited-advice-for-junior-web-developers-5eac"
 description: "In this post, I share 21 pieces of unsolicited advice for junior web developers. I emphasize the challenges of learning web development, encourage collaboration, and highlight the importance of web accessibility. Additionally, I discuss bootcamps, university degrees, and the value of learning to code."
 author: "Schalk Neethling"
-tags: ["think piece"]
+tags: ["ramblings"]
 ---
 
 I have a couple of slots on my Cal.com calendar that is [open for 15-20 minute coffee chats](https://cal.com/mechanical-ink/coffee-chat). Every now and again a junior web developer from the Mycelium Network or who follows my work elsewhere will book one of these.

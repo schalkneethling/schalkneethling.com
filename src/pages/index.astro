@@ -3,7 +3,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 import AreaOfInterestCard from "../components/Home/AreaOfInterestCard.astro";
 import FeaturedPodcast from "../components/Home/FeaturedPodcast.astro";
-import CommunityFeature from "../components/Home/CommunityFeature.astro";
 import HomepageHero from "../components/Home/HomepageHero.astro";
 import TheCollective from "../components/Home/TheCollective.astro";
 
@@ -55,9 +54,16 @@ export const podcaster = [
 export const openSource = [
   {
     icon: "heart",
-    title: "Qilin",
-    url: "https://github.com/schalkneethling/qilin-open-source-project-starter-template",
-    description: "A starter template for open source projects.",
+    title: "minimalist",
+    url: "https://github.com/schalkneethling/minimalist",
+    description: "Minimal pure CSS library for web projects.",
+  },
+  {
+    icon: "heart",
+    title: "Project Calavera",
+    url: "https://github.com/schalkneethling/create-project-calavera",
+    description:
+      "Add common linters, formatters, and hopefully sane configurations, for common web projects with an intuitive CLI.",
   },
   {
     icon: "heart",
@@ -67,31 +73,18 @@ export const openSource = [
   },
   {
     icon: "heart",
-    title: "minimalist",
-    url: "https://github.com/schalkneethling/minimalist",
-    description: "Minimal pure CSS framework for web projects.",
-  },
-  {
-    icon: "heart",
-    title: "Fiori",
-    url: "https://github.com/schalkneethling/common-components",
-    description:
-      "A collection of commonly used components as either HTML or Web Components",
-  },
-  {
-    icon: "heart",
-    title: "IndieCaster",
-    url: "https://github.com/mechanical-ink/indiecaster-core",
-    description: "A complete website toolkit for Indie podcasters.",
+    title: "Qilin",
+    url: "https://github.com/schalkneethling/qilin-open-source-project-starter-template",
+    description: "A starter template for open source projects.",
   },
 ];
 const featuredEpisode = {
   description:
-    "In this episode of the Mechanical Ink podcast, Schalk Neethling sits down with Daniel Beck, a documentation engineer writer based in Amsterdam. Daniel discusses his extensive career in software documentation, emphasizing the importance of understanding the audience and balancing quality content with effective tooling. He elaborates on the challenges of identifying with job titles such as writer, engineer, or documentation engineer, and reflects on his experiences working on MDN Web Docs. The conversation explores the intricacies of contributing to open-source projects, highlighting the need for soft skills.",
-  guest: "Daniel Beck",
+    'In this episode of the Mechanical Ink podcast, host Schalk Neethling sits down with Ethan Marcotte, a prominent figure in web design known for coining the term "responsive web design." Ethan\'s journey in the design world spans over two decades, during which he has significantly influenced how websites are created and experienced across various devices.',
+  guest: "Ethan Marcotte",
   linkLabel: "Listen to the episode",
-  title: "Job Titles, Documentation Engineering, Baseline and Web Features",
-  url: "https://schalkneethling.substack.com/p/job-titles-documentation-engineering",
+  title: "Responsive, Generative, Accessible, Unions, The Web",
+  url: "https://schalkneethling.substack.com/p/responsive-generative-accessible",
 };
 const pageTitle = "Scripting on Caffeine";
 ---
@@ -106,8 +99,6 @@ const pageTitle = "Scripting on Caffeine";
     </section>
 
     <FeaturedPodcast featuredEpisode={featuredEpisode} />
-
-    <CommunityFeature />
 
     <TheCollective />
   </main>

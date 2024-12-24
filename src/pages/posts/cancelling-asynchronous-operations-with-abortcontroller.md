@@ -4,7 +4,7 @@ title: Cancelling asynchronous operations with AbortController
 pubDate: 2022-07-01
 description: How to cancel asynchronous operations with the AbortController API.
 author: "Schalk Neethling"
-tags: ["javascript", "how-to"]
+tags: ["javascript"]
 ---
 
 I have worked on a few projects where client side fetching of data was required. One of the challenges we ran into a number of times, is what to do about a request if the user navigates away from the current view. Turns out there is actually a well supported Web API to do just that. This API is available in the browser and in Node.js. Let’s have a look.

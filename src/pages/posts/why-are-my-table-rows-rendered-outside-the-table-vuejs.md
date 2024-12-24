@@ -4,7 +4,7 @@ title: Why are my table rows rendered outside the table? DOM template parsing c
 pubDate: 2022-07-01
 description: Usng the special Vuejs is attribute to fix common DOM parsing caveats.
 author: "Schalk Neethling"
-tags: ["how-to", "quick-tip", "vuejs"]
+tags: ["byte-sized"]
 ---
 
 The problem described here might not be something you run into often, as it mainly applies to situations where you write your HTML template directly in your HTML document. If you use a [string template or a single file component](https://vuejs.org/guide/essentials/component-basics.html#dom-template-parsing-caveats), you will not encounter this problem.

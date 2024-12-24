@@ -5,7 +5,7 @@ pubDate: 2019-06-02
 canonical: "https://medium.com/kaleidoscope-pub/living-and-making-peace-with-anxiety-a-personal-journey-60ffe12fadcf"
 description: "Ok so, this is very different from what I usually post. It is also, hands down, the hardest post I have ever written. But, there is no point in keeping this to myself. No achievement is unlocked by suffering in silence. No medal for pretending everything is A-OK."
 author: "Schalk Neethling"
-tags: ["mental health"]
+tags: ["mental-health"]
 ---
 
 Ok so, this is very different from what I usually post. It is also, hands down, the hardest post I have ever written. But, there is no point in keeping this to myself. No achievement is unlocked by suffering in silence. No medal for pretending everything is A-OK.

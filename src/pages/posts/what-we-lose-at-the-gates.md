@@ -5,7 +5,7 @@ pubDate: 2024-04-25
 canonical: "https://dev.to/schalkneethling/what-we-lose-at-the-gates-45df"
 description: "Perhaps it is the social bubble I find myself in, but it seems there is a lot of talk about gatekeeping happening at the moment. While the bubble metaphor does not quite work for what will follow, I do not have a better one, so humor me."
 author: "Schalk Neethling"
-tags: ["think piece"]
+tags: ["ramblings"]
 ---
 
 Perhaps it is the social bubble I find myself in, but it seems there is a lot of talk about gatekeeping happening at the moment. While the bubble metaphor does not quite work for what will follow, I do not have a better one, so humor me.

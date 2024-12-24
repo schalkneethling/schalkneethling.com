@@ -4,7 +4,7 @@ title: Styling the CodeMirror 5 cursor for light and dark modes
 pubDate: 2022-04-01
 description: How do you style the cursor in CodeMirror 5? Also, how can you do this for light and dark themes? Let's take a look.
 author: "Schalk Neethling"
-tags: ["javascript", "tooling"]
+tags: ["javascript"]
 ---
 
 This post was written when [CodeMirror](https://codemirror.net/) version 5 was still the main version used by websites. In version 6 there is a [new way via the EditorView.theme](https://codemirror.net/6/examples/styling/#themes) function. You might still be able to use the method described here but, I thought I would mention this right out of the door.

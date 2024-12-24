@@ -4,7 +4,7 @@ title: Using EventEmitter in Node.js
 pubDate: 2022-08-01
 description: Using the Nodejs EventEmitter with GitHub webhooks
 author: "Schalk Neethling"
-tags: ["javascript", "nodejs"]
+tags: ["javascript"]
 ---
 
 The event system in Nodejs is the functional backbone of much of the Node core APIs. HTTP and TCP servers written in Node are event emitters. A TCP socket is an event emitter. The request and response objects of HTTP are both event emitters. We as developers can take advantage of the same event system in our work via the `EventEmitter` constructor in the Node `events` module. Let’s explore how what is exposed by Node and how we can use it.

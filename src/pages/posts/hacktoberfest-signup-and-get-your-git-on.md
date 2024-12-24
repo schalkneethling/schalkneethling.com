@@ -4,7 +4,7 @@ title: HacktoberFest ~ Signup and get your Git on
 pubDate: 2021-10-01
 description: It’s October, which means pumpkins, candy, costumes, and Hacktoberfest. If you are completely new to open source and contributing on Github, but want to join in the fun, read on.
 author: "Schalk Neethling"
-tags: ["community", "open-source"]
+tags: ["open-source"]
 ---
 
 It’s October, which means pumpkins, candy, costumes, and Hacktoberfest 🎃 If you are completely new to open source and

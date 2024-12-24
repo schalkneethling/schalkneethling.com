@@ -4,7 +4,7 @@ title: Watched It - The Good, The Bad, and The Web Components - Zach Leatherman
 pubDate: 2024-07-31
 description: "My takeaways from Zach Leatherman's talk on web components at the 2023 JSHeroes conference."
 author: "Schalk Neethling"
-tags: ["watched-it", "web-components"]
+tags: ["watched-it"]
 ---
 
 I watched a great talk by [Zach Leatherman](https://www.zachleat.com/) on web components and thought I would share some of my key takeaways.

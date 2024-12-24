@@ -5,7 +5,7 @@ pubDate: 2024-03-03
 canonical: "https://dev.to/schalkneethling/typed-objects-in-v-for-vue3-with-typescript-6l8"
 description: How do I handle type inference challenges with v-for in Vue 3 templates using TypeScript? Let's find out more.
 author: "Schalk Neethling"
-tags: ["vuejs", "typescript"]
+tags: ["typescript"]
 ---
 
 I just ran into the following situation in Vue3 and prayed at the altar of the TypeScript gods for an answer. After much beard-pulling and some choice phrases, I found something that works. Is this _the_ way? I cannot confirm nor deny that 😃 but it works and makes sense as well.

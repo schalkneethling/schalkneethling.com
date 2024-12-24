@@ -4,7 +4,7 @@ title: Flexsearch tokenizers - Learning through writing tests
 pubDate: 2022-07-01
 description: An introduction to Flexsearch and its tokenizers through writing and interpreting tests.
 author: "Schalk Neethling"
-tags: ["javascript", "opensource"]
+tags: ["javascript"]
 ---
 
 [Flexsearch](https://github.com/nextapps-de/flexsearch/) is a full-text search implementation for use in [the browser and Nodejs](https://github.com/nextapps-de/flexsearch/#load-library). I use it on the [DeveloperToolchest](https://developer-toolchest.com/), but I have been getting underwhelming search results. I knew the reason was not Flexsearch, but my lack of knowledge of the library.

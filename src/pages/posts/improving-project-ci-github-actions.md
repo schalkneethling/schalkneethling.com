@@ -4,7 +4,7 @@ title: Matrix Strategy - Improving a project’s CI pipeline
 pubDate: 2022-04-01
 description: Let’s work through the process of improving a basic GitHub Action CI workflow to cover multiple Node.js versions and operating systems.
 author: "Schalk Neethling"
-tags: ["github", "github actions"]
+tags: ["github"]
 ---
 
 Recently, I have become more and more responsible for maintaining, improving and creating GitHub workflows using GitHub Actions. On some of my side projects such as [Project Calavera](https://github.com/project-calavera/project-calavera), I realised that my pipeline really did not do all the testing I needed. Test coverage is pretty decent but, I was only running this again one version of Node.js, and only on Ubuntu.

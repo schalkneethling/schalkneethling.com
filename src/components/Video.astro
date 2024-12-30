@@ -3,5 +3,5 @@ const { videoSrc, width } = Astro.props;
 ---
 
 <video width={width} height="auto" preload="metadata" controls>
-  <source src={`/src/assets/${videoSrc}`} type="video/mp4" />
+  <source src={`${videoSrc}`} type="video/mp4" />
 </video>

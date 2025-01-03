@@ -1,0 +1,172 @@
+---
+layout: ../../layouts/MarkdownPostLayout.astro
+title: "Part One: Building a Profile Page with HTML and CSS: Planning"
+pubDate: 2025-01-03
+description: "In this part of the series we will break down the design into components using Atomic Design, set up our repository on GitHub, and create the issues we will need to work on."
+author: "Schalk Neethling"
+tags: ["frontend-engineering-explained"]
+---
+
+import FigmaEmbed from "../../components/FigmaEmbed.astro";
+import Video from "../../components/Video.astro";
+
+This is the first part of a three part series where we will build a profile page using HTML and CSS. We are going to start from a completed design in Figma and in this post we will focus on breaking down the design into components, setting up our repository on GitHub, and creating the issues we will need to work on.
+
+My hope is that you will walk away from this post with an understanding of the importance and effectiveness of planning before you start coding. While this design is not complex, going through the process of breaking it down into components will help you to think about how you can break down more complex designs in the future.
+
+## What is component-based design and development?
+
+Component-based design and development is an approach to building user interfaces by breaking them down into smaller, reusable pieces called components. Think of components as LEGO blocks – each one is self-contained and can be combined with others to create complex interfaces.
+
+A component can be anything from a simple button to an entire navigation system. What makes components powerful is that they're reusable (use them anywhere), self-contained (include their own structure, style, and functionality), and can be nested inside each other (like a card component containing an image, text, and button components).
+
+This approach makes your code more maintainable, ensures consistency across your interface, and speeds up development through reuse. It's also why modern frameworks like React, Vue, and Svelte are built around components as their fundamental building blocks.
+
+One well-known methodology that aids in breaking down designs into components is [Atomic Design, created by Brad Frost](https://atomicdesign.bradfrost.com/). Atomic Design breaks down interfaces into five levels of complexity: atoms, molecules, organisms, templates, and pages. Each level builds on the previous one, creating a clear hierarchy of components.
+
+Now that we understand what component-based design is and how methodologies like Atomic Design can help structure our thinking, let's apply these concepts to a real design. This hands-on exercise will demonstrate how these principles work in practice and help develop your eye for identifying component patterns.
+
+## Breaking down the design
+
+Let's start by breaking down the design into components using Atomic Design. You can see the design below or [view it in Figma](https://www.figma.com/design/R8P8XiXVMPgKTmsmrVt7k9/My-Profile-Page?node-id=0-1&t=JCvNWlNxLHa7vlJM-1).
+
+<FigmaEmbed title="An embedded Figma design that shows a simply profile page with an avatar, some prose about the person, and a list of links to various online social platforms." url="https://embed.figma.com/design/R8P8XiXVMPgKTmsmrVt7k9/My-Profile-Page?node-id=0-1&embed-host=share" />
+
+Instead of starting from the smallest atomic part we will flip it on its head and start from the top with the page component. Because we are building a single page and not a full website or web application, this approach will be a bit more intuitive. We will then work our way down to the smaller components. To be honest though, this is generally the approach I prefer. I find it easier to start from the top and work my way down.
+
+In Atomic design we then have the page at the very top closely followed by the template. The page in this case will be our completed page containing our real content, so to speak. The template is a kind of precursor that contains all of our components, but with mainly placeholder content.
+
+> **A note on placeholder content:** Placeholder content is content that is used to fill in the gaps where real content will go. It is important to use placeholder content that is similar in length and style to the real content so that you can get a good idea of how the design will look when it is complete. In fact, you should throw in some edge cases while you are at it to ensure your implementation is robust.
+
+### The page and template
+
+Due to the nature of the design, there is a not a lot for us to cover in terms of the page and template but, we do have work to do on the template level so let us note those down.
+
+1. We need our base HTML page at the root of our project.
+2. We will need the following in our `head`:
+    - A `title` tag with the title of our page.
+    - A `meta` tag with the description of our page for search engines.
+    - A `meta` tag for our viewport
+    - A `meta` tag defining our `charset`
+    - A `link` tag for our CSS file.
+3. The `body` element.
+4. Our favicon details
+5. Configure our social media sharing details.
+
+### Organisms
+
+The organisms are the next level down from the template and contain the larger components of our design. In this design, we have a single organism. The organism in question is our links to other platforms where people can find and interact with us on the web. Let us break this down into its component parts, so to speak:
+
+- The heading (atom)
+- The list of links (molecule)
+- The icon used for each link (atom)
+
+As you will notice our organism is made up of both atoms and a molecule, confirming that we have accurately identified it as an organism. If all of the individual component parts were atoms, this component would instead be best labelled as a molecule.
+
+### Molecules
+
+As there is only a single level below our molecules, the definition of a molecule is then a component made up of atoms. Referring to our design we can say that it contains a single molecule, the about section. This section contains the following:
+
+- A heading (atom)
+- A subheading (atom)
+- A button (atom)
+- A paragraph (atom)
+
+### Atoms
+
+Atoms are the smallest building blocks &mdash; basic HTML elements like buttons, inputs, or labels and other custom elements that can't be broken down further without losing their function. Through our process thus far we have identified most of our atoms. Let's list what we've discovered:
+
+- Heading
+- Subheading
+- Button
+- Paragraph
+- Icon
+
+Take a moment to look back at the design. Can you spot the one atomic component we haven't mentioned yet? It's a crucial element that helps make our profile page personal and recognizable&hellip;
+
+Did you find it? It's the Avatar! This component, while simple, is a perfect example of an atom &mdash; it's a fundamental element that serves a distinct purpose and cannot be broken down further while maintaining its function.
+
+And just like that we have destructured our design into its component parts. This is a great exercise to go through before you start coding as it helps you start to think through how you will structure your code. It also helps you to identify any potential issues with the design that you may need to address before you start coding.
+
+## Create a GitHub repository and issues
+
+For details on how to create a GitHub repository and issues, please refer to the GitHub documentation.
+
+- [Creating an account on GitHub](https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github)
+- [Creating a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
+- [Creating issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-an-issue)
+
+We will not go over creating each individual issue, but instead, go over a few key components and talk through how to think about what you add to the issues you create. From there I will leave it up to you to create the rest of the issues as homework. 😄 Feel free to share your repositories with me, I would be happy to take a look and answer any questions you may have.
+
+The most interesting one to review is our organism. This is because it is made up of multiple components. We can create an issue for each of the components that make up the organism. This will allow us to work on them in isolation and then bring them together to create the organism. It also allows us to explore some of the features of GitHub issues that allows us to create a hierarchy of issues.
+
+### The LinkTree component
+
+Our first issue will be for the LinkTree component. Our issue title will be something like, "feature: LinkTree component". In the description we will add the following:
+
+```markdown
+Create the `LinkTree` component that will allow visitors to find my different profiles on the web. The component will contain a heading, a list of links, and an icon for each link. The component will be responsive and should look good on all screen sizes.
+
+## Sub-components
+
+- [ ] Heading (decorative)
+- [ ] Link list
+- [ ] Icon
+```
+
+With the issue created, we can now assign it to ourselves and add any relevant labels. If you hover over any of the sub-components (or focus any of the related checkboxes using a keyboard or other device) you will see a link to create a new issue for that sub-component. Go ahead an turn each of the sub-components into issues.
+
+<Video videoSrc="/profile-tutorial/create-issue-from-task-github.mp4" width="653" />
+
+You can also [view the issue here on GitHub](https://github.com/schalkneethling/profile/issues/1).
+
+Click on the link to the decorative heading issue. You will see that the issue is linked to the LinkTree issue. This is a great way to mirror the hierarchy of issues to the way we will work on each feature in isolation while still being able to see how it fits into the bigger picture. Let's add a description which will in turn create a new issue for the base heading component.
+
+<Video videoSrc="/profile-tutorial/edit-issue-description-github.mp4" width="653" />
+
+You can also [view the issue here on GitHub](https://github.com/schalkneethling/profile/issues/2).
+
+```markdown
+Create a variation of the heading component that will be used as the heading for the LinkTree component. The heading should be visually distinct from the other headings. Use a class named `heading--decorative` to style the heading.
+
+Refer to the design in Figma for details:
+https://www.figma.com/design/R8P8XiXVMPgKTmsmrVt7k9/My-Profile-Page?node-id=0-1&t=JCvNWlNxLHa7vlJM-1
+
+## Sub-components
+
+- [ ] Heading
+```
+
+Turn the heading sub-component into its own issue and click the link. Add the following description:
+
+```markdown
+Create the base heading component. This component will cover the typography for all headings and set up all the relevant CSS custom properties and type scales. Ensure the typographic scale is responsive and readable across all screen sizes.
+```
+
+We can now go back to our parent issue and then follow the link to the link list. Add the following description:
+
+```markdown
+Create the link list component. This component will contain a list of links to my profiles on the web. Each link will have an icon and a visually hidden label to ensure all the links are accessible. The list should be responsive and look good on all screen sizes. Make use of an unordered list to structure the links.
+
+- [ ] https://github.com/schalkneethling/profile/issues/4
+```
+
+I used a little shortcut here by linking to the issue for the icon component we created earlier. When you save the updated description you will see that GitHub automatically links the issue for you. When you go into the issue for the icon component you will notice it is part of two tracking issues. We are at our final component. Add the following description:
+
+```markdown
+Create an icon component that embeds the SVG for the icon directly in the HTML. The SVG for the icons is generally small and will not add much to the page weight. The SVG icon will get its label from the link component into which it will be embedded. It is therefore also important to add the `role="img"` attribute to the SVG to ensure screen readers will treat it as decorative.
+```
+
+One last thing I like to do is create labels for organisms, molecules, and atoms. This will allow us to easily filter our issues by component type. You can do this by going to the issues tab in your repository and clicking on the labels tab. From there you can create a new label and assign it a color. I like to use the following colors:
+
+- Organism: `#0E131F`
+- Molecule: `#38405F`
+- Atom: `#59546C`
+
+<Video videoSrc="/profile-tutorial/custom-labels.mp4" width="653" />
+
+You can also [view the issues here on GitHub](https://github.com/schalkneethling/profile/issues).
+
+## Conclusion
+
+In this post we have broken down our design into its component parts using Atomic Design. We have also created a GitHub repository and issues for each of the components. This will allow us to work on each component in isolation and then bring them together to create the final design. In the next post we will start coding our components. Go ahead and set up the remaining issues following the same structure and thinking and I will see you in the next post.

@@ -10,7 +10,7 @@ tags: ["frontend-engineering-explained"]
 import FigmaEmbed from "../../components/FigmaEmbed.astro";
 import Video from "../../components/Video.astro";
 
-This is the first part of a three part series where we will build a profile page using HTML and CSS. We are going to start from a completed design in Figma and in this post we will focus on breaking down the design into components, setting up our repository on GitHub, and creating the issues we will need to work on.
+This is the first part of a ~~two~~, ~~three~~, four part series where we will build a profile page using HTML and CSS. We are going to start from a completed design in Figma and in this post we will focus on breaking down the design into components, setting up our repository on GitHub, and creating the issues we will need to work on.
 
 My hope is that you will walk away from this post with an understanding of the importance and effectiveness of planning before you start coding. While this design is not complex, going through the process of breaking it down into components will help you to think about how you can break down more complex designs in the future.
 
@@ -43,15 +43,16 @@ In Atomic design we then have the page at the very top closely followed by the t
 Due to the nature of the design, there is a not a lot for us to cover in terms of the page and template but, we do have work to do on the template level so let us note those down.
 
 1. We need our base HTML page at the root of our project.
-2. We will need the following in our `head`:
+2. A `lang` attribute on the `html` element that correctly reflects the primary language of the page.
+3. We will need the following in our `head`:
     - A `title` tag with the title of our page.
     - A `meta` tag with the description of our page for search engines.
     - A `meta` tag for our viewport
     - A `meta` tag defining our `charset`
     - A `link` tag for our CSS file.
-3. The `body` element.
-4. Our favicon details
-5. Configure our social media sharing details.
+4. The `body` element.
+5. Our favicon details
+6. Configure our social media sharing details.
 
 ### Organisms
 

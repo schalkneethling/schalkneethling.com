@@ -430,7 +430,7 @@ To achieve all of this we will need the following three lines of CSS:
 
 Thanks to the `border-radius` property, we can turn our image into a circular image with a single line of CSS. But wait, I hear you say. We are not setting the width and height. In fact, we are but we are using what is known as logical properties. For an image where we are setting both the height (`block-size`) and the width (`inline-size`) to the same dimensions this is not strictly necessary. However, if we consider that this is the direction the CSS language is evolving, it is a good practice to get into. I have an upcoming article where I will dive into logical properties in more detail and demonstrate the benefits, especially when you may have users who are using a language that is written from right to left.
 
-Where do we add the CSS? Well, you can add it to your `main.css` file but, to embrace as much of the component nature as we can here, we will instead create a new files called `avatar.css` in the `css` folder. This is where we will add the CSS for the avatar image. Instead of adding another `link` element to our HTML, we will instead import the CSS file into our `main.css` file.
+Where do we add the CSS? Well, you can add it to your `main.css` file but, to embrace as much of the component nature as we can here, we will instead create a new file called `avatar.css` in the `css` folder. This is where we will add the CSS for the avatar image. Instead of adding another `link` element to our HTML, we will instead import the CSS file into our `main.css` file.
 
 ```css
 @import url('./avatar.css');

@@ -1,0 +1,803 @@
+---
+layout: ../../layouts/MarkdownPostLayout.astro
+title: "Part Three: Building a Profile Page with HTML and CSS: Wrap Up v0.5"
+pubDate: 2025-01-19
+description: "Learn how to build a responsive profile page with modern typography, media queries, and CSS Grid. Part three of our hands-on web development tutorial series."
+author: "Schalk Neethling"
+tags: ["frontend-engineering-explained"]
+---
+
+import { BaselineStatus } from "astro-embed";
+import FigmaEmbed from "../../components/FigmaEmbed.astro";
+import Video from "../../components/Video.astro";
+
+Welcome to part three of this series on building a profile page using HTML and CSS. [In part one](build-a-profile-page-html-css-planning) we discussed how one would go about breaking down a design into it component parts and turning these into issues on GitHub. This laid the groundwork for [part two](build-a-profile-page-html-css-part2-impl), where we discussed how to get set up for development (some essentials concerning Git and GitHub), created our first visual component, started writing some HTML and CSS, and covered a bit of SVG and modern image formats. In this post we implement the remainder of our profile page.
+
+## Typography and a Typographic Scale
+
+Our first couple of tasks will involve adding some textual content to our profile page. We will not pick random numbers for our various heading elements and body copy, but instead use what is known as a typographic scale (also known as a type scale or modular scale). Why all this focus on typography? Well, typography is a critical part of design and can make or break a website. It is also critical for the readability and accessibility of the website.
+
+### What is a Typographic Scale?
+
+A typographic scale is a system of predefined sizes that follow a consistent mathematical ratio to create visual harmony and hierarchy. Instead of arbitrarily choosing font sizes, designers use this systematic approach to establish proportional relationships between different text elements.
+
+The scale starts with a base font size (often 16px as this is the default font size for body copy in browsers) and then multiplies or divides by a specific ratio to generate larger and smaller sizes. Common ratios include:
+
+- Minor Third (1.2) - A conservative, subtle scale
+- Major Third (1.25) - Popular in web design
+- Perfect Fourth (1.333) - Classical musical ratio
+- Golden Ratio (1.618) - Found in nature and classical design
+
+> **Note:** While the default font size for body copy is 16px, users can override this in their browser settings. This is fine as we are merely using 16 as a base from which to calculate our typographic scale. Because we will be using relative sizes based on the root size, our scale will adjust accordingly.
+
+The larger the ratio, the more pronounced the difference between sizes. I will be using a Major Third scale but feel free to experiment with different ratios to see what works best for your design. A tool I use all the time to visualize and experiment with different ratios and font family combinations is the aptly named [Type Scale](https://typescale.com/).
+
+Although I mentioned `16px` as the default set by browsers, we will not be using pixel units to define the sizes of our typographic scale.
+
+### What are `rem` Units and Why Use Them?
+
+You might have heard of `em` units in CSS. Unlike pixel units which are fixed, `em` units are a relative unit of measure. A `rem` unit is also a relative unit but the `r` which stands for root is what sets it apart and makes it a particularly good choice for defining typographic scales. While `em` units are sized relative to its parent, `rem` units are sized relative to the root element (typically the `html` or `body` element).
+
+Cycling back to the typical `16px` default size set by browsers. When users change their browser's default font size for accessibility needs, `rem` units will automatically scale with that preference, while pixel units remain fixed and can break accessibility.
+
+A quick example:
+
+```css
+/* If user sets their browser's default base font-size to 20px instead of the default 16px */
+.pixel-text {
+  font-size: 16px;
+} /* Stays at 16px, ignoring user preference */
+
+.rem-text {
+  font-size: 1rem;
+} /* Becomes 20px, respecting user preference */
+```
+
+Think of rem units as saying "I want this text to be X times larger or smaller than what the user prefers as their base font size" rather than forcing a specific size that might not work for everyone. When defining the common font characteristics for a document we often set the default base font size, line height, and font family on the `body` element. When doing this, I prefer to set my base font size to `100%`. This is a best practice for accessibility and respecting user preferences.
+
+Setting `font-size: 100%` essentially says "use whatever base font size the user has set in their browser". It's a subtle but important detail in building truly accessible websites.
+
+### A Note on Font Families
+
+For this project, I will be using what is referred to as a [system font stack](https://systemfontstack.com/). This is a collection of font families that are available on most operating systems. The idea is to use the default font of the user's operating system to render text. This is a good practice for performance as it reduces the number of requests to external font files and can improve the perceived performance of your site.
+
+Additionally, there is a rich array of beautifully designed web fonts available from services like [Open Foundry](https://open-foundry.com/) or [Google Fonts](https://fonts.google.com/) for open source font families. If you are looking to add a bit of flair to your design, I would recommend checking these out. Be careful in your choices though as adding too many web fonts can slow down your site, cause layout shifts, break cohesion, and generally make your site less accessible. These are topics that warrant their own series and so I will not be covering them in too much detail in this series.
+
+With that said, while I will be using the system font stack, I will also cover how you would include a custom web font.
+
+## Defining Our Typographic Scale
+
+As mentioned earlier, I will be using the major third ratio for the typographic scale. Even though we will not be using all of these I will define a complete typographic scale that will cover the following:
+
+- A display size for large bold (not bold as in the weight of the font) headings
+- Heading elements (`h1` to `h5`)
+- Set our default body copy size
+- A code size for code examples
+- A small size for meta information
+- And a tiny text size for legal information (used sparingly)
+
+> **Note:** Before getting started, remember to create an issue for this work on GitHub (if you do not already have one) and then follow the Git workflow we discussed in the previous post as you work on the different features.
+
+I the `css` folder add a new file called `typography.css` and add the following:
+
+```css
+.heading-display {
+  font-size: 4.768rem;
+}
+
+h1,
+.heading-xxl {
+  font-size: 3.815rem;
+}
+
+h2,
+.heading-xl {
+  font-size: 3.052rem;
+}
+
+h3,
+.heading-large {
+  font-size: 2.441rem;
+}
+
+h4,
+.heading-medium {
+  font-size: 1.953rem;
+}
+
+h5,
+.heading-small-medium {
+  font-size: 1.563rem;
+}
+
+body {
+  font-size: 100%;
+}
+
+code {
+  font-size: 1rem;
+}
+
+.text-small {
+  font-size: 0.8rem;
+}
+
+.text-tiny {
+  font-size: 0.64rem;
+}
+```
+
+You will notice that along with the heading element selectors I also defined some classes. This is useful should you semantically need to use a level three heading but wish for it to look like a level one heading for example. Our type scale is now defined but there are a few things still missing. In addition to the font sizes, we also need to set our line heights and font families.
+
+### Defining Line Heights
+
+It is best practice to set different line height for our body copy (also known as prose), our headings, and code examples. The key principle supported is that line height should be proportional to line length &mdash; longer lines need more spacing to help readers track easily between lines. There is also the topic of clear visual relationships. Lastly, we set the value of `line-height` to a unitless ratio.
+
+Body copy (or prose) typically needs more line height (around 1.5-1.6) because readers need to easily track from the end of one line to the beginning of the next in longer paragraphs. The extra spacing helps their eyes follow the text flow naturally.
+
+Headings can use tighter line height (around 1.1-1.3) because they're usually shorter, often single line, and need to appear as cohesive units. Too much spacing would make them feel disconnected.
+
+Code examples also work better with tighter line height (around 1.2-1.4) because developers need to see code as distinct, related lines, and excessive spacing can make it harder to understand the relationship between lines of code.
+
+```css
+.heading-display,
+.heading-xxl,
+.heading-xl,
+.heading-large,
+.heading-medium,
+.heading-small-medium,
+caption,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.2;
+}
+
+.text-medium,
+.text-small-medium,
+body {
+  line-height: 1.5;
+}
+
+code {
+  line-height: 1.4;
+}
+```
+
+As you will notice we have not repeated ourselves by defining the line height for each heading element, class, and `code` element individually. This is because we can group selectors together in CSS that share the same property and value combinations. This is a great way to keep your CSS DRY (Don't Repeat Yourself) and make it easier to maintain. You will also notice the `caption` element as part of the headings. This is because the `caption` element is used to define a table's caption or title and can be considered a heading. As such, it will share our heading line height.
+
+### Defining Font Families
+
+All that remain is to set our font families. While not a rule, it is common in design to use a serif font for body copy and a sans-serif font for headings or the other way around. Also, code examples commonly use a monospaced font. To set these, we will again use the ability to group related selectors together.
+
+```css
+.heading-display,
+.heading-xxl,
+.heading-xl,
+.heading-large,
+.heading-medium,
+.heading-small-medium,
+caption,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "iowan old style", "apple garamond", baskerville,
+    "times new roman", "droid serif", times, "source serif pro", serif;
+  line-height: 1.2;
+}
+
+.text-medium,
+.text-small-medium,
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.5;
+}
+
+code {
+  font-family: menlo, consolas, monaco, "liberation mono", "lucida console",
+    monospace;
+  line-height: 1.4;
+}
+```
+
+With that, our typographic scale is complete.
+
+```css
+.heading-display,
+.heading-xxl,
+.heading-xl,
+.heading-large,
+.heading-medium,
+.heading-small-medium,
+caption,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "iowan old style", "apple garamond", baskerville,
+    "times new roman", "droid serif", times, "source serif pro", serif;
+  line-height: 1.2;
+}
+
+.text-medium,
+.text-small-medium,
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.5;
+}
+
+.heading-display {
+  font-size: 4.768rem;
+}
+
+h1,
+.heading-xxl {
+  font-size: 3.815rem;
+}
+
+h2,
+.heading-xl {
+  font-size: 3.052rem;
+}
+
+h3,
+.heading-large {
+  font-size: 2.441rem;
+}
+
+h4,
+.heading-medium {
+  font-size: 1.953rem;
+}
+
+h5,
+.heading-small-medium {
+  font-size: 1.563rem;
+}
+
+body {
+  font-size: 100%;
+}
+
+code {
+  font-family: menlo, consolas, monaco, "liberation mono", "lucida console",
+    monospace;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.text-small {
+  font-size: 0.8rem;
+}
+
+.text-tiny {
+  font-size: 0.64rem;
+}
+```
+
+We can now import this file into our `main.css` file. Add the following line to the top of the `main.css` file:
+
+```css
+@import url("./typography.css");
+```
+
+### Using Custom Web Fonts
+
+As mentioned earlier, I will walk through a quick example to demonstrate how you would include a custom web font. For this example, I will be using the [Inter](https://rsms.me/inter/) font family. This is a beautiful open-source font family designed for computer screens. It is a modern sans-serif font family that supports a wide range of languages and is optimized for legibility.
+
+We will use Inter for our body cope and then use Domine (a serif) for our headings. To get started, download the font files:
+
+- [Download Inter](https://rsms.me/inter/)
+- [Download Domine](https://fonts.google.com/specimen/Domine)
+
+There is no need to install these fonts on your system as we will make these available by loading and using them through CSS.
+
+> **Note:** When getting the Domine font from Google Fonts you will find that there is an option to use an embed code. For our purposes we will not be using the embed code, so choose to download all files. There are few if any reasons to load your fonts from a service such as Google fonts, if you are curious why, please have a read through [this thread I started on Mastodon](https://hachyderm.io/@schalkneethling/113845303925856166). Also, we will be using individual [Web Open Font Format (WOFF)](https://developer.mozilla.org/docs/Web/CSS/CSS_fonts/WOFF) files for each variation such as regular, italic, etc. There are also variable fonts which are amazing, but to not make this a post on typography, I will leave this for another day. If you are curious about variable fonts, please [refer to the Variable Fonts website](https://v-fonts.com/).
+
+With the fonts downloaded and the archive files extracted, you will find that there are many, many files in each folder. For performance there are a myriad of things one can do to optimize fonts, such as limiting the character set, limiting the variations you load, and using variable fonts, to name a few. Again, this can be a topic all its own so, for this post, we will mainly limit the variants we load.
+
+As with the PNG image format, I am starting to question the continued use of WOFF files in addition to WOFF2. [Support for WOFF2 is now so good](https://developer.mozilla.org/docs/Web/CSS/CSS_fonts/WOFF#css.at-rules.font-face.woff_2) that I am considering only using WOFF2 files. This is a decision you will need to make based on your audience and the browsers they use. For this post, we will stick to just WOFF2, but I will show you how to include both.
+
+Inside the `assets` folder, create a new folder called `typography` and copy the following Inter font files to this directory.
+
+- Inter-Regular.woff2
+- Inter-Italic.woff2
+- Inter-Bold.woff2
+
+From the Domine download you will find that there are no `WOFF` or `WOFF2` files. This is rather common when downloading from Google Fonts and type foundries. There are various ways to convert between formats, but I have had good success using [Cloud Convert's TTF to WOFF2 tool](https://cloudconvert.com/ttf-to-woff2). This tool allows you to upload the font files you have and then convert and download the WOFF2 format. Go ahead and convert the `Domine-Bold.ttf` font file and then copy the downloaded file to the `assets/typography` folder.
+
+At the top of the `typography.css` file, add the following:
+
+```css
+@font-face {
+  font-display: swap;
+  font-family: Domine;
+  font-style: normal;
+  font-weight: 700;
+  src: local("Domine"),
+    url("../assets/typography/Domine-bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 400;
+  src: local("Inter"),
+    url("../assets/typography/Inter-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 700;
+  src: local("Inter"),
+    url("../assets/typography/Inter-Bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: Inter;
+  font-style: italic;
+  font-weight: 400;
+  src: local("Inter"),
+    url("../assets/typography/Inter-Italic.woff2") format("woff2");
+}
+```
+
+#### `@font-face` Explained
+
+Let us talk through each line of the `@font-face` rules above so you have a clear understanding of what is happening. The `font-display` property can take several values and I would encourage you to familiarize yourself with your options by referencing the [MDN Web Docs `font-display` page](https://developer.mozilla.org/docs/Web/CSS/@font-face/font-display). However, there are a few essential concepts that underlie all of these values. These are the block period and the swap periods.
+
+The **block period** is the initial phase during which the browser temporarily hides text (rendering it invisible) while waiting for the specified custom font to load. If the font does not load within this period, the browser will render the text using a fallback font.
+
+The **swap period** follows the block period. During this phase, the browser displays the text using a fallback font if the custom font did not load during the block period, but it continues attempting to load the custom font. If the custom font becomes available during this time, the browser will swap the fallback font with the custom font.
+
+The default is `auto` and in this case, you are leaving the font loading strategy up to the individual browser. However, unless your custom font(s) are optional, you will almost always want to use `swap`. The `swap` option sets a extremely short block period and an infinite swap period. Why is this good? Well, this ensures that, unlike with the `block` option, the user will not have to wait for the custom font to load before seeing any of the page copy. Instead, they will see the text rendered with a fallback font almost immediately.
+
+Should the custom font load any time in the future, the browser will immediately swap in the custom font. This is a great way to ensure that your users are not left waiting for your custom fonts to load before they can start reading your content. But because we have this swapping behavior, it is important to define a set of fallback fonts that match our custom font as closely as possible to avoid cumulative layout shifts (CLS - [read more about cumulative layout shifts](https://web.dev/articles/cls)).
+
+Therefore, if the primary intent of your website is to provide textual information to your users and your custom font is therefore largely optional, set your `font-display` property to `optional`. This provides for an extremely short block period and no swap period. So, unless your custom font has loaded in this block period, the browser will immediately switch to the fallback as defined by you, or the browser's default font if not is set.
+
+The next three properties are most likely known to you. The `font-family` property is used to define the name of the font family. The `font-style` property is used to define the style of the font. The `font-weight` property is used to define the weight of the font.
+
+- [Read more about `font-family` on MDN Web Docs](https://developer.mozilla.org/docs/Web/CSS/font-family)
+- [Read more about `font-style` on MDN Web Docs](https://developer.mozilla.org/docs/Web/CSS/font-style)
+- [Read more about `font-weight` on MDN Web Docs](https://developer.mozilla.org/docs/Web/CSS/font-weight)
+
+The `src` property is where we tell the browser where the source files for our custom font can be found. We start be using the `local()` function. This is useful as some custom web fonts such as Inter might already be installed on the users system. If this is the case, the browser does not need to make any network requests and will use the locally installed font.
+
+Because we cannot be sure that a locally installed version will be present, we next use the `url()` function to reference a font file on the server. Lastly we use the `format()` function to specify the format of the font file. Because we are using WOFF2 files we set this to `woff2`. What if you still wanted to provide a WOFF version? You will only need to add another `url` function along with the other values of the `src` property.
+
+```css
+@font-face {
+  font-display: swap;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 700;
+  src: local("Inter"),
+    url("../assets/typography/Inter-bold.woff2") format("woff2"), url("../assets/typography/Inter-bold.woff")
+      format("woff");
+}
+```
+
+The order here is critical. The browser will attempt to load the font files in the order they are listed. If Inter is not found locally, the browser moves on to the next value. Our next preference is `woff2` which is why this is listed next. If the browser does not support this format, it will move on to the WOFF file and use this if supported.
+
+You will notice that we always set the name of the `font-family` to Inter not matter which variant of the font we are loading through the `src` property. This is because there is an important interplay between the `src` property and the value of the `font-style` and `font-weight` properties.
+
+There is essentially a three way relationship between these properties. Using Inter as an illustrative example. We are loading three different variants, `Regular`, `Bold`, and `Italic`. Let us say we have the following paragraph of text:
+
+```html
+<p>
+  Inter is a beautiful <strong>open-source</strong> font family. If you are able
+  to support the project financially, you can and <em>should</em>.
+</p>
+```
+
+- Our paragraph element has a normal (default) font weight and font style.
+- The `strong` element has a bold font weight and a normal (default) font style.
+- The `em` (emphasis) element has a normal (default) font weight and an italic font style.
+
+These values in concert with the font family of Inter will then allow the browser to choose the appropriate variant to use to render our text. In our example above, the paragraph text will be rendered using Inter-Regular, the `strong` element will be rendered using Inter-Bold, and the `em` element will be rendered using Inter-Italic.
+
+> **Note** An interesting fact about how a browser renders text and chooses the font family to use is that this is done on a character by character basis. Why? Because not every font family will have all the necessary glyphs ([read more about what a Glyph is on Wikipedia](https://en.wikipedia.org/wiki/Glyph)) needed to render your text. If you have not over-optimized the characters in your font file and are using primarily latin based characters each character is likely to be rendered using your preferred custom web font. But remember, this is the web, and even though you may be authoring your content in a latin based language, a user is free to use translation tools to translate your content into a language that may not be supported by your custom font. In cases where the custom web font does not have the required glyph to render the character, the browser will use the defined fallbacks one by one until it finds a family it can use to render the current character. This is one of the reasons why it is critical to ensure that you provide a list of considered fallbacks. If you do not, the browser will choose a suitable default which may or may not be what you would have wanted. The browser has the user experience in mind and will always try to render text in a way that is legible and accessible.
+
+Right now, we have merely defined a new custom web font and told the browser where to look for the files. Our page is not yet going to use any of these font families. If you think back to the set of families we specified for our headings, it reads as follows:
+
+```css
+font-family: "iowan old style", "apple garamond", baskerville,
+  "times new roman", "droid serif", times, "source serif pro", serif;
+```
+
+To tell the browser to first try and use our custom Domine web font for these headings, we need to update the above to the following:
+
+```css
+font-family: Domine, "iowan old style", "apple garamond", baskerville,
+  "times new roman", "droid serif", times, "source serif pro", serif;
+```
+
+And that was a not-so-quick detour on how to use custom web fonts. Feel free to play around with this and make the typography of _your_ profile page uniquely yours or stick with the system font stack if that is your jam.
+
+Before we continue, remember to push the changes we have made so far, create and merge your pull request, update your `main` branch with the remote repository, and then create a new branch for the next feature we will be working on.
+
+For the work here, [I created an issue specifically for the typography](https://github.com/schalkneethling/profile/issues/16), but I will also mark [the heading issue](https://github.com/schalkneethling/profile/issues/5) as being closed by this work. You can do this through your [pull request comment](https://github.com/schalkneethling/profile/pull/17) as follows:
+
+```markdown
+Implements type scale and related typography updates. This also closes the heading issue.
+
+fix #16
+fix #5
+```
+
+## Implementing About Me
+
+For the next set of work I am using the [issue I created for the section I am calling, "About me"](https://github.com/schalkneethling/profile/issues/8). Once you are all set with your new feature branch, it is time to write some HTML.
+
+Inside our page wrapper `<div>` element we will add a `<main>` element. The `<main>` element represents the primary content of the `<body>` of the document. This is content that is directly related to or expands on the main topic of the document, or web application. I am sure you can agree that the content we are going to add next is directly related to the main topic of our profile page. Update your HTML to the following:
+
+```html
+<div class="page-wrapper">
+  <main></main>
+</div>
+```
+
+> **Note:** You can only have one `<main>` element per document unless the other `<main>` elements are marked with the `hidden` attribute.
+
+From an accessibility perspective, the `<main>` element also introduces a landmark region. Landmark regions are a way to identify large sections of a document. Screen readers use these landmarks to help users more quickly navigate the content of a page. Be careful with landmarks though, as overuse of landmark regions can end up making getting around a page harder instead of easier. In a follow up post in the series we will also learn how to combine the `<main>` element with a `skipnav` to further enhance the accessibility of a page or web application for users of assistive technologies.
+
+Inside the `<main>` element we will add an `article` element. An `<article>` element is a self-contained composition in a document, page, application, or site that is, in principle, independently distributable or reusable. The `<article>` will be the container for the content that tells the reader more about who we are, and is as such, independently distributable. the `<body>` of your document should now looks something like this (notice the `class` added to the `<article>` element):
+
+```html
+<body>
+  <div class="page-wrapper">
+    <main>
+      <article class="about-me">
+        <picture>
+          <source srcset="/assets/avatar-photo.avif" type="image/avif" />
+          <img
+            class="avatar"
+            src="/assets/avatar-photo.webp"
+            height="300"
+            width="300"
+            alt="A graphic style image of a young person smiling on a yellow circular background. They have purple hair and are wearing a white t-shirt."
+          />
+        </picture>
+      </article>
+    </main>
+  </div>
+</body>
+```
+
+### Adding Our Content
+
+We are ready to add our name, title, and a short bio. We are going to make another small tweak to our HTML to add additional semantic structure to our document. The first element inside our `<article>` element, which will also wrap our avatar, will be a `<header>` element. The `<header>` element represents some introductory content or navigational aids. The latter is common when the `<header>` element is used as the page or application header. In this scenario, it represents introductory content for the parent `<article>` sectioning content element. Update your `<article>` element to the following:
+
+```html
+<article class="about-me">
+  <header>
+    <picture>
+      <source srcset="/assets/avatar-photo.avif" type="image/avif" />
+      <img
+        class="avatar"
+        src="/assets/avatar-photo.webp"
+        height="300"
+        width="300"
+        alt="A graphic style image of a young person smiling on a yellow circular background. They have purple hair and are wearing a white t-shirt."
+      />
+    </picture>
+    <hgroup>
+      <h1>Schalk Neethling</h1>
+      <p class="heading-large">Open Web Engineer</p>
+    </hgroup>
+  </header>
+</article>
+```
+
+You will spot a new element in the HTML code above. The `<hgroup>` element is used to group a main heading (like an `<h1>` to `<h6>`) with other content, like one or more `<p>` elements. These extra pieces of content can be things like a subheading, an alternative title, or a tagline. You will also notice that we are taking advantage of one of our heading CSS utility classes on the paragraph element. This allows us to use the more semantically appropriate paragraph element but style it to look similar to a level three heading.
+
+There is only one piece left to add and that is our bio. For this add one or more paragraph elements to the `<article>` element. Mine is as follows:
+
+> **Note:** We are skipping over the button for the moment, but we will cycle back to it in a future post in the series, so hold tight.
+
+```html
+<p class="about-me-bio">
+  I fell in love with the web 15 years ago and ever since then I have been an
+  evangelist for open source, the open web, and web accessibility. As an indie
+  maker, open source developer, mentor, and podcaster, I love bringing new ideas
+  to life and elevating voices aiming to make a positive impact. I believe in
+  respect, openness, and creating opportunities for growth.
+</p>
+```
+
+> **Note:** Should you use more than one paragraph element for your bio, you can wrap these in a `<div>` element with a class of `about-me-bio` instead of repeating the class on each paragraph element.
+
+Go ahead and open this up in your browser. You should see your avatar, name, title, and bio. Nice job!
+
+## Mobile First
+
+Before we wrap up part three of this series, we will go over how to open the developer tools in your browser and switch to responsive mode as we will be taking a mobile-first approach when implementing our design. This means that we will start by ensuring that our layout looks and functions well on some common mobile devices and then work our way up to tablet and then larger screen sizes.
+
+In the video below I demonstrate how to open the developer tools and switch to responsive mode in [the Zen browser](https://zen-browser.app/) (a Firefox-based browser) and then in Chrome. The keyboard shortcut I use which is also shown in the video is `Ctrl + Shift + I` on Windows and Linux, and `Cmd + Option + I` on macOS.
+
+<Video
+  videoSrc="/profile-tutorial/switch-to-responsive-mode-fx-chromium.mp4"
+  width="920"
+/>
+
+Once you have your page running in responsive mode, you will notice a few challenges that we will need to address. I am including the Figma embed below for ease of reference, but you can also [open the design directly in Figma](https://www.figma.com/design/R8P8XiXVMPgKTmsmrVt7k9/My-Profile-Page?node-id=0-1&t=JCvNWlNxLHa7vlJM-1) if you prefer.
+
+<FigmaEmbed
+  title="An embedded Figma design that shows a simply profile page with an avatar, some prose about the person, and a list of links to various online social platforms."
+  url="https://embed.figma.com/design/R8P8XiXVMPgKTmsmrVt7k9/My-Profile-Page?node-id=0-1&embed-host=share"
+/>
+
+We have two primary challenges:
+
+- Font size
+- Spacing
+
+### Getting Responsive &mdash; Media Queries
+
+Let us address these in order. We will start by making our font sizes responsive. To accomplish this I will introduce a new CSS featured called media queries. [Media queries](https://developer.mozilla.org/en-US/docs/Web/CSS/@media) allows us to apply styles conditionally based on the result of one or more conditions. These conditions can be based on the device's characteristics, such as the browser's viewport width, height, device orientation, or even user preferences such as user's who prefer reduced motion. For our purposes we will be using the width (or inline size) of the viewport.
+
+If you inspect the design in Figma, you will notice that the font sizes for the mobile versus the desktop layout is vastly different. You will also notice that we need to spacing of `24px` on the inline axis and `32px` on the block axis. The difference in font size is something you will encounter frequently when implement designs. Because of the limited space on mobile devices, you will often need to increase the font size to ensure readability.
+
+<Video
+  videoSrc="/profile-tutorial/inspecting-design-in-figma.mp4"
+  width="920"
+/>
+
+In this instance we are switching from the Major Third to a Major Second scale for mobile (small screen) devices. I tend to use the following breakpoints for my media queries:
+
+- By default styles are written for small-screen devices (mobile-first - we will also later discuss a slightly optimized approach for how we write our CSS known as shared-first CSS)
+- The first breakpoint is at `48rem` (`768px`) for tablet devices
+- The second breakpoint is at `64rem` (`1024px`) for desktop devices
+- I sometimes also use a third breakpoint at `90rem` (`1440px`) for large desktop devices
+
+#### Anatomy of a Simple Media Query
+
+Let's examine a media query that applies styles when the viewport width reaches or exceeds `48rem`:
+
+```css
+@media screen and (width >= 48rem) {
+  /* Styles for tablet devices */
+}
+```
+
+<BaselineStatus id="media-query-range-syntax" />
+
+The `@media` rule defines different style rules for specific media types. Here, `screen` targets devices with screens (like phones, tablets, or computers) as opposed to other media types like `print` for printed documents or `speech` for screen readers.
+
+The `and` operator combines multiple media features into a single condition. In this case, we're using the `width` media feature to create what's commonly called a "breakpoint" - a point at which our design adapts to different screen sizes.
+
+The condition `width >= 48rem` uses modern range syntax (based on the comparison operators introduced in Media Queries Level 4 &mdash; You can [read an in-depth article about this on CSS-Tricks](https://css-tricks.com/the-new-css-media-query-range-syntax/)) to state that these styles apply when the viewport width is `48rem` or greater. Depending on your browser support requirements, you may need to use the older syntax:
+
+```css
+@media screen and (min-width: 48rem) {
+  /* Styles for tablet devices */
+}
+```
+
+> **Note:** When using the above syntax, you will most often find that the value is not a whole number as above but instead, if we are targeting for example tablet-like devices with a screen width of `768px`, `47.9375rem` which is equivalent to `767px`. This ensures that our styles will apply at exactly `768px`.
+
+Note that we're using `rem` units, which (As mentioned before) are relative to the root element's font size (typically 16px). This means `48rem` is equivalent to 768px in most cases (`48 × 16px = 768px`), a common breakpoint for tablet-sized devices.
+
+### Updating the Font Scale
+
+Our first task is to open up the `typography.css` file and add the following media query to the very end of the file:
+
+```css
+@media screen and (width >= 48rem) {
+}
+```
+
+We are going to duplicate everything from `.heading-display` up to and including our style rules for the level five heading. We are not changing anything else here as this is the type scale we want for larger viewports. We may find that this type scale is still to large for tablet sized displays, but we are going to take care of that and make some decisions in the next part of the series.
+
+> **Note:** In the next post in the series we are going to do some fun refactoring to make our code more maintainable and get rid of all this duplication so start getting excited for that. For now, copy and paste is your friend.
+
+```css
+@media screen and (width >= 48rem) {
+  /** Uses a 1.250 Major Third type scale */
+  .heading-display {
+    font-size: 4.768rem;
+  }
+
+  h1,
+  .heading-xxl {
+    font-size: 3.815rem;
+  }
+
+  h2,
+  .heading-xl {
+    font-size: 3.052rem;
+  }
+
+  h3,
+  .heading-large {
+    font-size: 2.441rem;
+  }
+
+  h4,
+  .heading-medium {
+    font-size: 1.953rem;
+  }
+
+  h5,
+  .heading-small-medium {
+    font-size: 1.563rem;
+  }
+}
+```
+
+With the above, we know that our original type scale is going to take effect at our current desired breakpoint. What remains is to update the type scale for the rules outside of the media query. For our mobile (small viewport) type scale, we are going to switch to the Major Second scale as mentioned earlier. Below is the updated scale for mobile devices:
+
+```css
+/** Uses a 1.125 Major Second type scale */
+.heading-display {
+  font-size: 2.027rem;
+}
+
+h1,
+.heading-xxl {
+  font-size: 1.802rem;
+}
+
+h2,
+.heading-xl {
+  font-size: 1.602rem;
+}
+
+h3,
+.heading-large {
+  font-size: 1.424rem;
+}
+
+h4,
+.heading-medium {
+  font-size: 1.266rem;
+}
+
+h5,
+.heading-small-medium {
+  font-size: 1.125rem;
+}
+```
+
+Looking back in your browser you will now see the changes take effect. If you exit responsive mode and resize your browser window you will see the changes take effect at the breakpoint you specified. Toggle between the two to see the type scale change. We will be making use of media queries more as we implement the rest of the page so you will get plenty of exercise.
+
+As you may have noticed, we did not change anything that was equal to `1rem` or smaller. There is no need to change these as they will already display well and be readable on smaller viewports. You _could_ consider changing the units smaller that `1rem` to match the type scale, but this is something you will have to decide based on your design and the content you are displaying. Be careful when using font sizes that are too small as this can make your content hard to read and inaccessible.
+
+## Spacing and Grids
+
+With our font size problems resolved, we can move on to addressing out spacing. We will follow our modular approach here and create a new CSS file called `about.css` at the root of our CSS folder. Open up your `main.css` file and import this new file. While we are inside the main CSS file let's add the spacing we need for the page itself. We will use the `page-wrapper` class for this.
+
+Our design calls for `24px` on the inline axis and `32px` on the block axis on smaller viewports. We will however not be using pixel units, but define our spacing using our customary `rem` units. Add the following to the `main.css` file:
+
+```css
+.page-wrapper {
+  padding: 2rem 1.5rem;
+}
+```
+
+The padding short hand property is used to set the padding on all four sides of the element in a clockwise direction (top, right, bottom, left). Because we are setting top and bottom and left and right to the same values respectively, we use only two values here. The first value is the padding on the block axis (top and bottom) and the second value is the padding on the inline axis (left and right). Be careful here though, when using the `padding` short hand syntax, these values do _not_ map to their logic property counterparts. But instead they map to the physical values of top, right, bottom, left.
+
+Because we are setting the values for block and inline padding each to the same values, it is safe to use the shorthand property. I have a separate article (not part of the series) where I will discuss this in more detail. Looking back in the browser will now show that the content is no longer flush against the edges of the viewport.
+
+Referring back to the design, we need `16px` of spacing between the avatar and the name and title. We then also need `32px` of spacing between the header and the bio. To achieve this we will take advantage of the fact that our HTML maps beautifully to this structure. All we need to do is make use of the powerful [CSS grid](https://developer.mozilla.org/en-US/docs/Web/CSS/grid).
+
+> **Note:** CSS grid is a massive topic that can take up a medium sized book (honestly) and so I will not dive into the details in this article series, but if you are curious for more information, start with these two videos on YouTube from the folks over at Oddbird - [[Learn CSS Grid First](https://www.youtube.com/live/aDMWD_CYpEI?si=_u5Uwisq2TlVP5O2) and [Learn CSS Grid Part 2](https://www.youtube.com/live/kQu-bSWccNA?si=UW37r3F271Ev2HQM)].
+
+<BaselineStatus id="grid" />
+
+I added some annotation lines to the design in Figma to give you a sense of some of the grids. What we do is firstly set `<article>` to a grid container (the parent element) using the `.about-me` class.
+
+```css
+.about-me {
+  display: grid;
+}
+```
+
+Next we will set our `<header>` element as the next grid container. As you will notice, a grid child can also be a grid container. We generally want to avoid using element selectors due to specificity issues that this can cause down the road. In order to avoid this with the header, we will give it a class name:
+
+```html
+<header class="about-me-header"></header>
+```
+
+Update the CSS in the `about.css` file to the following:
+
+```css
+.about-me,
+.about-me-header {
+  display: grid;
+}
+```
+
+Back in the browser, you will notice that both the `<article>` and the `<header>` elements have a little badge next to them that reads `grid`. If you activate either or both of these, you will see grid lines and other annotations being overlaid on top of the page. This can be incredible useful for debugging purposes.
+
+<Video
+  videoSrc="/profile-tutorial/inspecting-grid.mp4"
+  width="920"
+/>
+
+You may notice that while we have some spacing between elements, the grid does not indicate any spacing within the grid itself. However, if you hover over the `<h1>` and paragraph elements in the Elements panel of the developer tools, you will notice that these elements have some default margins. Sometimes this can play in our favor, but in this instance it does not.
+
+Let's start by removing all margins from the `<h1>` element. Because a document should only have one heading level one, we are going to target this one using an element selector, Also, because we will set all margins to zero, we can safely using the `margin` short hand here. Add the following to the `about.css` file:
+
+```css
+.about-me h1 {
+  margin: 0;
+}
+```
+
+We are being a little defensive here with our selector and stating that the style rules should only apply when the `<h1>` element is inside a parent element with the class name `about-me`. In fact, looking back at the design, we can do the same for the paragraph element. Here nesting the paragraph element selector inside a parent selector is critical. If we do not do this, the style rule will apply to _all_ paragraph element, probably not what we want. Nesting it inside `about-me` is still to broad however, so we must nest it inside `about-me-header`:
+
+```css
+.about-me-header p {
+  margin: 0;
+}
+```
+
+We can apply the same approach to the `<h1>` to save a couple of lines. Update and combine your style rule as follows:
+
+```css
+.about-me-header h1,
+.about-me-header p {
+  margin: 0;
+}
+```
+
+Referring back to the browser you will see that we are very close to our goal. All that is left is adding our spacing, or gaps one might say, between the relevant elements. To recap, inside out `<header>` we want spacing of `16px` (`1rem`) and inside the parent `<article>` we want spacing of `32px` (`2rem`). We will use the `gap` property to achieve this.
+
+```css
+.about-me {
+  gap: 2rem;
+}
+
+.about-me-header {
+  gap: 1rem;
+}
+```
+
+Referring back to the browser and hovering over the two grid containers, you will now see it clearly indicate the gaps we just defined. We are very close now, but there is one bug. If you look close, you will see that the paragraph that makes up the bio adds and additional `1rem` of spacing for a total of `3rem`. This is not what the design calls for.
+
+We have two options here:
+
+1. Remove the `block-start` margin from the first paragraph element
+2. Half the grid gap on the `<article>` element
+
+Because of the nature of our layout, the simplest and most robust approach would be to half the grid gap on the `<article>` element. Because we now have some shared values, we can also safe a few lines of repitition by combining our gap rules:
+
+```css
+.about-me,
+.about-me-header {
+  display: grid;
+  gap: 1rem;
+}
+```
+
+We did it, our layout is now looking exactly as it should. We have a responsive type scale and our spacing is perfect.
+
+I'll help write a conclusion that summarizes the key concepts covered and bridges to the next article in the series. Here's my suggestion:
+
+## Wrapping Up
+
+In this third installment of our profile page series, we've laid important groundwork for creating a polished, accessible, and responsive profile page. We started by implementing a robust typographic system using both system fonts and custom web fonts, learning about important concepts like rem units, font-face declarations, and the significance of thoughtful font fallbacks.
+
+We then dove into making our page responsive through carefully considered media queries, adapting our typographic scale to ensure readability across different device sizes. By taking a mobile-first approach, we're building a solid foundation that will serve users well regardless of their device.
+
+Finally, we brought structure to our page using semantic HTML and CSS Grid, creating a clean layout with consistent spacing that will scale gracefully as we add more features.
+
+In the next part of this series, we'll refactor our CSS to make it more maintainable, tackle the implementation of our social links section, and explore CSS custom properties (variables), and perhaps even a few surprises along the way.
+
+Remember to push your changes to GitHub and keep your repository up to date. If you run into any challenges or have questions, feel free to open an issue on the repository or reach out to me directly.

@@ -88,7 +88,7 @@ As expected, this unfortunately did not resolve my problem. This is where I ende
 
 ## The solution
 
-In the end I decided to go with what I had in mind orginally. I started by running `git log` to find the commit where the file was added to the repository. I then ran the following command to reset the `HEAD` to the commit before the one where the file was added. It can look something like the following:
+In the end I decided to go with what I had in mind originally. I started by running `git log` to find the commit where the file was added to the repository. I then ran the following command to reset the `HEAD` to the commit before the one where the file was added. It can look something like the following:
 
 ```bash
 commit 77633e62372e1069c92586c851ad1daa171f2cdc (25-code-convert-sass-variables-into-css-custom-properties)
@@ -105,10 +105,10 @@ Date:   Thu Apr 25 23:37:22 2024 +0200
 Using the `commit` SHA from the `git log` output, I ran the following command:
 
 ```bash
-git reset HEAD --hard 77633e62372e1069c92586c851ad1daa171f2cdc
+git reset --hard 77633e62372e1069c92586c851ad1daa171f2cdc
 ```
 
-This command will reset the `HEAD` to the commit before the one where the file was added. Now that he file is no longer tracked by Git I could safely remove it from the repository, add my changes, create a new commit, and push the branch to GitHub.
+This command will reset to the commit before the one where the file was added. Now that he file is no longer tracked by Git I could safely remove it from the repository, add my changes, create a new commit, and push the branch to GitHub.
 
 ```bash
 git add .

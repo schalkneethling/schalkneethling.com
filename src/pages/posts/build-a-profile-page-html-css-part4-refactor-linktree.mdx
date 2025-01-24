@@ -1,0 +1,630 @@
+---
+layout: ../../layouts/MarkdownPostLayout.astro
+title: "Part Four: Building a Profile Page with HTML and CSS: Refactor, Custom Properties, LinkTree"
+pubDate: 2025-01-24
+description: "Learn how to build a responsive profile page with modern typography, media queries, and CSS Grid. Part three of our hands-on web development tutorial series."
+author: "Schalk Neethling"
+tags: ["frontend-engineering-explained"]
+---
+
+import Video from "../../components/Video.astro";
+
+Welcome to part four of the series. Well done for making it this far! We are nearing the end of our journey to build a profile page with HTML and CSS. In part four, we will do some refactoring of our CSS so that we take advantage of CSS custom properties. We will also complete the mobile layout by adding the LinkTree component to our page.
+
+## What is Refactoring?
+
+Refactoring is the process of restructuring existing computer code without changing its external behavior. In web development, refactoring helps improve code readability, reduce complexity, enhance performance, and make future modifications easier, all while ensuring the website or application continues to function exactly the same way. The emphasis is on functioning the same as refactoring can often improve the overall performance of the site or application.
+
+## What are CSS Custom Properties?
+
+At its core, you can think of CSS custom properties as variables you would encounter in other programming languages. In fact, CSS custom properties are often referred to as CSS variables. They allow you to store and reuse values throughout your CSS. Custom properties has a familiar form combining a property and a value. The way you will know that a property is a custom property is that it is defined using the `--` prefix. They are a powerful tool for creating reusable and maintainable CSS.
+
+When you want to reference a custom property, you can do so using the `var()` function. This function takes two arguments: the name of the custom property and a fallback value. The fallback value is used if the custom property is not defined. This ability to take a fallback is in itself is an incredibly useful feature.
+
+What you can do with custom properties is constantly expanding and one can write entire articles on the subject. Before we start refactoring our CSS, I want to walk you through two examples to demonstrate some of the power, utility, and reusability you get with CSS custom properties.
+
+Firstly, CSS custom properties also take part in the CSS cascade. This means that we can override a CSS custom property based on some conditions, for example. Of course, you need to take care when doing so, that you do this very intentionally and that you are not creating a maintenance nightmare for yourself. Let us take the example of our type scale. In the last part, we had an initial type scale defined but then realized that it will not work on smaller screens.
+
+We therefore added a media query, duplicated most of the code we had defined for our heading level elements, and then adjusted the font size for smaller screens to use a different type scale ratio. Code duplication is almost always a "code smell", which means it is a sign that we are most likely creating problems for ourselves in the future. With custom properties, we can approach this scenario as follows:
+
+```css
+:root {
+  --typography-heading-display: 2.027rem;
+}
+
+@media screen and (width >= 48rem) {
+  :root {
+    --typography-heading-display: 4.768rem;
+  }
+}
+```
+
+Now when we define the `.heading-display` class, we no longer need to be concerned with media queries:
+
+```css
+.heading-display {
+  font-size: var(--typography-heading-display);
+}
+```
+
+We can then use this class on an element and know that the typography will scale responsively:
+
+```html
+<h1 class="heading-display">Hello, World!</h1>
+```
+
+If you now need to change the value of either or both, you do it in one place and it will be reflected throughout your CSS. Before we continue, we need to discuss the new selector that was introduced in the above example. The `:root` selector is a pseudo-class selector that matches the root element of a document. In HTML, the root element is always the `html` element but, we use the `:root` pseudo-class selector because it also has [higher specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity) that the `html` selector. As such, this is the ideal container for our global properties and has become a accepted convention in front-end web development.
+
+Another quick example is using custom properties to define your color palette, but also specifically, for defining for example the primary brand color. You will inevitable use this color throughout your CSS and in various components. For example:
+
+```css
+.button-primary {
+  background-color: #1d9bf0;
+  color: #212121;
+}
+```
+
+Let's assume you use this brand color `#1D9BF0` in multiple places in your CSS. If you ever need to change the brand color, you would need to find and replace all instances of `#1D9BF0` in your CSS. This is a tedious and error-prone process. With custom properties, you can define the brand color once and then reference it throughout your CSS:
+
+```css
+:root {
+  --color-brand-primary: #1d9bf0;
+}
+
+.button-primary {
+  background-color: var(--color-brand-primary);
+  color: #212121;
+}
+```
+
+Now, if you ever need to change the brand color, you only need to do it in one place and as a bonus you also get a semantic (meaningful) name for the color. This scratches the surface of what is possible and we will see some more examples as we refactor our CSS.
+
+## Refactoring Our CSS
+
+Our first step is to refactor our type scale into custom properties. Sticking with our mobile-first approach, we will first define these custom properties. Create a new file called `variables.css` in the `css` directory and add the following:
+
+> **Note:** Remember to create your feature branch before you continue. If you do not already have a suitable issue, go ahead and create one for the CSS refactor.
+
+```css
+:root {
+  --typography-font-size-display: 2.027rem;
+  --typography-font-size-xxl: 1.802rem;
+  --typography-font-size-xl: 1.602rem;
+  --typography-font-size-large: 1.424rem;
+  --typography-font-size-medium: 1.266rem;
+  --typography-font-size-small-medium: 1.125rem;
+  --typography-font-size-default: 1rem;
+  --typography-font-size-small: 0.8rem;
+  --typography-font-size-tiny: 0.64rem;
+}
+```
+
+That takes care of our type scale for mobile and small screen devices. Next, we need to override some of these for larger displays. Add the following to the `variables.css` file below our current custom properties:
+
+```css
+@media screen and (width >= 48rem) {
+  :root {
+    --typography-font-size-display: 4.768rem;
+    --typography-font-size-xxl: 3.815rem;
+    --typography-font-size-xl: 3.052rem;
+    --typography-font-size-large: 2.441rem;
+    --typography-font-size-medium: 1.953rem;
+    --typography-font-size-small-medium: 1.563rem;
+  }
+}
+```
+
+We have one last step to complete our initial refactoring. We need to update our CSS to use these custom properties. Open the `typography.css` file and update it to the following:
+
+> **Tip:** Do not simply copy and paste the code below but instead, refer to the first few and then see if you can complete the remainder yourself. You can the refer to the code below to see whether you missed anything. This will help you internalize the changes and understand the process better.
+
+```css
+.heading-display {
+  font-size: var(--typography-font-size-display);
+}
+
+h1,
+.heading-xxl {
+  font-size: var(--typography-font-size-xxl);
+}
+
+h2,
+.heading-xl {
+  font-size: var(--typography-font-size-xl);
+}
+
+h3,
+.heading-large {
+  font-size: var(--typography-font-size-large);
+}
+
+h4,
+.heading-medium {
+  font-size: var(--typography-font-size-medium);
+}
+
+h5,
+.heading-small-medium {
+  font-size: var(--typography-font-size-small-medium);
+}
+
+.text-small {
+  font-size: var(--typography-font-size-small);
+}
+
+.text-tiny {
+  font-size: var(--typography-font-size-tiny);
+}
+```
+
+> **Tip:** If you are using VSCode I highly recommend that you [install CSS Var Complete](https://github.com/willofindie/vscode-cssvar/tree/main) as it will make working with custom properties a breeze and significantly speed up refactoring tasks such as this. If you already have it installed and it does not offer autocomplete of your newly added custom properties, try restarting VSCode or disabled and enabling the extension.
+
+With that, the refactoring of our type scale is complete. We are not done yet, however. Let us next create some custom properties for our line height. In the `variables.css` file, add the following:
+
+```css
+--typography-line-height-heading: 1.2;
+--typography-line-height-code: 1.4;
+--typography-line-height-prose: 1.5;
+```
+
+Go ahead and update code in `typography.css` to use these new custom properties. Our next bit of refactoring is to move our font families to custom properties.
+
+```css
+--typography-font-family-heading: "iowan old style", "apple garamond",
+  baskerville, "times new roman", "droid serif", times, "source serif pro",
+  serif;
+--typography-font-family-prose: -apple-system, blinkmacsystemfont, "Segoe UI",
+  roboto, oxygen, ubuntu, cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+--typography-font-family-code: menlo, consolas, monaco, "liberation mono",
+  "lucida console", monospace;
+```
+
+As with the line height, go ahead and update code in `typography.css` to use these new custom properties. After all of this, `typography.css` will look as follows:
+
+```css
+.heading-display,
+.heading-xxl,
+.heading-xl,
+.heading-large,
+.heading-medium,
+.heading-small-medium,
+caption,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--typography-font-family-heading);
+  line-height: var(--typography-line-height-heading);
+}
+
+.text-medium,
+.text-small-medium,
+body {
+  font-family: var(--typography-font-family-prose);
+  line-height: var(--typography-line-height-prose);
+}
+
+body {
+  font-size: 100%;
+}
+
+code {
+  font-family: var(--typography-font-family-code);
+  font-size: var(--typography-font-size-default);
+  line-height: var(--typography-line-height-code);
+}
+
+.heading-display {
+  font-size: var(--typography-font-size-display);
+}
+
+h1,
+.heading-xxl {
+  font-size: var(--typography-font-size-xxl);
+}
+
+h2,
+.heading-xl {
+  font-size: var(--typography-font-size-xl);
+}
+
+h3,
+.heading-large {
+  font-size: var(--typography-font-size-large);
+}
+
+h4,
+.heading-medium {
+  font-size: var(--typography-font-size-medium);
+}
+
+h5,
+.heading-small-medium {
+  font-size: var(--typography-font-size-small-medium);
+}
+
+.text-small {
+  font-size: var(--typography-font-size-small);
+}
+
+.text-tiny {
+  font-size: var(--typography-font-size-tiny);
+}
+```
+
+I am sure you will agree that this is a lot cleaner and also much easier to read _and_ understand. There is even more refactoring we will do, but before we continue refactoring, remember to import this new variables file in your `main.css` file. As a side note, I prefer to ensure that my global custom properties file is imported first in my CSS.
+
+While in `main.css` you will notice we set some padding values, we also set a border radius in our avatar CSS file and another spacing value in our "About Me" component CSS. These are all good candidates for refactoring into custom properties. I encourage you to give it a try and see how you get on. If you get stuck, you can refer to the code below.
+
+```css
+/* variables.css */
+--border-radius-circular: 50%;
+
+--size-16: 1rem;
+--size-24: 1.5rem;
+--size-32: 2rem;
+
+/* about.css */
+.about-me,
+.about-me-header {
+  display: grid;
+  gap: var(--size-16);
+}
+
+/* main.css */
+.page-wrapper {
+  padding: var(--size-32) var(--size-24);
+}
+
+/* avatar.css */
+.avatar {
+  block-size: 9.375rem;
+  border-radius: var(--border-radius-circular);
+  inline-size: 9.375rem;
+}
+```
+
+A couple of notes on the code above. One _could_ move the values for the block and inline size of the avatar to custom properties, but I tend to not do this however, you will find that I do make use of this for the icons we will be adding in the LinkTree component later. The primary reasons I made these choices are:
+
+- The avatar block and inline size is static and is used in a single place in our CSS. I more complex websites where the avatar is used in different contexts and different sizes, I would consider moving these to custom properties.
+- There are more than a single icon and they will all share the same block and inline size. While one should aim to keep styling for the icons in a single component CSS file, there may be instances where one will need to reuse these outside this component file. As such, it is generally beneficial to define the size of the icons as a global custom property.
+
+The important thing here is that it is a choice you need to make based on the context of your project. The key takeaway is that you should always aim to make your CSS as maintainable and reusable as possible. If defining something globally moves you toward this goal, then by all means, do so.
+
+In terms of the naming of the spacing custom properties (often also referred to as token or design tokens) I have worked on many websites and web applications and using the `--size-` naming scheme is so common that I have come to stick with it. Now, beyond this, there are several options and approaches one can take. Some teams choose to use what is commonly referred to as t-shirt sizes, such as `--size-small`, `--size-medium`, and `--size-large`. There are also more physical names used such as `--spacing-wide`, `--spacing-narrow`, and `--spacing-tight`.
+
+What I find particularly useful about the naming scheme I used above is that the numeric values represent pixel sizes. Under the hood we of course use `rem` units, but thinking in these pixel sizes feel intuitive to me (and I have found to many others as well) and it is still a very common mental model used by designers using tools such as Figma. This eases cross-functional team collaboration which is crucial to delivering great websites and web applications. What the underlying `rem` value is, is also intuitive and easy to calculate as it is simply the pixel value divided by 16.
+
+Whichever scheme or mental model you and your team chooses is less important. The key is to choose a naming scheme that makes sense to you and your team and that is consistent throughout your project. Also, be very, _very_ careful to not allow these spacing tokens to expand to the point where you have a token for every possible spacing value. This removes the usefulness of using custom properties and should also not be allowed by the underlying design system. While I am talking specifically about spacing tokens here, the same applies to all custom properties you define.
+
+Once you have completed your refactoring, test the changes to ensure everything is still as you would expect. If all is as expected, commit your changes and push them to your repository. Lastly, open and merge your pull request, and get ready for the next part (you should be familiar with what this means by now 😁 &mdash; hint: it involves branching), where we will complete the mobile layout by adding the LinkTree component.
+
+## Adding LinkTree
+
+For the branching strategy, I decided to use the [parent feature issue](https://github.com/schalkneethling/profile/issues/1) as my feature branch. When I open the pull request, I will reference all the issues that will be closed by the pull request in the description of the pull request to ensure that all relevant issues are closed when the pull request is merged.
+
+When thinking about the markup for the LinkTree component, we could mark this up as an `<article>` element as the content is self-contained and can be distributed independently from the rest of the content. However, there is a more appropriate element in my opinion and this element is the `<aside>` element.
+
+The `<aside>` element represents supplementary content that enriches the main page while remaining contextually related yet independently meaningful. Think of it like a sidebar in a magazine or textbook &mdash; content that provides additional context or interesting information that can stand alone.
+
+Crucially, the term "aside" refers to the semantic meaning of the content, not its visual placement. Just because it's called an "aside" doesn't mean it must be literally positioned to the side of a page. Instead, it describes content that complements the primary narrative without being essential to understanding it.
+
+Practical examples include:
+
+- Pull quotes that add depth to an article
+- Author biography sections on profile pages
+- Lists of related links or additional resources
+- Sidebar content with tangential but interesting information
+
+### The LinkTree HTML
+
+The key is that this content is loosely connected to the main content but can be understood independently, offering readers optional yet enriching information. As such, we will also add our `<aside>` outside the `<main>` element.
+
+```html
+<aside class="linktree"></aside>
+```
+
+For the heading we will use a level two heading element and add the class `heading-section`, which will allow us to style section headings uniquely from other headings. You will also notice that, while the text is in all caps in the design, we do not code it as such in the HTML. To be honest, I avoid setting text in all caps as it is generally hard to read especially for people struggling with various reading challenges such as dyslexia. Also, as with many things on the web, people can choose to either block the custom font you are using or. override it with their own font. So, while the text in all caps may seem readable to you or the design team, what people experience can be very different.
+
+With that said, you are likely to come across this in your work and might not always be able to successfully argue against its use. In these cases we can at least ensure that we are improving the situation for screen readers and those who disable CSS as we will use CSS to style the text in all caps.
+
+```html
+<h2 class="heading-section">On The Interwebs</h2>
+```
+
+All that remain are our links. As these are a list of links and order is not important or meaningful, we will mark this up using an unordered list.
+
+```html
+<ul class="linktree-link-list">
+  <li>
+    <a
+      class="linktree-link"
+      href="https://github.com/schalkneethling"
+      rel="external"
+      >Collaborate with me on GitHub</a
+    >
+  </li>
+  <li>
+    <a
+      class="linktree-link"
+      href="https://hachyderm.io/@schalkneethling"
+      rel="external"
+      >Join the conversations on Mastodon</a
+    >
+  </li>
+  <li>
+    <a
+      class="linktree-link"
+      href="https://linkedin.com/in/schalkneethling"
+      rel="external"
+      >Connect with me on LinkedIn</a
+    >
+  </li>
+  <li>
+    <a
+      class="linktree-link"
+      href="https://www.youtube.com/@SchalkNeethling"
+      rel="external"
+      >Learn with me on YouTube</a
+    >
+  </li>
+  <li>
+    <a
+      class="linktree-link"
+      href="https://dev.to/schalkneethling"
+      rel="external"
+      >Join me and the community on Dev.to</a
+    >
+  </li>
+  <li>
+    <a
+      class="linktree-link"
+      href="https://www.twitch.tv/schalkneethling"
+      rel="external"
+      >Join me for a live stream on Twitch</a
+    >
+  </li>
+</ul>
+```
+
+> **Tip:** Try this Emmet abbreviation in VSCode: `ul>li*6>a.linktree-link` &mdash; you may need to type all or some of out in order for VScode to recognize it as an Emmet abbreviation.
+
+There are a few things that we should discuss concerning the HTML above. Firstly, you will notice that I have added the `rel="external"` attribute to each of the links. This is a best practice when linking to external websites. The `rel` attribute is used to specify the relationship between the current document and the linked document. In this case, we are specifying that the linked document is external to the current document.
+
+You could use `target="_blank"` to force each link to open in a new tab or window (depending on the user's settings), but this is generally considered bad practice. It is better to let the user decide how they want to open the link. If they want to open it in a new tab or window, they can right-click the link and choose to do so.
+
+Each of our links have a descriptive name which is critical for screen readers as we will visually only be showing an icon. I will be the first to admit that only relying on the icon visually is not ideal, but again something you _will_ come across a lot in your daily work. The reason I say this is because while the icons themselves will be understandable to visual users and we are providing accessible text for screen readers, those using voice control is going to have a tough time with these. They will be forced to switch into grid mode and constantly narrow the grid until one of the blocks in the grid overlap with the icon they wish to trigger. This is not a good experience and is something we should always be aware of but, I do not yet have a solution. I would love to hear from you if you have any ideas on how to improve this experience. Sometimes, we have to at least ensure we are doing the right thing for the largest possible group of users.
+
+#### A Demonstration of Voice Control
+
+<Video videoSrc="/profile-tutorial/using-voice-control.mp4" width="612" />
+
+Lastly, you will notice that I have not added any classes to the links themselves. This is because we will be using the `::before` pseudo-element to add the icons to the links. This is a common pattern and one you will come across often. You could also embed the SVG directly in the HTML or even use an `<img>` element here, but because we have already discussed these approaches, I wanted to take this opportunity to show how one would go about adding icons in this manner.
+
+You may be wondering about the descriptive text though. Would this not be visible? The answer is yes, but we will address this next. How we can hidden content visually while still making it available to screen readers and in some cases keyboard users has been a topic of discussion for many years. Back in the 2010's the folks over at the Yahoo Accessibility Lab came up with a technique using CSS `clip` along with a few other properties. I seem to remember it being part of the [Yahoo Interface Library or YUI](https://github.com/yui/yui3) for short, but I might be hallucinating, it has been a while.
+
+Whatever the exact origin, this technique became known as the visually hidden technique in part due to the utility class name, `.visually-hidden`. You may also encounter it by other names such as `.sr-only`. In fact this has become such as standard approach that [Ben Meyers has even proposed](https://benmyers.dev/blog/native-visually-hidden/) that it should become part of the specification. Others such as Scott O'Hara written about this in their article [inclusively hidden](https://www.scottohara.me/blog/2017/04/14/inclusively-hidden.html) but has also [advocated (rightly) for fixing the underlying problems](https://www.scottohara.me/blog/2023/03/21/visually-hidden-hack.html) instead of making it a part of any standard.
+
+Where all of this may lead is an open question so, for the moment we still rely on the visually hidden technique. Let us add this to a new `utils.css` file and then import it in `main.css`:
+
+```css
+/* https://www.tpgi.com/the-anatomy-of-visually-hidden/ */
+.visually-hidden:not(:focus, :active) {
+  block-size: 1px;
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+```
+
+With this in place, we will wrap the text in each link with a `<span>` element and apply the `.visually-hidden` class to it:
+
+```html
+<li>
+  <a
+    class="linktree-link"
+    href="https://github.com/schalkneethling"
+    rel="external"
+    ><span class="visually-hidden">Collaborate with me on GitHub</span></a
+  >
+</li>
+```
+
+Why a `<span>` and not a `<div>`? Firstly, a `<span>` is an inline element while a `<div>` is a block level element which would not really make a difference in this situation as we are positioning the elements absolutely &mdash; However, the purpose of the `<span>` element is also for it to be used for text level semantics when there is no other more appropriate container element.
+
+What about using `aria-label` instead of visually hidden text? That is a valid question and the primary answer is content translation. As I have mentioned a few times already, how people choose to access and use your website or application on the web is incredibly diverse, and this is a great and wonderful thing. This does also mean that even though you may not be publishing your content in a language other than your native tongue, be it English or another language, a user may decide to use a translation tool to translate your content into a language they are more comfortable with. This is where `aria-label` is going to prove problematic. If you wish to take a deep dive into this topic, Adrian Roselli maintains a constantly updated blog post [all about the topic of translation tools and `aria-label`](https://adrianroselli.com/2019/11/aria-label-does-not-translate.html#Update06).
+
+### The LinkTree CSS
+
+With our HTML structure in place, it is time to style our LinkTree component starting with the heading. Before we jump into the styling for the heading, let us take a short detour. Create a new CSS file called `linktree.css` and add the following code:
+
+```css
+.linktree {
+  text-align: center;
+}
+```
+
+Open `typography.css` and at the end of the file add the following CSS:
+
+```css
+.heading-section {
+  border-block-end: var(--border-primary);
+  padding-block-end: var(--size-8);
+}
+```
+
+We have a couple of things to discuss here because you will notice that I am using two new custom properties. Firstly, we needed a `0.5rem` size (if you inspect the spacing between the text and the border) which is very common so it is safe to introduce this one. Add the following spacing token to `variables.css`:
+
+```css
+--size-8: 0.5rem;
+```
+
+The `--border-thin` custom property is an interesting one and further demonstrates how incredible useful they are. Here is what I added to `variables.css`:
+
+```css
+--color-brand-primary: #271165;
+
+--border-primary: 0.065rem solid var(--color-brand-primary);
+```
+
+You will notice that I also started adding our color tokens. Referring to `--border-thin` though, we are not merely storing a single value but three values one of which is a reference to another custom property. We could also refactor the thickness value of the border to a custom property, but we will likely not use `0.065rem` (`1px`) much at all but again, as soon as you find yourself duplicating the raw value, you should consider refactoring it to a custom property.
+
+If we ever need to change the thickness, style, or color of our primary borders, we can do it by adjusting this single custom property and have it update across the entire site. We have two more topics to address with the heading. Level two headings are set to use the `--typography-font-size-xl` custom property, but if you reference the design you will notice that the size of the heading is set to `20px` for small screens and `31px` for larger screens. Should you divide this by 16 it becomes clear that we are meant to use `--typography-font-size-medium` for these headings. We can fix this easily by adding the `heading-medium` class to the heading:
+
+```html
+<h2 class="heading-section heading-medium">On The Interwebs</h2>
+```
+
+The last item is to decide how we are going to implement the all caps. If we are confident that we will want _all_ section headings to be in all caps, we can add add the needed CSS for this to this class directly. However, are we sure we want this to be the case? If you are, you have a solution and you can implement it. If you are unsure and wish to give yourself a bit more flexibility, you can instead add a new utility class to the `typography.css` file and then apply it to the heading:
+
+```css
+.all-caps {
+  text-transform: uppercase;
+}
+```
+
+And then apply this class to the heading:
+
+```html
+<h2 class="heading-section heading-medium all-caps">On The Interwebs</h2>
+```
+
+Our decorative heading is now complete and looks pretty good. Before we move on I want to quickly touch on two topics. The first is a question you may be asking, "Why not add the utility class to `utils.css`?" That is a fair question, and there really is no right or wrong answer. I decided to not add it to `utils.css` because it is a typography utility class and I prefer to keep all typography related utility classes in the `typography.css` file. This is a personal preference and you may decide to do it differently. The key is to be consistent and ensure that your CSS is organized in a way that makes sense to you and your team.
+
+We now have three classes on a single heading element. This is fine and not something to loose any sleep over. In fact, if you have looked at CSS libraries such as [Tailwind CSS](https://tailwindcss.com/) you will see that this is a common pattern. Personally, I have found that this can quickly get out of hand and be more of a maintenance burden than a help.
+
+I would say that as with almost everything in programming, once you find that you are adding a lot of classes to a single element, it may be a sign that you need to step back and reconsider whether you may need to refactor your CSS or simplify the code overall. This is a topic that is often debated and I encourage you to read up on it and form your own opinion.
+
+Having just stated the above, I am going to introduce another utility class we will be using for our list of links. We often use, especially unordered lists, in our markup as so many things can be represented as a list. Be careful though, not everything that can be represented as a list should be a list. Something that has helped me is to ask myself the question, "If I was using a screen reader, would there be any benefit if the screen reader announced this as a list and told me how many items is in the list?"
+
+This is not a fool proof approach, but it has proven helpful. But still, many UI elements are lists and more often than not, we wish to turn of all margins and padding, and also hide the default bullets. Repeating this over and over again can become tedious. As such, I have found it useful to have a utility class that will remove the default list styling. Add the following to `utils.css`:
+
+```css
+/* reset default list styling */
+.reset-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+```
+
+With this in place, we can now apply this class to our list container:
+
+```html
+<ul class="reset-list linktree-link-list">
+  <!-- links here -->
+</ul>
+```
+
+If you preview the page at this point you will find that our list is, for all intents and purposes, invisible. However, if you access the page with a screen reader, you will find that the screen reader has access to the list and the text for each link.
+
+#### A Demonstration of the Visually Hidden Technique
+
+<Video videoSrc="/profile-tutorial/screen-reader-with-visually-hidden.mp4" width="612" />
+
+A couple of points on the video above:
+
+- This will behave the same way if the icons were visible.
+- Interestingly, VoiceOver shows the second level heading in all caps in the overlay and the rotor even though we set this with CSS.
+
+Before we jump into styling our links and the overall component, now is a good time to add the icon SVG files to your project. You can grab them from the [repository that accompany this series](https://github.com/schalkneethling/profile). To make following along easier, be sure to save them in the `assets > icons` directory.
+
+> **Note:** I exported these from Figma and then ran them through the amazing [SVGOMG tool](https://svgomg.net/) by the equally amazing [Jake Archibald](https://github.com/jakearchibald). This tool is a great way to optimize your SVG files and ensure that they are as small as possible.
+
+Another small detour is needed to prepare our HTML for the next phase. We need to add some CSS classes to our links so that we can add the needed styling for icons and also ensure we display the appropriate icon for each link. Add the following classes to each of the links:
+
+```html
+<li>
+  <a
+    class="linktree-link icon icon-github"
+    href="https://github.com/schalkneethling"
+    rel="external"
+    ><span class="visually-hidden">Collaborate with me on GitHub</span></a
+  >
+</li>
+```
+
+With these changes to all links in place, we are ready to finish up the styling for our LinkTree component. Let's change our LinkTree to use `grid` layout so that we can more easily set the gap needed between the heading and the links.
+
+```css
+.linktree {
+  display: grid;
+  gap: var(--size-32);
+  text-align: center;
+}
+```
+
+What you will notice when you preview this in a browser and inspect the grid is that we have run into a familiar problem. Our heading element adds a margin to the top (as we have seen before), but also to the bottom. We can again choose to half the gap or, we can target the heading element specifically and remove the margin. I chose to do the latter in this instance. I unfortunately cannot give you a well thought through reason for this. It just felt like the right approach to me:
+
+```css
+.linktree .heading-section {
+  margin-block-end: 0;
+}
+```
+
+Create a new file called `icons.css` and import it in `main.css`. As mentioned earlier, we will be using a custom property to define the size of our icons. Add the following to `variables.css`:
+
+```css
+--icon-size: var(--size-24);
+```
+
+> **Tip:** I try to keep my custom properties organized alphabetically as much as possible. I find this makes it eay to find what I am searching for.
+
+Add the following to `icons.css`:
+
+```css
+.icon::before {
+  block-size: var(--icon-size);
+  content: "";
+  display: block;
+  inline-size: var(--icon-size);
+}
+
+.icon-github::before {
+  background-image: url("../assets/icons/github.svg");
+}
+```
+
+The only property in the above that is worth discussing a bit is the `content` property. This seemingly simply property has evolved quite a bit and a proper discussion of it will warrant a separate article. For our immediate purposes, this is what you need to know. The `content` property produces what is called, CSS-generated content, does not become part of the document object model (DOM) and as such will also not be part of the accessibility tree. Most browser and screen reader combinations will therefor ignore this content.
+
+For our purpose here, this is not a concern as we are setting it to the empty string and using the pseudo element to display our icon with the proper text equivalent already present in the HTML. It is important that we add the property and set its value to the empty string because if we do not, the pseudo element will not be rendered. You can test this be commenting out the `content` property and reloading the browser. You can write the remaining CSS needed for all of the icons we need following the pattern from above.
+
+When you are done, refresh your browser. You should now see all of the icons displayed but, they will be stacked on top of each other, this is the expected behavior as we are still getting the default list rendering. So far we have been choosing grid as our layout mechanism and we could continue to do so here, but I want to take a moment to explain the difference between grid and flexbox.
+
+Piet Mondrian's geometric compositions offer the perfect illustration. Mondrian's work, particularly [pieces like "Composition A,"](https://www.wikiart.org/en/piet-mondrian/composition-a-1923) represents a layout impossible with Flexbox, but perfectly achievable with Grid. Mondrian's paintings are characterized by geometric shapes precisely positioned creating a complex visual structure. CSS Grid enables exactly this precise placement of elements in both horizontal and vertical planes, with the ability to overlap elements, create gutters, and exact spatial relationships.
+
+With Flexbox, you could never recreate a Mondrian painting's layered, geometric precision. Flexbox is fundamentally linear, pushing elements along a single axis, whereas Grid allows you to break free from that constraint and create layouts that are more akin to abstract art than traditional linear design. For our link list, we want that simple, flexible hallway-like arrangement allowing elements to wrap or resize naturally without the complexity of a full grid system.
+
+Referencing the design in Figma we want:
+
+- The links to be displayed in a single horizontal row
+- The links to wrap to the next line if they do not fit in the available space
+- The links should have `1.5rem` of spacing between them
+- The links should be centered in the available space both horizontally and vertically
+
+Those are a lot of requirements but it is all achieved with five lines of CSS. Add the following to `linktree.css`:
+
+```css
+.linktree-link-list {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--size-24);
+  justify-content: center;
+}
+```
+
+It is unlikely we will ever need to wrap our links, but you can test it by making the output area in responsive mode really narrow. And with that, our LinkTree component is complete. You can now commit your changes and push them to your repository. Open a pull request and merge it. You can [review my pull request](https://github.com/schalkneethling/profile/pull/21) to see how I referenced all the issues that were closed by the pull request.
+
+What remain is the following:
+
+- The send a message button is still missing (I just might have a surprise for you here)
+- The desktop layout is still missing
+- Our favicon is missing
+- Our Open Graph data is still missing
+
+I also have a few additional topics I will touch on, but you will have to wait to find out what those will be. 😁 I hope you are enjoying this series as much as I am enjoying writing it. I will see you in the next part and feel free to reach out to me should you have any questions. Until then, stay curious, keep learning, and remember: every line of code is an opportunity to make the web a little bit better.

@@ -60,4 +60,14 @@ To start, here is the planned weekly study schedule:
 
 ---
 
+## Resources for the Week
+
+- [WCAG Official Documentation](https://www.w3.org/TR/WCAG/)
+- [WCAG 2.2 Quick Reference](https://www.w3.org/WAI/WCAG22/quickref/)
+- [Understanding WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/)
+- [Techniques for WCAG 2.2](https://www.w3.org/WAI/WCAG22/Techniques/)
+- [Practical Accessibility course by Sara Soueidan](https://practical-accessibility.today/) so, so good!
+
+---
+
 Ok, now it is out there and I am on the hook to actually do this. Wish me luck! 🤞 Ideas, suggestions, cautionary tales? Hit me up on [Mastodon](https://hachyderm.io/@schalkneethling), [BlueSky](https://bsky.app/profile/schalkneethling.com), or [LinkedIn](https://linkedin.com/in/schalkneethling).

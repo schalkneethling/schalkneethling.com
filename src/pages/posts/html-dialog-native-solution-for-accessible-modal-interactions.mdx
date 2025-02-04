@@ -1,0 +1,292 @@
+---
+layout: ../../layouts/MarkdownPostLayout.astro
+title: "The HTML Dialog Element: A Native Solution for Accessible Modal Interactions"
+pubDate: 2025-02-04
+description: "Learn how to use the HTML dialog element to create accessible modal dialogs for your web sites and applications."
+author: "Schalk Neethling"
+tags: ["frontend-engineering-explained", "html", "css"]
+---
+
+import { BaselineStatus } from "astro-embed";
+import Video from "../../components/Video.astro";
+
+In web development, there are times when we need to interrupt the user's current flow and focus their attention on a specific task. This is where dialog elements (also known as modals) come into play. However, implementing accessible dialogs has historically been challenging. Thanks to the native [HTML `<dialog>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog), many of these challenges are now handled by the browser and assistive technologies.
+
+Web Standards for the Win!
+
+In this article, we'll explore the `<dialog>` element for those times when a modal is the right user interface choice.
+
+## When to Use a Dialog
+
+Before diving into the technical implementation, it's crucial to understand when a dialog is the appropriate UI component. Dialogs should be used when:
+
+- You need to block further action until a response is provided by the user (e.g., confirmation before deleting an item)
+- The user needs to complete a focused task without the distraction of the main page content
+- You're collecting user input that relates to their current context
+- Displaying critical information that requires acknowledgment
+
+However, dialogs shouldn't be used for:
+
+- Content that is frequently accessed
+- Complex workflows that require context from the main page
+- Marketing messages or non-essential notifications
+- Content that should be part of the main page flow
+
+## Before the `<dialog>` Element
+
+Traditionally, implementing an accessible dialog required managing numerous challenges manually:
+
+- Capture and store the element that opened the dialog
+- Programmatically set focus to the first focusable element when the dialog opens
+- Return focus to the triggering element when the dialog closes
+- Implement a focus trap to prevent users from tabbing outside the dialog
+- Close the dialog when the ESC key is pressed
+- A visible close or cancel button
+- Apply the appropriate ARIA attributes and roles.
+- You also probably need to center that `<div>` (Most likely the [hardest part](https://www.reddit.com/r/webdev/comments/pqbxst/why_is_there_so_many_memes_about_how_hard/) 😅)
+
+For a detailed description and some example code you can refer to the ARIA Authoring Practices guide for the [Dialog (Modal) Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/). To get a sense of the amount of JavaScript code required for an implementation that is still mentioned to not necessarily be production ready, see [this Modal Dialog Example](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/dialog/). Take a moment to open the Codepen example and see the number of lines of code required to implement this dialog.
+
+## Use The Native `<dialog>` Element
+
+### The HTML
+
+The HTML `<dialog>` element simplifies this process significantly. Here's our HTML:
+
+<BaselineStatus id="dialog" />
+
+```html
+<button id="edit-bookmark" type="button" class="button solid">
+  Edit Bookmark
+</button>
+
+<dialog aria-labelledby="dialog-edit-bookmark-title" id="dialog-edit-bookmark">
+  <form method="dialog">
+    <button class="close-dialog" type="submit">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+        role="img"
+      >
+        <path
+          d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"
+        />
+      </svg>
+      <span class="visually-hidden">Close dialog</span>
+    </button>
+  </form>
+
+  <h3 id="dialog-edit-bookmark-title">Edit Bookmark</h3>
+
+  <form
+    aria-labelledby="dialog-edit-bookmark-title"
+    class="edit-bookmark-form"
+    id="edit-bookmark-form"
+    name="edit-bookmark"
+    method="post"
+  >
+    <div class="form-field">
+      <label for="edit-title">Update the bookmark title</label>
+      <input type="text" name="edit-title" id="edit-title" autofocus required />
+    </div>
+    <div class="form-field">
+      <label for="edit-description">Update the bookmark description</label>
+      <textarea
+        name="edit-description"
+        id="edit-description"
+        rows="3"
+      ></textarea>
+    </div>
+    <div class="bookmark-actions">
+      <button
+        class="button solid critical"
+        id="dialog-edit-cancel"
+        type="button"
+      >
+        Cancel
+      </button>
+      <button class="button solid" type="submit">Save Changes</button>
+    </div>
+  </form>
+</dialog>
+```
+
+Let's step through the HTML. We start by adding a button that will be the trigger for the `<dialog>`. We then add the `<dialog>` element itself. The first element inside the dialog is a `<form>` element containing a single `<button>` element. The `<button>` contains an SVG and descriptive text which will be visually hidden so that visual users see only the icon but the text is still read aloud to screen reader users.
+
+But why put the close button inside a form? Good question! If you refer to the `<form>` and `<button>` you will notice two things:
+
+- The `<form>` has a `method` attribute set to a value of `dialog`.
+- The `<button>` has its `type` attribute set to `submit`.
+
+The `dialog` value used as the value for the form `method` was introduced with the `<dialog>` element and has special meaning. When a form with a `method` attribute set to `dialog` is submitted, the dialog will be closed and focus returned to the invoking element. This is why we also need to set the `type` attribute of the button to `submit` so that the form is submitted when the button is pressed.
+
+Another variation on this is to [use the `formmethod` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog#usage_notes) on a `<button>` element set to the same `dialog` value. For example, we _could_ do this with the cancel button above. However, you need to be careful because if there are any required fields in the form that are empty, validation will raise an error and the dialog will not close. This approach is commonly used for confirmation dialogs where the user has to confirm an action but provide no additional input. For example:
+
+```html
+<button id="delete-bookmark" type="button" class="button solid">
+  Delete Bookmark
+</button>
+
+<dialog
+  aria-labelledby="dialog-delete-bookmark-title"
+  id="dialog-delete-bookmark"
+>
+  <h3 id="dialog-delete-bookmark-title">
+    Are you sure you want to delete the bookmark?
+  </h3>
+  <form name="delete-bookmark" action="/delete" method="post">
+    <button type="submit" formmethod="dialog">Cancel</button>
+    <button type="submit">Delete</button>
+  </form>
+</dialog>
+```
+
+Next in our dialog we have a title and a form allowing the user to edit their bookmark. There is one more detail you may have noticed and that is the use of the `autofocus` attribute on the bookmark title `<input>` element. The `<dialog>` element has focusing steps it uses to pick a good candidate for initial focus when a dialog is shown. This has changed some since the initial implementation and has now landed on what has been widely agreed to be the most logical approach.
+
+This boils down to three things (here is the [relevant pull request that updated the specification on GitHub](https://github.com/whatwg/html/commit/a9f103c9f7bd09ef712990194638c75db1f50e3c)):
+
+1. Make the dialog focusing steps look at sequentially focusable elements instead of any focusable element.
+2. Make the dialog element itself get focus if it has the autofocus attribute set.
+3. Make the dialog element itself get focus as a fallback instead of focus being reset to the body element.
+
+This means that in almost all cases, focus will be set on the `<dialog>` element itself. If this works for you and the use case at hand, there is nothing further for you to do. However, the specification authors are encouraging developers to make use of the `autofocus` attribute mentioned above to set focus to the most logical item in the dialog if the dialog itself is not the best choice. To quote from the specification:
+
+> An important part of user-facing dialog behavior is the placement of initial focus. The dialog focusing steps attempt to pick a good candidate for initial focus when a dialog is shown, but might not be a substitute for authors carefully thinking through the correct choice to match user expectations for a specific dialog. As such, authors should use the `autofocus` attribute on the descendant element of the dialog that the user is expected to immediately interact with after the dialog opens. If there is no such element, then authors should use the `autofocus` attribute on the `dialog` element itself.
+
+I set `autofocus` to the bookmark title `<input>` element because it is the first field in the form and the most likely place the user will want to start interacting with the dialog. However, be careful, if this would have caused important or contextual information to have been scrolled out of view, it would have been better to set focus to the dialog itself.
+
+### The JavaScript
+
+With the HTML in place, the following is the JavaScript needed to show the dialog when a user clicks the trigger button and close the dialog when a user presses the Cancel button:
+
+```javascript
+const buttonEditCancel = document.querySelector("#dialog-edit-cancel");
+const buttonEditBookmark = document.querySelector("#edit-bookmark");
+const dialogEditBookmark = document.querySelector("#dialog-edit-bookmark");
+
+buttonEditBookmark.addEventListener("click", () => {
+  dialogEditBookmark.showModal();
+});
+
+buttonEditCancel.addEventListener("click", () => {
+  dialogEditBookmark.close();
+});
+```
+
+It is important to note that I am using the [`showModal` function](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/showModal) here. This function is used to show the dialog as a modal dialog. This means that the dialog will be displayed in a way that prevents interaction with the rest of the page until the dialog is closed. In cases where you need a dialog but you do not want to prevent the user from interacting with the rest of the page, you can [use the `show` function](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/show) instead.
+
+### The ARIA
+
+Referring to the modal pattern I referenced earlier, we need to take care of some [ARIA roles and properties](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/#roles_states_properties). Fortunately, because we are using the native `<dialog>` element, there is only one item we need to take care of ourselves. The `<dialog>` element already has an implicit `role` set to `dialog`, and because we are using the `showModal` function, it also has `modal` (`aria-modal`) set to true. Lastly, because all the elements that form part of the content of the dialog are already descendants of the dialog element there is only one thing left, setting the title of the `<dialog>`.
+
+Seeing that our dialog element has a heading that can serve as the title, we set an `id` on the heading and use its value as the value of the `aria-labelledby` attribute on the `<dialog>` element. With that, everything is taken care of. You can inspect this yourself using the accessibility inspector in your browser.
+
+<Video videoSrc="/html-dialog/a11y-inspector-chrome-dialog.mp4" width="780" />
+
+### The CSS
+
+Next I added some very basic CSS to make the `<dialog>` and its content look a bit more presentable:
+
+```css
+dialog {
+  border-radius: 0.5rem;
+  box-shadow: 0 0 1rem rgba(0 0 0 / 30%);
+  padding: 2rem;
+}
+
+.dialog-edit-bookmark[open] {
+  display: grid;
+}
+
+.form-close-dialog {
+  justify-self: end;
+}
+
+.form-field {
+  display: grid;
+  gap: 0.5rem;
+  margin-block-end: 0.5rem;
+}
+
+.close-dialog {
+  display: grid;
+  place-items: center;
+}
+
+/* https://www.tpgi.com/the-anatomy-of-visually-hidden/ */
+.visually-hidden:not(:focus, :active) {
+  block-size: 1px;
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+```
+
+### The backdrop
+
+Historically, adding a backdrop to a dialog has been a challenge. This is the semi-transparent overlay that covers the rest of the page when the dialog is open. This is another way one can remove some of the visual distraction from the rest of the page and signal that the underlying page content is inert. The good news is that the `<dialog>` element handles this for us.
+
+Do you want even more good news? You can style the backdrop using the [CSS `::backdrop` pseudo-element](https://developer.mozilla.org/en-US/docs/Web/CSS/::backdrop). Here is a _very_ simple example, feel free to experiment with this:
+
+```css
+dialog::backdrop {
+  background: rgba(0 0 0 / 50%);
+}
+```
+
+### What the Browser Handles Automatically
+
+With that, you now have a robust, reusable, and accessible basis for those times when the user interface calls for the use of a dialog. As you can also gather from the above, the bulk of what we needed to write and discuss was HTML. We had very little need for JavaScript and even CSS to make for a working and decent looking UI. Referring back to the list we had earlier:
+
+- Capture and store the element that opened the dialog
+- Programmatically set focus to the first focusable element when the dialog opens
+- Return focus to the triggering element when the dialog closes
+- Implement a focus trap to prevent users from tabbing outside the dialog
+- Close the dialog when the ESC key is pressed
+- A visible close or cancel button
+- Apply the appropriate ARIA attributes and roles.
+- You also probably need to center that `<div>`
+
+All of these requirements except for the focus trap (see the note below) are covered as well as anything additional mentioned in the Dialog Pattern in the ARIA Authoring Practices guide. This is a significant improvement in terms of the amount of code and complexity required to implement a dialog.
+
+> **Note:** On the topic of focus trapping, the `<dialog>` element does not implement a focus trap. This is still something you will need to implement yourself. There are a few ways to do this but, to not further expand this post, I will leave this for a future post. If you are curious and cannot wait, I made a Codepen where you can see one way to implement a focus trap: [Focus Trap in a Dialog](https://Codepen.io/schalkneethling/pen/ogvRmmM).
+
+## The Future: Declarative Dialog Control
+
+While currently we need JavaScript to open and close dialogs, the web platform continues to evolve. The upcoming [Invoker Commands API](https://developer.mozilla.org/en-US/docs/Web/API/Invoker_Commands_API) will allow for declarative control of dialogs directly in HTML:
+
+```html
+<button type="button" command="show-modal" commandFor="confirmDialog">
+  Open Dialog
+</button>
+<dialog id="confirmDialog">
+  <button type="button" command="close" commandFor="confirmDialog">
+    Close Dialog
+  </button>
+  <!-- Dialog content -->
+</dialog>
+```
+
+This advancement will further simplify dialog implementation, reducing the need for JavaScript and making dialog controls more maintainable and accessible by default.
+
+## Conclusion
+
+The native HTML `<dialog>` element represents a significant step forward in accessible web development. It removes much of the complexity involved in implementing accessible modal dialogs, allowing developers to focus on creating meaningful interactions rather than wrestling with technical implementation details or reinventing the wheel.
+
+By understanding when to use dialogs appropriately and leveraging the native capabilities of the `<dialog>` element, we can create more accessible and user-friendly web applications with less code.
+
+## Further Reading
+
+For more information about the dialog element and its accessibility considerations, check out these excellent resources:
+
+1. You can [experiment with the code](https://Codepen.io/schalkneethling/pen/vEBwNVL) used in the post using the Codepen demo.
+1. Scott O'Hara's &mdash; [Having an open dialog (archival post)](https://www.scottohara.me/blog/2019/03/05/open-dialog.html)
+1. Scott O'Hara's &mdash; [Use the dialog element (reasonably)](https://www.scottohara.me/blog/2023/01/26/use-the-dialog-element.html)
+1. Hidde de Vries &mdash; [Dialog dilemmas and modal mischief on YouTube](https://www.youtube.com/watch?v=uZRp7yY8SS0)
+
+These resources provide additional context and best practices for working with the dialog element.

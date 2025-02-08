@@ -1,0 +1,328 @@
+---
+layout: ../../layouts/MarkdownPostLayout.astro
+title: "Part Five: Building a Profile Page with HTML and CSS: Responsive, Favicon, Open Graph"
+pubDate: 2025-02-07
+description: "In part five of the series, we will complete our layout, add a favicon, and set up Open Graph meta tags for social sharing."
+author: "Schalk Neethling"
+tags: ["frontend-engineering-explained"]
+---
+
+import FigmaEmbed from "../../components/FigmaEmbed.astro";
+import Video from "../../components/Video.astro";
+
+Welcome to part five of the series. Before we start, please take a moment to congratulate yourself for sticking with it and getting this far. We are getting close to the conclusion of this series so, hang in there, you got this! In part five we will complete our layout, add a favicon, and set up Open Graph meta tags for social sharing. Let's get started.
+
+Seeing that we will be wrapping up the layout, I am embedding the Figma design here again for ease of reference.
+
+<FigmaEmbed
+  title="An embedded Figma design that shows a simply profile page with an avatar, some prose about the person, and a list of links to various online social platforms."
+  url="https://embed.figma.com/design/R8P8XiXVMPgKTmsmrVt7k9/My-Profile-Page?node-id=0-1&embed-host=share"
+/>
+
+## Let's Get Responsive
+
+Before you get started, remember to start a [new feature branch preferably associated with an issue](https://github.com/schalkneethling/profile/issues/22) on GitHub. Next, open up your page in your browser of choice, switch to responsive mode and select either one of the tablet presets, or a responsive size of `768px` (`48rem`) by `1024px` (`64rem`). Ensure that the zoom level is set to 100% or some of the text might look smaller than it truly is.
+
+<Video
+  videoSrc="/profile-tutorial/switch-to-tablet-size-responsive.mp4"
+  width="718"
+/>
+
+The only style change I want to make at this point is to center the remainder of the content on the page. Because we want these style to start to apply at `768px` we will set our media query to `1px` less than `768px` which is `767px`, but of course use `rem` units. Add the following CSS to your `main.css` file.
+
+```css
+@media screen and (width > 47.9375rem) {
+  main {
+    text-align: center;
+  }
+}
+```
+
+This will center the content inside the `main` section on the page when the viewport is `768px` or larger. Switching the viewport to landscape from the current portrait still looks good, so we can move on to the next step.
+
+<Video videoSrc="/profile-tutorial/tablet-portrait-landscape.mp4" width="718" />
+
+If we switch to a larger viewport size, for example `1440px` (`90rem`) you will notice that out paragraph(s) of text keeps stretching to fill the available width (inline size) of the browser window. Not only is this not what the design calls for, but it also makes the text harder to read. There is a great [article by the Baymard Institute on the optimal line length](https://baymard.com/blog/line-length-readability) for online content, which is around `50-75 characters` per line. To address this will will add a `max-inline-size` to our `<main>` element that will start to apply at `1024px` (`64rem`).
+
+```css
+@media screen and (width > 63.9375rem) {
+  main {
+    max-inline-size: 90rch;
+  }
+}
+```
+
+Here we encounter a new CSS unit of measure, `rch`.
+
+### What is `rch`?
+
+If you read the [MDN Web Docs documentation on CSS values and units](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Values_and_Units), you will find this unit under root font-relative lengths and defined as follows:
+
+> Average character advance of a narrow glyph in the root element's font, as represented by the "0" (ZERO, U+0030) glyph.
+
+There are a number of phrases here that made me scratch my head a little so, let us break it down. If we consider that there is also a `ch` unit and then refer back to the tables on MDN, we can see that the `em` unit is group with `ch` while the `rem` unit is grouped with the `rch` unit. We previously discussed that the difference between `em` and `rem` is that `em` is relative to the font size of the parent element, while `rem` is relative to the font size of the root element.
+
+In the same way `rch` related to the root font while `ch` related to the parent font. However, it is not concerned with the size of the font. Instead, it is concerned with the width of the character of the font. This brings us to the first head scratcher, "average character advance".
+
+#### What does "average character advance" mean?
+
+- "Character advance" refers to the horizontal space taken up by a character when rendered in a given font.
+- "Average character advance" means that it's an approximation of the typical width of a narrow character (glyph) in that font.
+
+#### What does "root element's font" mean?
+
+What `1rch` unit represents is calculated based on the font applied to the root element. Either the `<html>` or `<body>` element. This also means that if the font of the root element changes, the value of `1rch` may also change depending on how much the font metrics differ. The last point is less of a concern as one does not typically swap out the font of the root element. However, be careful, as this could occur and potentially cause a large repaint in the browser should your custom web font take some time to load.
+
+Remember as we discussed before, when we use for example `font-display: swap;` in our `@font-face` declaration, the browser will render the text in our specified fallback font until the custom font is loaded. If the font metrics differ significantly, this could trigger a repaint in the browser as the what `1rch` represents changes. I have not encountered this in any meaningful way, but it is something to be aware of and another reason to ensure _you_ specify the fallbacks.
+
+#### Why zero (`0`)?
+
+The zero (`0`) character is often used as a reference because:
+
+- It has a relatively consistent width across different fonts which again reduces the risk mentioned above.
+- It represents a narrow glyph (compared to wider characters like "W" or "M").
+- It avoids uncertainty in width calculations, which could arise from proportional fonts where letter widths vary.
+
+> **Note:** Proportional fonts? What are those? Well, most fonts are proportional fonts. This means that each character takes up a different amount of horizontal space. This is in contrast to monospaced fonts (like the one used in your code editor) where each character takes up the same amount of horizontal space.
+
+We could therefore rewrite the earlier statement as follows:
+
+> The value of `1rch` is the width of the `0` (ZERO, U+0030) character in the root element's font, serving as an approximation of the average character width.
+
+And practically we can represent this as follows if the `0` character in the root font has a width of 10 pixels, then:
+
+```css
+inline-size: 5rch;
+```
+
+Would be equivalent to:
+
+```css
+inline-size: 3.125rem; /* 50px */
+```
+
+Considering that our contain is primarily text, using the `rch` unit to  determine our maximum width is ideal, but why?
+
+- As mentioned earlier, the optimal line length for readability is typically 50-85 characters per line.
+- Using `rch` ensures that the container width adapts to the font size and type of the root element.
+- Unlike `ch`, which is based on the width of the "0" character in the current element's font, `rch` bases the measurement on the root font, ensuring a more consistent experience across the page.
+
+Here is a quick comparison table for ease of reference:
+
+| Unit  | Basis | Pros | Cons |
+|-------|------|------|------|
+| `rch` | Root font's "0" character width | Adapts to global font changes, maintains consistent reading width | Limited browser support |
+| `ch`  | Current element's "0" width | Good for monospace text, input fields | Can be inconsistent across fonts |
+| `rem` | Root font size | Predictable scaling | Doesn't directly relate to character width |
+| `%`   | Parent element width | Flexible for fluid layouts | Doesn't guarantee readable line length |
+
+#### On Browser Support
+
+Unfortunately, at the time of writing (February, 2025), the `rch` unit is [not yet supported in Firefox](https://caniuse.com/?search=rch%20unit). This means that we need to provide a fallback. We can do this by using a `max-inline-size` in `rem` units that will apply at the same breakpoint. You might have to experiment a little to find the optimal `rem` value, but for the font stack I used, mine ended up being `45rem`.
+
+```css
+@media screen and (width > 63.9375rem) {
+  main {
+    max-inline-size: 45rem; /* Fallback for Firefox */
+    max-inline-size: 90rch;
+  }
+}
+```
+
+The order above is important. The fallback must come first, followed by the `rch` value. This is because the browser will apply the last rule it encounters. If the browser does not support `rch`, it will ignore the second rule and apply the first one. This is another concrete example of the CSS cascade at work (embrace the cascade 😁).
+
+However, you will notice one more problem. Currently the our container is not being centered even though our text is. Thew wider the viewport, the more you will notice this. One final small addition will address this:
+
+```css
+@media screen and (width > 63.9375rem) {
+  main {
+    margin: 0 auto;
+    max-inline-size: 45rem; /* Fallback for Firefox */
+    max-inline-size: 90rch;
+  }
+}
+```
+
+I have an upcoming article about the something important you need to be aware of concerning short-hand properties such as `margin` and `padding`. I will link to it here once it is published. Because we are setting both the block and inline margins to the same value, there is no concern here and we can happily use the shorthand property. What this does is set the block start and end to `0` and then the inline start and end to `auto`. This will center the container on the page because the margins on either side will automatically adjust to ensure our container is centered.
+
+But ouch! We have a problem. The border we added to our LinkTree component heading stretches to fill the entire width of the container. 😔
+Not to worry, these are subtle problem you will often encounter while building for the web. We have two options here.
+
+We can set the same maximum width we set on the `<main>` element on the `<h2>` element inside the LinkTree component. However, when you do this, you will find that you now encounter the same problem we had with the `<main>` element. We could also set the margin as we did, but now we are duplicating a lot of code. This is usually the point where you need to step back and look at the larger picture and reevaluate some of the decisions you have made.
+
+If we consider that we have the `page-wrapper` that contains all of our content, what if we moved these rules to `.page-wrapper`? This way, we can ensure that all of our content is centered and that we only need to set the maximum width and margins once. This is a great example of [the DRY principle](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) in action. DRY stands for "Don't Repeat Yourself" and is a principle that encourages you to avoid duplicating code as duplicated code is harder to maintain and can lead to inconsistencies.
+
+We will now have the following:
+
+```css
+.page-wrapper {
+  margin: 0 auto;
+  max-width: 45rem;
+  max-width: 90rch;
+  padding: var(--size-32) var(--size-24);
+}
+
+@media screen and (width > 47.9375rem) {
+  main {
+    text-align: center;
+  }
+}
+```
+
+That is nice and clean. I decided to keep the `text-align` property separate and applied only to the `<main>` element as you may want to add other sections within the `page-wrapper` and not necessarily want to center the text in those sections. We are so close, but you will notice one last thing. When we added the border to the LinkTree heading we also added a primary color and used it as the border color. Referring to the design, we want to set all our copy the primary brand color.
+
+In `main.css` add the following:
+
+```css
+body {
+  color: var(--color-brand-primary);
+}
+```
+
+However, it is best practice to set a background color whenever you set a foreground (text) color. This is for several reasons:
+
+- It ensures that text is legible against the background.
+- Prevents issues with user stylesheets. If you only set a foreground color (e.g., color: black;) without setting a background (background-color), users with a different system background (e.g., black) might see invisible text.
+- Prevents unexpected styling inheritance. This is the one most likely to trip you up if you are not careful. If you don't set a background color, an ancestor element's background might cause unintended readability issues. Not that much of a problem with the `<body>` element, but it is a good habit to get into.
+- This also allows you to further ensure a effective contrast ratio which is critical for accessibility and relates to success criteria [1.4.3 (Contrast: minimum)](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum) and [1.4.6 (Contract: enhanced)](https://www.w3.org/WAI/WCAG22/Understanding/contrast-enhanced) of the Web Content Accessibility Guidelines (WCAG).
+
+We will first add our background color as a CSS custom property to our `variables.css` file:
+
+```css
+:root {
+    --color-neutral-inverted: #fff;
+}
+```
+
+We can now update our `body` element style rule:
+
+```css
+body {
+  background-color: var(--color-neutral-inverted);
+  color: var(--color-brand-primary);
+}
+```
+
+But there's a catch! The icons did not update to match. What gives? Well, the SVG icons have their `color` set to `currentColor`. This means that the SVG will inherit the color of the parent element, but because the SVG elements are added using `background-image` in our CSS and are not nested in the HTML, they do not inherit the color. This of course also means that we cannot target the SVG elements. This used to be a tricky situation in the past and essentially forced one to use inline SVGs in these instances.
+
+Since December 2023 however, [the `mask-image` property](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-image) is newly available and supported across all modern browsers. We can use this in conjunction with `background-color` to address our challenge here. In `icons.css` update all the `background-image` properties to `mask-image`, for example:
+
+```css
+.icon-devto::before {
+  mask-image: url("../assets/icons/devto.svg");
+}
+```
+
+The on the base icon style rule, add the background color:
+
+```css
+.icon::before {
+  background-color: var(--color-brand-primary);
+  /* Other properties remain the same as before */
+}
+```
+
+When you refresh the page, you will see that the icons now match the text color. 🎉 And with that, the first iteration of our profile page is complete. To wrap up the article, let's discuss and add our favicon and set up or open graph data.
+
+## Adding a Favicon
+
+To specify a favicon we use the HTML `<link>` element with the `rel` attribute set to `"icon"`. We then use the `href` attribute to specify the URL of the icon file. Here's an example:
+
+```html
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+```
+
+If you open your profile page and inspect the browser's console in developer tools, you may see an error similar to the following:
+
+```plaintext
+Failed to load resource: the server responded with a status of 404 (Not Found) favicon.ico:1
+```
+
+However, referring to our `index.html` file we are not yet specifying a favicon. So why is the browser trying to load a file we are not even specifying? Well, browsers expect some a favicon to exist and executes the following steps in order to locate and load your website's favicon on page load. 
+
+1. The browser first searches for a `<link rel="icon">` element in the `<head>` of the current document.
+2. If found, it attempts to load the resource specified by the `href` attribute.
+3. If the resource is in an unsupported format or fails to load, the browser then tries to fetch the favicon from `www.yoursite.com/favicon.ico` (the default location for this file type).
+4. If this also fails, the browser gives up silently.
+
+> **Note:** This "silent" failure is still logged as an HTTP 404 error in the developer console, which is why you are seeing the current error in the console.
+
+Knowing this, we can take steps to resolve the error. You might be wondering, "If the browser ultimately looks for a `favicon.ico` at the root, why not just place the file there?" While that's a valid option, explicitly declaring the icon using `<link rel="icon">` is generally preferred,avoids unnecessary requests, and provides more flexibility.
+
+### SVG favicon
+
+The most versatile format for favicons is the SVG format. [Browser support is good](https://caniuse.com/#feat=link-icon-svg) with Safari on desktop being the only hold out at the moment. On mobile devices the picture is a little bleaker, but we will address that soon. Other than being in a scalable format, one can also use CSS embedded in an SVG allowing us to [support both light and dark modes with a single icon using `@prefers-color-scheme`](https://blog.tomayac.com/2019/09/21/prefers-color-scheme-in-svg-favicons-for-dark-mode-icons/).
+
+> **Note:** Normally one would use the icon of a logo or some type of icon. As this is a personal profile page, you _could_ use a photo of yourself, but this does not always work to great. You can try and convert a photo to some type of vector art, or do what I did can grab an icon from [Lucide Icons](https://lucide.dev/), one of the many beautiful icon libraries out there. Whatever you end up doing, just ensure that you download an SVG version and run it through an SVG optimizer like [SVGOMG](https://jakearchibald.github.io/svgomg/) to ensure it is optimized. Every byte saved counts!
+
+### Portable Network Graphics (PNG) format
+
+Should the browser not support SVG icons, it will ignore our line above and look for another option. The next format in line with a [much wider level of browser support](https://caniuse.com/#feat=link-icon-png) is the PNG image format. Because PNG images are [raster-based](https://developer.mozilla.org/en-US/docs/Glossary/Raster_image) and not [vector based](https://www.adobe.com/africa/creativecloud/design/discover/vector-file.html), we do need to specify (and have on disk) a couple of different sizes:
+
+```html
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
+```
+
+That covers what is defined in the HTML standard. But there are a few non-standard icon files we should also include.
+
+### The `apple-touch-icon`
+
+While not a standard, I would not recommend skipping [the Apple Touch Icon](https://mathiasbynens.be/notes/touch-icons). It is used as the "high-resolution" version of your icon, serves as the shortcut icon when users adds your site or app to the home screen on iOS devices, and is used by Android if there is no web app manifest file. Also, as this is seen as the high-resolution version of your site favicon, several of the search crawler (spiders) also look for and prefer this icon.
+
+```html
+<link
+  rel="apple-touch-icon"
+  href="/media/apple-icon-180x180.png"
+  sizes="180x180"
+  type="image/png"
+/>
+```
+
+That is quite a lot I will admit, but you do not have to do almost any of this work thanks to the [RealFaviconGenerator](https://realfavicongenerator.net/). If you want to know even more about all things favicon, I highly recommend reading over the content of this website. For our purposes, head over to the website with your SVG ready and follow the steps.
+
+> **Note:** When it asks for the favicon path, use `/assets/` as the path.
+
+Once done, download the archive file to your local machine and extract it. Copy all of the files inside the extracted folder to your project's `assets` folder. Copy the HTML provided by the tool to the `<head>` of your document. Your `<head>` should now look something like this:
+
+```html
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile of Schalk Neethling - Open Web Engineer</title>
+  <meta name="description"
+    content="The profile of Schalk Neethling, an Open Web Engineer. Learn about my work, projects, and get in touch." />
+  <link rel="icon" type="image/png" href="/assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link rel="shortcut icon" href="/assets/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="Schalk" />
+  <link rel="manifest" href="/assets/site.webmanifest" />
+  <link rel="stylesheet" type="text/css" href="css/main.css" media="screen" />
+</head>
+```
+
+Reload your page and you should now see your favicon in all of its splendor.
+
+## Setting up Open Graph Meta Tags
+
+If you use social media, you have likely seen the previews that appear when you share a link. These previews are made discoverable by using [Open Graph meta tags](https://ogp.me/). Open Graph meta tags are a type of metadata that allows you to control how your content appears when shared on social media platforms like Mastodon and LinkedIn (and the other social media sites as well). They allow you to specify the title, type, image, and url. There is also some additional optional meta data you can specify such as the description, site name, and more.
+
+The first thing you want to do is, well, create your open graph image. This is a large image that will be used as the preview image when you share your link. The image should be at least `1200px` by `630px` and should be in a 1.91:1 aspect ratio. You can use a tool like [Canva](https://www.canva.com/) to create your image. Once you have your image, save it as a PNG to your project's `assets` folder. I usually call mine `social-graph.png` but there is no hard and fast rule here.
+
+Add the following `meta` tags to the `<head>` of your document (substitute the values with your own):
+
+```html
+<meta property="og:title" content="Profile of Schalk Neethling - Open Web Engineer" />
+<meta property="og:description"
+content="The profile of Schalk Neethling, an Open Web Engineer. Learn about my work, projects, and get in touch." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://schalkneethling.com" />
+<meta property="og:image" content="/assets/social-graph.png" />
+```
+
+That is that for the Open Graph meta tags. You can review what I did in [this pull request on GitHub](https://github.com/schalkneethling/profile/pull/23).
+
+How do you test it? For the moment, I am going to ask you to trust me that it will work as expected and hang on just a little bit longer. 😁 That is it for part five. I hope that you are still enjoying the series. I am going to let the cat out of the bag and tell you what you can look forward to in part six.
+
+In part six, we are going to add the missing button you may have been wondering about. We will also implement a simple contact form and I will show you how to open you form in a modal dialog using HTML, CSS, and a little sprinkling of JavaScript thanks to the native `<dialog>` HTML element. I am looking forward to it and I hope you are too. Until then, happy coding and let's keep building an accessible web together. 🚀

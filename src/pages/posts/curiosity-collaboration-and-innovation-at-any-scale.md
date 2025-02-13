@@ -2,7 +2,7 @@
 layout: ../../layouts/MarkdownPostLayout.astro
 title: Curiosity, Collaboration, and Innovation At Any Scale
 pubDate: 2025-02-13
-description: "Unlock simpler web development with CSS's new individual transform properties—cleaner syntax, more intuitive styling, and delightful animations."
+description: "Harness the power of open source and an innovative culture to drive creativity and collaboration within your team—inspired by Mozilla, GitHub, OddBird, Igalia, and Factorial."
 author: "Schalk Neethling"
 tags: ["ramblings"]
 ---

@@ -1,0 +1,83 @@
+{
+  "spacing": {
+    "default": {
+      "$value": {
+        "value": 0.375,
+        "unit": "rem"
+      },
+      "$type": "dimension"
+    },
+    "small-medium": {
+      "$value": {
+        "value": 0.75,
+        "unit": "rem"
+      },
+      "$type": "dimension"
+    },
+    "medium": {
+      "$value": {
+        "value": 1.125,
+        "unit": "rem"
+      },
+      "$type": "dimension"
+    },
+    "medium-large": {
+      "$value": {
+        "value": 1.5,
+        "unit": "rem"
+      },
+      "$type": "dimension"
+    },
+    "large": {
+      "$value": {
+        "value": 1.875,
+        "unit": "rem"
+      },
+      "$type": "dimension"
+    },
+    "xxl": {
+      "$value": {
+        "value": 2.25,
+        "unit": "rem"
+      },
+      "$type": "dimension"
+    },
+    "wide": {
+      "$value": {
+        "value": 2.625,
+        "unit": "rem"
+      },
+      "$type": "dimension"
+    },
+    "section": {
+      "default": {
+        "$value": {
+          "value": 3,
+          "unit": "rem"
+        },
+        "$type": "dimension"
+      },
+      "medium": {
+        "$value": {
+          "value": 3.75,
+          "unit": "rem"
+        },
+        "$type": "dimension"
+      },
+      "large": {
+        "$value": {
+          "value": 4.5,
+          "unit": "rem"
+        },
+        "$type": "dimension"
+      },
+      "xl": {
+        "$value": {
+          "value": 5.25,
+          "unit": "rem"
+        },
+        "$type": "dimension"
+      }
+    }
+  }
+}

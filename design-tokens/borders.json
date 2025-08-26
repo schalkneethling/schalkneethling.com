@@ -1,0 +1,60 @@
+{
+  "border": {
+    "border-radius": {
+      "circlular": {
+        "$value": {
+          "value": 200,
+          "unit": "rem"
+        },
+        "$type": "dimension"
+      },
+      "large": {
+        "$value": {
+          "value": 2.5,
+          "unit": "rem"
+        },
+        "$type": "dimension"
+      },
+      "medium": {
+        "$value": {
+          "value": 0.5,
+          "unit": "rem"
+        },
+        "$type": "dimension"
+      }
+    },
+    "heavy": {
+      "$type": "border",
+      "$value": {
+        "color": "{color.primary.base.60}",
+        "width": {
+          "value": 0.5,
+          "unit": "rem"
+        },
+        "style": "solid"
+      }
+    },
+    "default": {
+      "$type": "border",
+      "$value": {
+        "color": "{color.primary.base.60}",
+        "width": {
+          "value": 0.125,
+          "unit": "rem"
+        },
+        "style": "solid"
+      }
+    },
+    "thin": {
+      "$type": "border",
+      "$value": {
+        "color": "{color.primary.base.60}",
+        "width": {
+          "value": 0.0625,
+          "unit": "rem"
+        },
+        "style": "solid"
+      }
+    }
+  }
+}

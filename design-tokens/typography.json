@@ -1,0 +1,112 @@
+{
+  "typography": {
+    "display": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Source Serif, serif",
+        "fontSize": {
+          "value": 5.5625,
+          "unit": "rem"
+        },
+        "fontWeight": 700,
+        "lineHeight": 1.2
+      }
+    },
+    "xxl": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Source Serif, serif",
+        "fontSize": {
+          "value": 4.187,
+          "unit": "rem"
+        },
+        "fontWeight": 700,
+        "lineHeight": 1.2
+      }
+    },
+    "xl": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Source Serif, serif",
+        "fontSize": {
+          "value": 3.125,
+          "unit": "rem"
+        },
+        "fontWeight": 700,
+        "lineHeight": 1.2
+      }
+    },
+    "lg": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Source Serif, serif",
+        "fontSize": {
+          "value": 2.3125,
+          "unit": "rem"
+        },
+        "fontWeight": 700,
+        "lineHeight": 1.2
+      }
+    },
+    "md": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Source Serif, serif",
+        "fontSize": {
+          "value": 1.75,
+          "unit": "rem"
+        },
+        "fontWeight": 700,
+        "lineHeight": 1.2
+      }
+    },
+    "sm-md": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Source Serif, serif",
+        "fontSize": {
+          "value": 1.3125,
+          "unit": "rem"
+        },
+        "fontWeight": 700,
+        "lineHeight": 1.2
+      }
+    },
+    "default": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Noto Sans, sans-serif",
+        "fontSize": {
+          "value": 1,
+          "unit": "rem"
+        },
+        "fontWeight": 400,
+        "lineHeight": 1.5
+      }
+    },
+    "sm": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Noto Sans, sans-serif",
+        "fontSize": {
+          "value": 0.75,
+          "unit": "rem"
+        },
+        "fontWeight": 400,
+        "lineHeight": 1.5
+      }
+    },
+    "tiny": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Noto Sans, sans-serif",
+        "fontSize": {
+          "value": 0.5625,
+          "unit": "rem"
+        },
+        "fontWeight": 400,
+        "lineHeight": 1.5
+      }
+    }
+  }
+}

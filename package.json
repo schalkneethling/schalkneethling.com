@@ -13,6 +13,6 @@
     "@astrojs/mdx": "^4.3.4",
     "@astrojs/rss": "^4.0.12",
     "astro": "^5.13.3",
-    "astro-embed": "^0.9.0"
+    "astro-embed": "^0.9.1"
   }
 }

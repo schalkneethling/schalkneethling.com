@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Homepage",
+    "url": "https://schalkneethling.com/"
+  },
+  {
+    "title": "Now",
+    "url": "https://schalkneethling.com/now"
+  },
+  {
+    "title": "About",
+    "url": "https://schalkneethling.com/about"
+  },
+  {
+    "title": "Contact",
+    "url": "https://schalkneethling.com/contact"
+  },
+  {
+    "title": "Blog",
+    "url": "https://schalkneethling.com/blog"
+  },
+  {
+    "title": "Build a profile page",
+    "url": "https://schalkneethling.com/posts/build-a-profile-page-html-css-part6-dialog-form-netlify"
+  },
+  {
+    "title": "HTML Dialog",
+    "url": "https://schalkneethling.com/posts/html-dialog-native-solution-for-accessible-modal-interactions"
+  }
+]

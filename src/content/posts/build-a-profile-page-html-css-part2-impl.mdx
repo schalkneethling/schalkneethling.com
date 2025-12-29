@@ -1,0 +1,548 @@
+---
+title: "Part Two: Building a Profile Page with HTML and CSS: Implementation"
+pubDate: 2025-01-07
+description: "In this post we will start implementing the design by working through some of the issues, learning more about Git and GitHub, get set up for development, create our first visual component, and learn about performance, CSS, and modern image formats."
+author: "Schalk Neethling"
+tags: ["frontend-engineering-explained"]
+---
+
+import Video from "../../components/Video.astro";
+
+In [part one of this series](build-a-profile-page-html-css-planning/) we broke down the design of a profile page into its component parts using the principles from Atomic Design. In this post we will start implementing the design by working through the issues we created. As we do this, I hope you will see how breaking down the design into components, thinking through some of the implementation details, and creating issues can help you work more efficiently and effectively.
+
+You can find all of the issues I created as part of the [source repository on GitHub](https://github.com/schalkneethling/profile/issues).
+
+> **Side Note**: You have the option of completing the rest of this series with or without using Git. I strongly encourage you to use Git, which is the source control system powering GitHub. If you are not familiar with Git, that is okay as we will not be doing anything too complex. I will share some links throughout the series to help you get started with Git. If you are up for this added challenge (I know you can do this!), your first step is to [install Git for your operating system](https://git-scm.com/). With this as well as other Git related tasks I prefer to point you to the source for documentation as I know it is good and kept up to date. If you decide not to use Git during this round, simply skip the Git related steps.
+
+## Setting up for development
+
+Our first step is to clone our repository to our local machine. This essentially means that we are creating a copy of the repository on our local machine.
+
+> **Which editor should I use?** You can use any editor you are comfortable with. I will be using [Visual Studio Code](https://code.visualstudio.com/) in this series.
+
+### What is a terminal and where do I find it?
+
+A terminal is a text-based interface to your computer. It allows you to run commands on your computer without using a graphical user interface. If you are using a Mac, you can find the terminal by searching for "Terminal" in Spotlight. If you are using Windows, you can find the terminal by searching for "Command Prompt" or "PowerShell" in the Start menu. If you are using Linux, you can find the terminal by searching for "Terminal" in your application menu.
+
+- [Terminal on macOS](https://support.apple.com/en-za/guide/terminal/apd5265185d-f365-44cb-8b09-71a064a42125/mac)
+- [Command Prompt on Windows](https://www.lifewire.com/how-to-open-command-prompt-2618089)
+- [PowerShell on Windows](https://learn.microsoft.com/en-us/powershell/)
+- [Terminal on Linux](https://ubuntu.com/tutorials/command-line-for-beginners#1-overview)
+- If you are using [VSCode, it has a built-in terminal](https://code.visualstudio.com/docs/terminal/getting-started).
+
+> **Another side note:** Two things. If you are on macOS or Linux (soon also on Windows - sign up to be notified) I can highly recommend [Warp Terminal](https://www.warp.dev/). There is a paid version, but I am using the free version and do not feel that I am missing anything. IF you want some additional AI Support in your terminal, well, then upgrading to the paid version may be worth it. Also, I will be using the GitHub CLI in this series. It makes working with Git even easier and also makes it easier to work with GitHub. You can install it by following the instructions on the [GitHub CLI website](https://cli.github.com/).
+
+To do this, we need to open a terminal and run the following command from the parent folder in which you want to create the clone:
+
+```bash
+# the format below is github-username/repo-name
+gh repo clone schalkneethling/profile
+```
+
+- Learn more about [cloning a repository on GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
+
+Once completed, you will now have a new folder called (in my case) `profile`. This is the folder that contains the contents of the repository. You can now navigate into this folder by running the following command:
+
+```bash
+cd profile
+```
+
+> **Note:** You will also find a folder called `.git` in the folder. This is the folder that contains all the information about the repository, its files, and history. You will not need to interact with this folder directly and can safely ignore it for the purposes of this series.
+
+If you chose to use VSCode and have added VSCode to your path (here is a [link that will help you update your path](https://code.visualstudio.com/docs/editor/command-line#_launching-from-command-line) if needed), you can open the folder in VSCode by running the following command:
+
+```bash
+code .
+```
+
+> **Not using Git?** If you are not using Git, you can simply download the repository as a zip file from GitHub. You can do this by clicking on the "Code" button on the repository page and selecting "Download ZIP". Once downloaded, you can extract the contents of the zip file to a folder on your computer and open it in your editor of choice.
+
+## Foundation Page Setup
+
+One of the first question we do not have to ask ourselves is, "Where do I start?". We already took care of answering these questions when destructuring our design into components and creating issues. We can simply start with the first issue, which I named ["Foundation: Page setup"](https://github.com/schalkneethling/profile/issues/10). Doesn't that feel good?
+
+Before we start coding, we are going to do a little bit of Git. Specifically, we will be creating a feature branch which we will use for the work on the foundation page setup. This is a good practice as it allows us to work on a feature without affecting the main branch of the repository. This is especially useful when working with others on a project.
+
+> **Curious?** Learn more about [branches in Git](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) and [what a Git workflow is](https://about.gitlab.com/topics/version-control/what-is-git-workflow/#feature-branching-git-workflow).
+
+GitHub helps us here quite a lot with a seemingly small feature you can find on the issues page. Under the development section is a link that reads something like, "Create a branch for this issue or link a pull request." Clicking on this link (well, it is actually a button) will open a dialog. You can accept all of the defaults and click on, "Create branch". This will create a new branch in your repository with the name of the issue. In my case, the branch is called `10-foundation-page-setup`.
+
+After clicking the button, you will be given a couple of commands you should run in your terminal. These commands will create the branch on your local machine and set it up to track the remote branch on GitHub. You can run these commands in your terminal.
+
+```bash
+git fetch origin
+git checkout 10-foundation-page-setup
+```
+
+<Video videoSrc="/profile-tutorial/create-new-branch.mp4" width="640" />
+
+> **Curious? The commands Explained** The first command, `git fetch origin`, is used to fetch updates from our remote repository. This will retrieve any new commits, branches, or tags from the remote repository but will not merge them into our local branches. It essentially updates your local copy with the remote repository's information, allowing you to see what changes have been made by others without affecting your current working directory. The second command, `git checkout 10-foundation-page-setup`, switches your current working branch to the branch `10-foundation-page-setup`. By checking out this branch, you can work on changes in isolation from other branches. Together, these commands ensure that you are working with the latest updates from the remote repository and allow you to focus on a specific set of changes or features by switching to the relevant branch.
+
+### Creating the foundation page
+
+Now that we have our branch set up, we can start working on the foundation page. With VSCode open, right-click anywhere in the file explorer and choose, "New File". Name the file `index.html` and add the following code:
+
+```html
+html:5
+```
+
+The above is called an Emmet abbreviation. Emmet is built into VSCode and provide several shortcuts that expands into snippets that help you write HTML and CSS faster. You can learn more about [Emmet in the VSCode documentation](https://code.visualstudio.com/docs/editor/emmet). When you type `html:5` and press the `Tab` key, it will expand into the following:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+</html>
+```
+
+Reviewing the code above we can start checking off some of the items in the issue:
+
+- [x] Create a new HTML file called `index.html`
+- [x] A meta tag for our viewport
+- [x] A meta tag defining our charset
+- [x] The body element.
+
+We have a `title` element, but needs to be updated to reflect the real title of the page. The title of a page is more important than you might think for a few reasons.
+
+1. This is the first thing that is read out by screen readers.
+2. It is the title that is displayed in the browser tab and therefore serves as a wayfinder.
+
+I will update mine to read, "Profile of Schalk Neethling - Open Web Engineer".
+
+```html
+<title>Profile of Schalk Neethling - Open Web Engineer</title>
+```
+
+This also closely matches what the text of our `h1` element will be which is also important for the same reasons as the title. If the title of your page and the main heading of your page are not the same, it can be confusing for users. We also need to add a `meta` description tag. While this helps some search engines understand the content of the page in brief, it is also the text that is presented in search results. This is important as it can help users decide if they want to click on your page or not.
+
+```html
+<meta
+  name="description"
+  content="The profile of Schalk Neethling, an Open Web Engineer. Learn about my work, projects, and get in touch."
+/>
+```
+
+With that, we can check off two more items from our list:
+
+- [x] A title tag with the title of our page.
+- [x] A meta tag with our page description for search engines.
+
+The only item that remain is a `link` tag that will point to our main CSS file. While we will not be adding any CSS to the file just yet, we can create a placeholder and link it up.
+
+```html
+<link rel="stylesheet" type="text/css" href="css/main.css" media="screen" />
+```
+
+What we are telling the browser is that the relationship of the linked file is a stylesheet, the type of the linked file is text/css, the file is called `main.css`, it is located in the `css` subfolder, and it is intended for screen media. This is important as it allows us to specify different stylesheets for different media types. For example, you could have a stylesheet for print media that hides certain elements on the page when printed.
+
+Here is the current state of our HTML page:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile of Schalk Neethling - Open Web Engineer</title>
+    <meta
+      name="description"
+      content="The profile of Schalk Neethling, an Open Web Engineer. Learn about my work, projects, and get in touch."
+    />
+    <link rel="stylesheet" type="text/css" href="css/main.css" media="screen" />
+  </head>
+
+  <body></body>
+</html>
+```
+
+In part one of this series I omitted a critical item which I have gone back to include. The item in question is the `lang` attribute on the `html` element. Why is this attribute so important? It helps screen readers and other assistive technologies understand the language of the content on the page. Without it, screen readers might try to read your English content using French pronunciation rules, or Japanese content using English pronunciation rules, leading to an incomprehensible experience for users.
+
+I have set the value of the `lang` attribute to `en` which is the ISO 639-1 code for English. If you are writing in another language, you can find the correct code in the [ISO 639-1 language codes](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes). For more specific variants, you can include the region - for example, `en-US` for American English or `pt-BR` for Brazilian Portuguese.
+
+I will post a follow up article where I will dig deeper into this and also include some videos that demonstrate how this attribute or the lack thereof impacts screen reader users. With that, our issue is complete and we have met all of the acceptance criteria. If you are following along an using Git, we have a little bit more to do.
+
+- We need to add all our changes to the staging area.
+- We need to then commit those changes
+- We need to push those changes to our remote repository.
+- We need to open a pull request on GitHub.
+- Merge our pull request.
+- Delete our remote and local branches to keep things tidy.
+- Pull the changes from the main branch to our local main branch.
+
+Back in your terminal, if you run the `git status` command you should see a message similar to the following:
+
+```bash
+On branch 10-foundation-page-setup
+Your branch is up to date with 'origin/10-foundation-page-setup'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	css/
+	index.html
+
+nothing added to commit but untracked files present (use "git add" to track)
+```
+
+To add our new files to the staging area, we can run the following command:
+
+```bash
+git add .
+```
+
+The period tells Git to add all the files in the current directory and its subdirectories. If you only want to add a specific file, you can replace the period with the name of the file. For our purpose here, we want to add all of our files. To commit the changes, you can run the following command:
+
+```bash
+git commit -m "feat: add foundation page setup"
+```
+
+The `-m` flag is used to add a message to the commit. This message should be a short description of the changes you are committing. The message should be in the present tense and should be written in the [imperative mood](https://www.scribbr.com/verbs/imperative-mood/#:~:text=The%20imperative%20mood%20is%20a%20verb%20form%20used%20to%20express,pronoun%20normally%20isn't%20included.). This is a convention that is widely used in the software development industry. In this case, I have used the message, "feat: add foundation page setup". The `feat:` prefix is used to indicate that this commit adds a new feature. You can use other prefixes like `fix:`, `docs:`, `style:`, `refactor:`, `test:`, or `chore:` to indicate the type of change you are making.
+
+After running the above you should see a message similar to the following:
+
+```bash
+[10-foundation-page-setup 3b3b3b3] feat: add foundation page setup
+ 2 files changed, 17 insertions(+)
+ create mode 100644 css/main.css
+ create mode 100644 index.html
+```
+
+We can now push our changes and start the process of creating a pull request using the following GitHub CLI command:
+
+```bash
+gh pr create -w
+```
+
+The first time you run this you will be presented with a message such as the following:
+
+```bash
+? Where should we push the '10-foundation-page-setup' branch?  [Use arrows to move, type to filter]
+> schalkneethling/profile
+  Skip pushing the branch
+  Cancel
+```
+
+You can accept the default selected item and press enter. This will push your branch to the remote repository and open your default browser to GitHub with the information you have provided already filled in. It will also show the changes (or diff as it is called) that you have made. You can review your changes here, but before you click the "Create pull request" button we need to update our description.
+
+I kept mine simple, but there is one piece of information here the is very important:
+
+```markdown
+Adds foundation page, relevant meta information, page title, and links to a currently empty main CSS file.
+
+fix #10
+```
+
+The important line here is the last line, `fix #10`. This is a reference to the issue we are working on. By including this line in the description of the pull request, GitHub will automatically close the issue when the pull request is merged. This is a great way to keep your issues and pull requests linked and organized. Feel free to add the enhancement label to the pull request and assign it to yourself. You are now ready to create the pull request.
+
+GitHub will [open the pull request](https://github.com/schalkneethling/profile/pull/14) and then check whether our branch can be merged into `main` automatically. There should be no conflicts and you should be presented with the following message:
+
+```markdown
+No conflicts with base branch
+
+Merging can be performed automatically.
+```
+
+Go ahead and merge your pull request. You should now see a message that reads, "Pull request successfully merged and closed". There should also be a button that allows you to delete the feature branch. You can safely do so. If you now head over to the issues tab you will find that the foundation issue is no longer listed. If you switch over the the closed issues tab, you will find it there.
+
+When you deleted the branch on GitHub, it only deleted the branch on your remote instance of the repository. The branch still exist on your local clone of the repository. To delete the branch locally, you can run the following command back in your terminal:
+
+```bash
+git switch main
+git branch -D <branch-name>
+```
+
+You should see a message such as the following:
+
+```bash
+Deleted branch 10-foundation-page-setup (was 3b3b3b3).
+```
+
+Our changes are now no loner on our local repository and `main` branch. To get the changes from the remote repository, you can run the following command:
+
+```bash
+git pull origin main
+```
+
+You should now see a message similar to the following:
+
+```bash
+remote: Enumerating objects: 1, done.
+remote: Counting objects: 100% (1/1), done.
+remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+Unpacking objects: 100% (1/1), 912 bytes | 912.00 KiB/s, done.
+From https://github.com/schalkneethling/profile
+ * branch            main       -> FETCH_HEAD
+   fca93a7..36d82f2  main       -> origin/main
+Updating fca93a7..36d82f2
+Fast-forward
+ css/main.css |  0
+ index.html   | 17 +++++++++++++++++
+ 2 files changed, 17 insertions(+)
+ create mode 100644 css/main.css
+ create mode 100644 index.html
+```
+
+### Summary of Foundation Page Setup
+
+We have landed our first completed issue. Time to celebrate! 🎉
+
+In this section, we:
+
+- Created our first HTML file with essential meta information
+- Set up proper document structure and character encoding
+- Added important accessibility features like the `lang` attribute
+- Learned the basic Git workflow of creating branches, committing changes, and merging via pull requests
+- Created our first component-specific CSS file
+
+Remember, while these initial setup steps might seem detailed, they establish good practices that will serve you well throughout your development career.
+
+## The Avatar
+
+Now that we have our foundation page set up and are comfortable with our Git workflow, let's move on to implementing our first visual component - the avatar. This is an excellent place to start building our profile page, as it introduces several important web development concepts including image optimization, accessibility, and CSS styling.
+
+How one implements the avatar will depend on a couple of factors:
+
+1. Is the avatar a photo or a graphic?
+2. How do you get access to the source of the image?
+3. How much control you need over the source of the image.
+
+In this instance we can say that it is a graphic, it is coming from a static source, and we do not plan to animate it or need access to any paths, colors, or other properties of the image. However, I do not want to leave you with only one implementation option based on the current design as you you may want to, for example, use a photo in your variation of this design. To this end, I will go over three options you may encounter in your work.
+
+> **Important** Before you start coding anything, remember to create your feature branch following the same steps you did before.
+
+### Option 1: Using an SVG
+
+Irrespective of whether the avatar is dynamic or static, if you know that it will always be a rather simple graphic your first choice should always be to use an SVG. SVGs are scalable, can be styled with CSS, and can be animated. They are also very small in size and can be embedded directly into your HTML. The latter point is especially key if you are working with relatively simple avatar graphic images.
+
+The SVG code below is for the avatar image in the Figma file after I ran it through SVGOMG. This is a tool that optimizes SVGs by removing unnecessary code and making the file as small as possible. You can find SVGOMG at [jakearchibald.github.io/svgomg/](https://jakearchibald.github.io/svgomg/).
+
+```html
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" fill="none">
+  <g clip-path="url(#a)">
+    <rect width="150" height="150" fill="#FFB657" rx="75" />
+    <path
+      fill="#fff"
+      d="M17.573 196.051c.277.046.507.184.738.323 1.523-.739 3.785-.047 3.74 2.169-.185 8.263-.6 16.527-1.062 24.79h106.128c-.092-7.432-.185-14.819-.185-22.251 0-2.169 2.216-2.908 3.74-2.216 6.231-3.369 12.417-6.832 18.603-10.248l-.138-4.062c-.554-18.696-7.617-37.253-20.958-50.594-12.418-12.418-32.776-21.743-50.595-20.958-37.807 1.708-72.752 31.483-71.552 71.552.046 2.308.138 4.709.185 7.109 3.646 1.154 7.2 2.539 10.71 4.016.276.093.46.231.646.37Z"
+    />
+    <path
+      fill="#fff"
+      d="M61.705 116.189h-19.62c-17.772 0-33.744 11.125-39.56 27.882-2.309 6.602-4.34 13.249-6.325 20.035-1.062 3.508-2.077 7.017-3.231 10.479 16.018 7.663 33.237 12.741 49.901 19.065 5.956-16.942 9.233-35.684 17.958-50.41 4.985-8.401 5.17-18.788.877-27.051ZM154.261 161.89c-.093-.323-.185-.646-.323-1.015-2.032-6.74-4.063-13.434-6.325-20.035-5.816-16.757-21.789-27.883-39.561-27.883h-19.62c-4.293 8.264-4.108 18.604.924 27.052 7.848 13.202 11.264 29.683 16.203 45.193 16.157-7.893 31.991-16.572 48.702-23.312Z"
+    />
+    <path
+      fill="#271165"
+      d="M107.637 88.214c-.831-4.247-3.277-8.079-4.431-12.28-1.339-4.939-1.662-9.924-1.247-15.002.047-.416-.138-.647-.415-.785-7.11-15.788-25.159-26.728-40.854-19.665-.185.092-.277.23-.37.369-5.354 1.43-9.925 4.986-12.233 10.202-1.615 3.693-1.615 7.617-1.477 11.587.139 5.124-.37 14.172-1.246 19.204-1.062 6.14-1.247 12.556 3.831 17.034 3.878 3.416 9.187 4.339 13.988 2.492 6.14-2.354 11.079-9.186 18.095-8.955 7.156.23 12.187 7.57 19.712 6.555 5.447-.785 7.571-5.77 6.647-10.756Z"
+    />
+    <path
+      fill="#271165"
+      d="M100.436 43.76c.139-5.033 2.585-10.526-2.677-13.85-5.31-3.37-11.957-.184-17.173 1.662l-16.619 5.955a46.814 46.814 0 0 0-1.57 2.539h.047c-.046.277-.046.508-.046.785-1.57 4.847.877 14.08 3.462 18.419 3.693 6.093 8.402 12.787 14.034 17.218 4.431 3.509 8.54 3.14 13.294.462 4.34-2.447 9.602-5.816 11.218-10.802 2.077-6.601-4.108-16.018-3.97-22.389Z"
+    />
+    <path
+      fill="#F7ACA9"
+      d="M90.926 40.528c-2.954.092-5.955.23-8.91.415-3.092.23-6.139.462-9.232.831-.785.092-1.616.185-2.4.277-.323.046-.785.092-.97.139-1.477.184-2.954.415-4.431.646-2.4.415-4.801.83-7.202 1.339-4.2 5.354-6.832 12.325-6.832 18.788v21.28a23.746 23.746 0 0 0 6.417 16.25c4.339 4.616 10.479 7.525 17.31 7.525h2.678A23.741 23.741 0 0 0 96.327 98.6c3-3.97 4.801-8.955 4.801-14.31V63.009c0-8.125-4.016-16.896-10.202-22.481Z"
+    />
+    <path
+      fill="#271165"
+      d="M77.401 34.85h-2.677c-7.017 0-13.295 3.046-17.635 7.847a23.677 23.677 0 0 0-6.093 15.88v4.663c3.508-.647 5.032-6.094 6.694-10.618 1.108-3.046 3.693-5.355 6.832-6 7.155-1.524 15.003-2.17 22.435-1.94 4.293.139 7.894 3.232 8.863 7.432.139.647 2.585 14.773 3.97 15.511.416.231 4.155 2.816 4.663-1.477l-3.232-7.524c-.092-8.772-10.71-23.774-23.82-23.774Z"
+    />
+    <path
+      fill="#F7ACA9"
+      d="M94.711 93.246c-12.279.415-24.558.554-36.607 3.046.831 7.248 1.108 14.496.554 21.743 1.524 7.478 6.786 13.664 15.142 14.541 8.724.924 19.342-6.047 19.388-15.649.046-5.355.046-10.663.092-16.018.416-.277.785-.647 1.2-.97-.23-2.17-.184-4.477.231-6.693ZM58.52 71.134c-13.064-7.894-16.619-6.74-18.604-1.2-1.984 5.54 0 8.724 10.295 13.848 10.294 5.17 8.31-12.648 8.31-12.648ZM92.773 71.134c13.064-7.894 16.619-6.74 18.604-1.2 1.985 5.54 0 8.724-10.295 13.848-10.294 5.17-8.309-12.648-8.309-12.648Z"
+    />
+    <path
+      fill="#271165"
+      d="M80.586 66.656c-.83-.877-2.354.323-1.477 1.2 2.308 2.354 7.386 8.771 1.708 10.756-1.154.416-.416 2.17.738 1.754 2.355-.83 3.647-3.139 3.647-5.632-.046-3.277-2.446-5.862-4.616-8.078ZM65.768 65.686c-2.355.508-3.324 3.693-1.8 5.494.784.923 2.354-.185 1.523-1.108-.647-.739-.462-2.262.646-2.539.97-.23 1.939.83 1.8 1.754-.184 1.2 1.708 1.523 1.893.323.323-2.262-1.754-4.431-4.062-3.924ZM66.321 61.855c-1.246.462-2.492.923-3.739 1.431-1.154.416-.554 2.262.6 1.8 1.247-.461 2.493-.923 3.74-1.43 1.153-.416.553-2.216-.6-1.801ZM88.71 56.408l-2.815.415c-1.2.185-.97 2.078.277 1.893l2.816-.415c1.2-.185.923-2.078-.277-1.893ZM77.216 90.106c-.693 2.77-3.97 4.663-6.694 3.555-2.723-1.062-3.785-4.755-2.354-7.201.6-1.062-.923-2.216-1.523-1.155-1.985 3.509-.785 8.54 3.139 10.11 3.923 1.57 8.309-1.154 9.278-5.078.323-1.154-1.57-1.385-1.846-.23ZM91.803 65.594c-2.4.6-1.43 4.293.97 3.693 2.354-.646 1.431-4.34-.97-3.693ZM92.727 101.278c-5.309 3.601-11.264 5.17-17.634 4.57-1.2-.092-1.2 1.8 0 1.893 6.647.6 13.064-1.062 18.603-4.847.97-.647.047-2.309-.969-1.616ZM104.729 70.395c-2.262 1.616-3.831 3.924-4.432 6.694-.23 1.2 1.616 1.708 1.847.507.462-2.261 1.662-4.2 3.554-5.54.97-.691.047-2.353-.969-1.661ZM50.81 77.597a9.913 9.913 0 0 0-5.308-6.74c-1.108-.554-2.077 1.108-.97 1.662 2.309 1.107 3.878 3.093 4.432 5.585.277 1.2 2.124.693 1.847-.507Z"
+    />
+  </g>
+  <defs>
+    <clipPath id="a">
+      <rect width="150" height="150" fill="#fff" rx="75" />
+    </clipPath>
+  </defs>
+</svg>
+```
+
+This seems like a lot but if we consider that we will only have a single instance of this image on our page, this will not bloat the size of our HTML. Also, it will only add 14 DOM nodes to the total number of nodes on the page. This is a very small number and will not impact performance in any meaningful way.
+
+> **Curious?** You can read more about DOM size and how this can impact performance in [DOM size article on web.dev](https://web.dev/articles/dom-size-and-interactivity/).
+
+This means that even if you could have more than one of these images on a page, the impact on performance would be minimal. This is why SVGs are so great for simple graphics. They are also great for more complex graphics, but the more complex the graphic, the more nodes it will add to the DOM and the larger the file size will be. This is why you should always try to optimize your SVGs as much as possible. In fact, the way this SVG is designed, we would not even need any CSS to get the circular style we are after so it saves a few more bytes.
+
+Therefore, in this case, the answer to the best and most performant approach is to use the SVG and embed it directly into the page. However, there are two questions we need to ask ourselves. Do we feel that the avatar is purely decorative or do we feel there is value in describing the avatar to screen reader users? If we feel that there is value in describing the avatar to screen reader users, we need to add an `title` element to the SVG.
+
+```html
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" fill="none">
+    <title>A graphic style image of a young person smiling on a yellow circular background. They have purple hair and are wearing a white t-shirt.</title>
+    <g clip-path="url(#a)"><rect width="150" height="150" fill="#FFB657" rx="75"/>...</svg>
+```
+
+The `title` here serves the same purpose as the `alt` attribute would on an `img` element. If you decide that the image is purely decorative then it is important that you set `role="presentation"` on the SVG element. This will tell screen readers that the image is purely decorative and should be ignored.
+
+```html
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" fill="none" role="presentation">
+    <g clip-path="url(#a)"><rect width="150" height="150" fill="#FFB657" rx="75"/>...</svg>
+```
+
+Sometimes however, an SVG is the right choice but due to the way the source of the image is provided to us (perhaps we only get the URL from a content management system, for example), we may not have access to the raw SVG. While we lose some of the control we will have over the SVG using CSS, all is not lost and we can still benefit from it scalable nature and its small filesize. In this case, we can use an `img` element and link to the SVG file as we would with any other image file.
+
+> **Side note:** One of the other benefits of embedding the SVG into the HTML document is that there are no additional HTTP request to load the image. This can be a performance benefit, especially on slower connections or if you have multiple images. Imagine if each icon on a page was loading through a separate HTTP request.
+
+```html
+<img src="/assets/avatar.svg" height="200" width="200" />
+```
+
+We are now faced with the same decision here, is this purely decorative or do we need to describe the content of the avatar image to the user? In both cases we will add an `alt` attribute to the `img` tag but, in the first case it will be an empty string and in the second case it will be a description of the image.
+
+```html
+<img src="/assets/avatar.svg" height="200" width="200" alt="" />
+<img
+  src="/assets/avatar.svg"
+  height="200"
+  width="200"
+  alt="A graphic style image of a young person smiling on a yellow circular background. They have purple hair and are wearing a white t-shirt."
+/>
+```
+
+Here an empty `alt` attribute causes the same behavior as the `role="presentation"` we set on the `svg` earlier and the `alt` attribute serves the same purpose as the `title` of the SVG, as mentioned before.
+
+> **Side note:** The total size of the SVG when saved as a `.svg` is 6KB which is quite small.
+
+### Summary of SVG Implementation
+
+Working with SVGs, we learned that:
+
+- SVGs are excellent for simple graphics and logos
+- They can be implemented either inline or as image sources
+- Accessibility requires either a title element or role="presentation"
+- The choice between inline SVG and image depends on your needs for control and animation
+- SVG optimization tools like SVGOMG can significantly reduce file size
+
+### Option 2: Using an image
+
+Now, if your avatar is a photo or a more complex graphic, you will find that using some of the modern image formats that are supported on the web will give you the best performance. It used to be that we had only two image formats on the web. Those being [GIF(Graphics Interchange Format)](https://en.wikipedia.org/wiki/GIF) and [JPEG(Joint Photographic Experts Group)](https://en.wikipedia.org/wiki/JPEG). Later on, we also got support for the [PNG(Portable Network Graphics)](https://en.wikipedia.org/wiki/Portable_Network_Graphics) image format that is widely used on the web today.
+
+As with all things on the web, technology has improved and in around 2018 [Webp](https://en.wikipedia.org/wiki/WebP) developed by Google was introduced. Even more recently, another addition to image formats was added knows as [AVIF](<https://en.wikipedia.org/wiki/AV1#AV1_Image_File_Format_(AVIF)>) with [growing support across user agents](https://caniuse.com/?search=avif). To be honest, the [support for WebP across browsers](https://caniuse.com/webp) is now so good, that I would not really bother with PNG anymore unless you find that the compression is somehow better for the image you are using.
+
+> **Side note:** If the size of your SVG seems a bit on the high side, do not hesitate to convert it to WebP and AVIF as you often get quite surprising results. Also, for graphics with flat colors, you will sometimes be surprised at how good the GIF format can be.
+
+At the most basic level we can use a WebP anc the `img` element as follows:
+
+```html
+<img
+  src="/assets/avatar.webp"
+  height="200"
+  width="200"
+  alt="A graphic style image of a young person smiling on a yellow circular background. They have purple hair and are wearing a white t-shirt."
+/>
+```
+
+The thing is, what about browsers (and the [support is fantastic January 8, 2025](https://caniuse.com/?search=avif)) that support AVIF? Well, that to the `picture` element, we can use progressive enhancement to give users of these browsers even better performance through the `source` element.
+
+> **Curious?** Learn more about [progressive enhancement](https://developer.mozilla.org/en-US/docs/Glossary/Progressive_Enhancement).
+
+```html
+<picture>
+  <source srcset="/assets/avatar.avif" type="image/avif" />
+  <img
+    src="/assets/avatar.webp"
+    height="200"
+    width="200"
+    alt="A graphic style image of a young person smiling on a yellow circular background. They have purple hair and are wearing a white t-shirt."
+  />
+</picture>
+```
+
+With that, the browser will determine whether the current browser supports the AVIF format and use it if it does. If not, it will fall back to the WebP format. A great tool for converting between different image formats is the open-source web app Squoosh. You can find it at [squoosh.app](https://squoosh.app/).
+
+> **Side note:** An interesting fact is that at the base size of 150 by 150 pixels, the WebP image is 3KB and the AVIF image is 2KB. This is quite a bit smaller than the SVG image. This demonstrates that one should not assume that SVG is going to be the best option. However, and this is important, the SVG can scale up and down to any size without losing quality. This is not the case with the WebP and AVIF images. So, if you are absolutely confident that you will not need to provide a larger version of the image, then the WebP and AVIF images are going to be the winner here.
+
+When using a photo you are likely also going to lose the circular nature of the avatar image. We can fix this easily using a little bit of CSS. We will use the following `picture` element, but the same CSS will work if you are only using an `img` element.
+
+```html
+<picture>
+  <source srcset="/assets/avatar-photo.avif" type="image/avif" />
+  <img
+    class="avatar"
+    src="/assets/avatar-photo.webp"
+    height="300"
+    width="300"
+    alt="A graphic style image of a young person smiling on a yellow circular background. They have purple hair and are wearing a white t-shirt."
+  />
+</picture>
+```
+
+Notice the `class="avatar"` I added to the `img` element. Why not the `picture` element? The `picture` element is purely a container, what we want to target with our CSS is the `img` element. You will also notice that, unlike the SVG, our width and height is set to 300 pixels. Why did I do this? This is a common practice to get images to display more crisp on high resolution screens. You may have seen files named something like `avatar@2x.webp`. This is because these are sized at twice the intrinsic size at which it will be displayed. What we will do with our CSS in addition to making the image circular, is to also scale it down to 150 by 150 pixels.
+
+To achieve all of this we will need the following three lines of CSS:
+
+```css
+.avatar {
+  block-size: 150px;
+  border-radius: 50%;
+  inline-size: 150px;
+}
+```
+
+Thanks to the `border-radius` property, we can turn our image into a circular image with a single line of CSS. But wait, I hear you say. We are not setting the width and height. In fact, we are but we are using what is known as logical properties. For an image where we are setting both the height (`block-size`) and the width (`inline-size`) to the same dimensions this is not strictly necessary. However, if we consider that this is the direction the CSS language is evolving, it is a good practice to get into. I have an upcoming article where I will dive into logical properties in more detail and demonstrate the benefits, especially when you may have users who are using a language that is written from right to left.
+
+Where do we add the CSS? Well, you can add it to your `main.css` file but, to embrace as much of the component nature as we can here, we will instead create a new file called `avatar.css` in the `css` folder. This is where we will add the CSS for the avatar image. Instead of adding another `link` element to our HTML, we will instead import the CSS file into our `main.css` file.
+
+```css
+@import url("./avatar.css");
+```
+
+Your HTML should now look as follows:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile of Schalk Neethling - Open Web Engineer</title>
+    <meta
+      name="description"
+      content="The profile of Schalk Neethling, an Open Web Engineer. Learn about my work, projects, and get in touch."
+    />
+    <link rel="stylesheet" type="text/css" href="css/main.css" media="screen" />
+  </head>
+
+  <body>
+    <div class="page-wrapper">
+      <picture>
+        <source srcset="/assets/avatar-photo.avif" type="image/avif" />
+        <img
+          class="avatar"
+          src="/assets/avatar-photo.webp"
+          height="300"
+          width="300"
+          alt="A graphic style image of a young person smiling on a yellow circular background. They have purple hair and are wearing a white t-shirt."
+        />
+      </picture>
+    </div>
+  </body>
+</html>
+```
+
+You will also notice that I have jumper ahead a little bit and added a `div` element with a class of `page-wrapper`. We will be using this in the next part of the series when we build out the remainder of the page. How would you preview your page though?
+
+The easiest way is to install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension in Visual Studio Code. Once installed, you can right-click on your HTML file and select "Open with Live Server". This will open your HTML file in your default browser and will automatically refresh the page when you make changes to your HTML or CSS files. This is a great way to see your changes in real-time.
+
+## Wrapping Up
+
+In this second part of our series, we've accomplished two significant milestones in building our profile page. First, we established our project's foundation with proper HTML structure and meta information, setting us up for success with both users and search engines. Second, we implemented our avatar component, exploring multiple approaches from SVGs to modern image formats, while maintaining accessibility and performance.
+
+More importantly, we've established good development practices that will serve us throughout this series and beyond:
+
+- Using Git for version control and maintaining a clean commit history
+- Breaking down implementation decisions based on real-world constraints and requirements
+- Considering accessibility from the start, not as an afterthought
+- Using progressive enhancement to support modern features while maintaining compatibility
+- Organizing our CSS in a component-based approach
+
+In the next part of our series, we'll build upon this foundation to implement the rest of our profile page components. We'll explore layouts, typography, and responsive design principles. Until then, experiment with the different avatar implementation approaches we discussed ([review my pull request here](https://github.com/schalkneethling/profile/pull/15) which includes some commented out code to guide you), try out the Git workflow with your own changes, and most importantly - have fun building! 🚀
+
+You can find all the code for this tutorial in the [GitHub repository](https://github.com/schalkneethling/profile).

@@ -1,16 +1,16 @@
 ---
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 import Posts from "@components/Posts.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
-  const allPosts = await Astro.glob("../posts/*.{md,mdx}");
-  const uniqueTags = [
-    ...new Set(allPosts.map((post) => post.frontmatter.tags).flat()),
-  ];
+  const allPosts = await getCollection("posts");
+  const uniqueTags = [...new Set(allPosts.map((post) => post.data.tags).flat())];
 
   return uniqueTags.map((tag) => {
     const filteredPosts = allPosts.filter((post) =>
-      post.frontmatter.tags.includes(tag)
+      post.data.tags.includes(tag)
     );
 
     return {
@@ -18,6 +18,10 @@ export async function getStaticPaths() {
       props: { posts: filteredPosts },
     };
   });
+}
+
+interface Props {
+  posts: CollectionEntry<"posts">[];
 }
 
 const { tag } = Astro.params;

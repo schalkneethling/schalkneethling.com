@@ -1,16 +1,16 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Tags from "@components/Tags.astro";
 import Posts from "@components/Posts.astro";
 
 const pageTitle = "My thoughts, ideas, experiences, and ramblings";
 
-const posts = await Astro.glob("../pages/posts/*.{md,mdx}");
-const tags = [...new Set(posts.map((post) => post.frontmatter.tags).flat())];
+const posts = await getCollection("posts");
+const tags = [...new Set(posts.map((post) => post.data.tags).flat())];
 const sortedPosts = posts.toSorted(
   (a, b) =>
-    new Date(b.frontmatter.pubDate).getTime() -
-    new Date(a.frontmatter.pubDate).getTime()
+    new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
 );
 ---
 

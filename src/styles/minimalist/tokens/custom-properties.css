@@ -98,7 +98,8 @@
   --overlay-background-color: rgba(0 0 0 0.5);
 
   /* shadows */
-  --shadow-button-active-state: 1px 1px 0 3px var(--color-neutral-30),
+  --shadow-button-active-state:
+    1px 1px 0 3px var(--color-neutral-30),
     -1px -1px 0 3px var(--color-neutral-30);
   --shadow-light-gray: 0 1px 2px 1px var(--color-neutral-20);
 
@@ -144,14 +145,16 @@
   --table-tfoot-padding-inline: var(--size-8);
 
   /* typography - https://systemfontstack.com */
-  --minimalist-typography-heading-family: iowan old style, apple garamond,
-    baskerville, times new roman, droid serif, times, source serif pro, serif,
-    apple color emoji, segoe ui emoji, segoe ui symbol;
-  --minimalist-typography-body-family: -apple-system, blinkmacsystemfont,
-    avenir next, avenir, segoe ui, helvetica neue, helvetica, cantarell, ubuntu,
-    roboto, noto, arial, sans-serif;
-  --minimalist-typography-code-family: menlo, consolas, monaco, liberation mono,
-    lucida console, monospace;
+  --minimalist-typography-heading-family:
+    iowan old style, apple garamond, baskerville, times new roman, droid serif,
+    times, source serif pro, serif, apple color emoji, segoe ui emoji,
+    segoe ui symbol;
+  --minimalist-typography-body-family:
+    -apple-system, blinkmacsystemfont, avenir next, avenir, segoe ui,
+    helvetica neue, helvetica, cantarell, ubuntu, roboto, noto, arial,
+    sans-serif;
+  --minimalist-typography-code-family:
+    menlo, consolas, monaco, liberation mono, lucida console, monospace;
 
   --minimalist-typography-scale-mobile: 1.25;
 

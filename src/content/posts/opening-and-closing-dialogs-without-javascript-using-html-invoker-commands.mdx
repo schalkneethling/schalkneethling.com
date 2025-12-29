@@ -1,0 +1,102 @@
+---
+title: "Opening and Closing Dialogs Without JavaScript Using HTML Invoker Commands"
+pubDate: 2025-12-29
+description: "Learn how to use HTML invoker commands to open and close dialogs without writing any JavaScript."
+author: "Schalk Neethling"
+tags: ["frontend-engineering-explained", "html", "accessibility"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+The native `<dialog>` element was a huge step forward for web developers. It gave us a standardized way to create modal dialogs with built-in backdrop handling, focus management, and keyboard interactions—no more reinventing the wheel with `div` containers and mountains of JavaScript.
+
+But we still needed JavaScript for one fundamental task: opening the dialog.
+
+The HTML Invoker Commands API changes that. Now you can create fully functional dialogs with just HTML.
+
+## The Traditional Approach
+
+Here's what we typically had to write:
+
+```html
+<button type="button" id="openBtn">Open Dialog</button>
+<dialog id="dialog">
+  <form method="dialog">
+    <button type="submit">Close Dialog</button>
+  </form>
+  <!-- dialog content -->
+</dialog>
+
+<script>
+  const dialog = document.getElementById('dialog');
+  const openBtn = document.getElementById('openBtn');
+  
+  openBtn.addEventListener('click', () => {
+    dialog.showModal();
+  });
+</script>
+```
+
+You could close the dialog without JavaScript using `<form method="dialog">`, but you still needed JavaScript to open it.
+
+## The Invoker Commands Approach
+
+With Invoker Commands, you add two attributes to your button:
+
+```html
+<button commandfor="dialog" command="show-modal" type="button">
+  Open Dialog
+</button>
+
+<dialog id="dialog">
+  <button commandfor="dialog" command="close" type="button">
+    Close Dialog
+  </button>
+  <!-- dialog content -->
+</dialog>
+```
+
+That's it. No JavaScript required.
+
+## How It Works
+
+The two key attributes are:
+
+- **`commandfor`**: References the `id` of the element you want to control
+- **`command`**: Specifies what action to perform
+
+For dialogs, you have two command options:
+
+- `show-modal`: Opens the dialog as a modal (with backdrop, blocking interaction with the rest of the page)
+- `close`: Closes the dialog
+
+## What You Get for Free
+
+When you use `command="show-modal"`, the browser handles:
+
+- Opening the dialog in the top layer (above all other content)
+- Adding a backdrop that blocks interaction with the page
+- Moving focus into the dialog
+- Closing with the <kbd>Esc</kbd> key
+- Managing the accessibility tree
+
+## Browser Support
+
+<BaselineStatus id="invoker-commands" />
+
+Invoker Commands are now supported across all modern browsers. This is still a rather new addition to the platform so, you will have to determine whether it is safe to use in your production environment. With that said, there is also a [polyfill available](https://github.com/keithamus/invokers-polyfill) by [Keith Cirkel](https://github.com/keithamus).
+
+> NOTE: The Invoker Commands API is supported by all modern browsers. See the [browser compatibility table on MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/Invoker_Commands_API#browser_compatibility) for details.
+
+## Why This Matters
+
+Invoker Commands represent a broader shift: giving HTML the power to handle common interactive patterns without requiring JavaScript. This means:
+
+- Faster initial page loads (less JavaScript to parse and execute)
+- More resilient interfaces (works even if JavaScript fails to load)
+- Simpler codebases (less glue code to maintain)
+- Better alignment with the declarative nature of HTML
+
+The web platform keeps getting better at being the web platform.
+
+

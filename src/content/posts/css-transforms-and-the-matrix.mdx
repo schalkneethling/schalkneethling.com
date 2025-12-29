@@ -1,0 +1,426 @@
+---
+title: CSS Transforms and the Matrix
+pubDate: 2025-02-21
+description: A deep dive into the CSS transform matrix, how it relates to the individual CSS transform properties, a look at the hidden powers of the function forms, and a dragon or two.
+author: "Schalk Neethling"
+tags: ["css", "frontend-engineering-explained"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+A while ago I wrote a post where I [introduced the individual CSS transform properties](css-translate-scale-rotate-have-a-new-home). When I spoke with a colleague ([Fynn Ellie Becker](https://fynn.be/) - an amazing frontend developer) they mentioned the CSS transform matrix as defined in the [CSS Transforms Module](https://drafts.csswg.org/css-transforms-2/#ctm) and that the individual CSS transform properties, while great, most definitely do not render their function forms obsolete. I decided to dig in some more and this post is the result of that exploration.
+
+## A Quick Recap
+
+Before the introduction of the individual CSS transform properties, we would use the `transform` property to apply multiple transformations to an element. This would look something like this:
+
+```css
+svg {
+  transform: translate(0, 25rem) rotate(180deg) scale(0.5);
+}
+```
+
+You can now accomplish the same with the following CSS:
+
+```css
+svg {
+  translate: 0 25rem;
+  rotate: 180deg;
+  scale: 0.5;
+}
+```
+
+<BaselineStatus id="individual-transforms" />
+
+While this is true on its face, there are some nuances that we need to be aware of. There are also hidden powers in the function forms of these properties that I would be remiss not to mention. However, before we dig into those, we have to go into the matrix.
+
+## The CSS Transform Matrix
+
+Referring to the link I shared earlier, the CSS Transforms Module defines the CSS transform matrix as follows (quoting from the specification):
+
+1. Start with the identity matrix.
+2. Translate by the computed X, Y, and Z values of transform-origin.
+3. Translate by the computed X, Y, and Z values of translate.
+4. Rotate by the computed `<angle>` about the specified axis of rotate.
+5. Scale by the computed X, Y, and Z values of scale.
+6. Translate and rotate by the transform specified by offset.
+7. Multiply by each of the transform functions in transform from left to right.
+8. Translate by the negated computed X, Y and Z values of transform-origin.
+
+> **Note:** While the above include the `Z` axis for 3D space, we will focus on the 2D space for this post.
+
+Let's step through each of these sequentially.
+
+### Start with the identity matrix.
+
+The identity matrix is a square matrix in which all the elements of the principal diagonal are ones and all other elements are zeros.
+
+Say what now? That was my reaction the first time I read it too. If you wish to dig into the mathematics behind the identity matrix, feel free to start with [this entry from Wikipedia](https://en.wikipedia.org/wiki/Identity_matrix). For our purposes, in the context of the CSS transform matrix, this means that the element is not transformed in any way.
+
+```html
+<div class="square"></div>
+```
+
+### Translate by the computed X, Y, and Z values of `transform-origin`.
+
+Unless you specify a `transform-origin` property, the default value is `50% 50% 0`. This means that the element is transformed around its center. If you specify a `transform-origin` property, the element is transformed around that point.
+
+```css
+.square {
+  background-color: rebeccapurple;
+  block-size: 5rem;
+  inline-size: 5rem;
+  animation: spin 1s linear infinite;
+}
+
+.transform-top-left {
+  transform-origin: top left; /* aka transform-origin: 0% 0%;  */
+}
+
+@keyframes spin {
+  from {
+    rotate: 0deg;
+  }
+
+  to {
+    rotate: 360deg;
+  }
+}
+```
+
+Transforms around the default centre:
+
+```html
+<div class="square"></div>
+```
+
+Transforms around the top left corner:
+
+```html
+<div class="square transform-top-left"></div>
+```
+
+#### Codepen Demo - Transform Origin
+
+<p
+  class="codepen"
+  data-height="300"
+  data-default-tab="html,result"
+  data-slug-hash="xbxVRbd"
+  data-pen-title="spinning-squares"
+  data-preview="true"
+  data-editable="true"
+  data-user="schalkneethling"
+  style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;"
+>
+  <span>
+    See the Pen{" "}
+    <a href="https://codepen.io/schalkneethling/pen/xbxVRbd">
+      spinning-squares
+    </a>{" "}
+    by Schalk Neethling (
+    <a href="https://codepen.io/schalkneethling">@schalkneethling</a>) on{" "}
+    <a href="https://codepen.io">CodePen</a>.
+  </span>
+</p>
+
+### Translate by the computed X, Y, and Z values of translate.
+
+This will translate or move the element along the X, Y, or Z axis or a combination of all three.
+
+```css
+.static-square,
+.square {
+  background-color: hotpink;
+  block-size: 5rem;
+  display: grid;
+  font-size: 1.3rem;
+  inline-size: 5rem;
+  place-items: center;
+}
+
+.square {
+  background-color: rebeccapurple;
+  block-size: 5rem;
+  color: #fff;
+  inline-size: 5rem;
+  translate: 1rem 2rem;
+}
+
+.transform-top-left {
+  transform-origin: top left; /* aka transform-origin: 0% 0%;  */
+}
+```
+
+#### Codepen Demo - Translate
+
+<p
+  class="codepen"
+  data-height="300"
+  data-default-tab="html,result"
+  data-slug-hash="VYwamKx"
+  data-pen-title="translate squares"
+  data-preview="true"
+  data-editable="true"
+  data-user="schalkneethling"
+  style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;"
+>
+  <span>
+    See the Pen{" "}
+    <a href="https://codepen.io/schalkneethling/pen/VYwamKx">
+      translate squares
+    </a>{" "}
+    by Schalk Neethling (
+    <a href="https://codepen.io/schalkneethling">@schalkneethling</a>) on{" "}
+    <a href="https://codepen.io">CodePen</a>.
+  </span>
+</p>
+
+### Rotate by the computed `<angle>` about the specified axis of rotate.
+
+As the name suggests, this will rotate the element by the specified angle.
+
+```css
+.static-square,
+.square {
+  background-color: hotpink;
+  block-size: 5rem;
+  inline-size: 5rem;
+}
+
+.square {
+  background-color: rebeccapurple;
+  rotate: 135deg;
+}
+
+.transform-top-left {
+  transform-origin: top left; /* aka transform-origin: 0% 0%;  */
+}
+```
+
+#### Codepen Demo - Rotate
+
+<p
+  class="codepen"
+  data-height="300"
+  data-default-tab="html,result"
+  data-slug-hash="OPJNbpG"
+  data-pen-title="rotate-squares"
+  data-preview="true"
+  data-editable="true"
+  data-user="schalkneethling"
+  style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;"
+>
+  <span>
+    See the Pen{" "}
+    <a href="https://codepen.io/schalkneethling/pen/OPJNbpG">rotate-squares</a>{" "}
+    by Schalk Neethling (
+    <a href="https://codepen.io/schalkneethling">@schalkneethling</a>) on{" "}
+    <a href="https://codepen.io">CodePen</a>.
+  </span>
+</p>
+
+### Scale by the computed X, Y, and Z values of scale.
+
+This will scale the element by the specified factor. While we can do non-uniform scaling, for this post we will focus on uniform scaling.
+
+```css
+.static-square,
+.square {
+  background-color: hotpink;
+  block-size: 5rem;
+  inline-size: 5rem;
+}
+
+.square {
+  background-color: rebeccapurple;
+  block-size: 5rem;
+  inline-size: 5rem;
+  scale: 2;
+}
+
+.transform-top-left {
+  transform-origin: top left; /* aka transform-origin: 0% 0%;  */
+}
+```
+
+#### Codepen Demo - Scale
+
+<p
+  class="codepen"
+  data-height="300"
+  data-default-tab="html,result"
+  data-slug-hash="ByaKQJX"
+  data-pen-title="scaled-squares"
+  data-preview="true"
+  data-editable="true"
+  data-user="schalkneethling"
+  style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;"
+>
+  <span>
+    See the Pen{" "}
+    <a href="https://codepen.io/schalkneethling/pen/ByaKQJX">scaled-squares</a>{" "}
+    by Schalk Neethling (
+    <a href="https://codepen.io/schalkneethling">@schalkneethling</a>) on{" "}
+    <a href="https://codepen.io">CodePen</a>.
+  </span>
+</p>
+
+### Multiply by each of the transform functions in transform from left to right.
+
+We are going to skip over point six. Not that it is not relevant or important, but for our purposes here it adds a bit of noise without much benefit. What the above statement states is that each transform is applied on the result of the previous step from the left to the right. This is is an important point to keep in mind when you are applying multiple transforms to an element. We will touch more on this in a moment.
+
+```css
+transform: translate(100px, 50px) rotate(30deg);
+```
+
+In the above example, the element is first translated to the right by 100 pixels and down by 50 pixels and only then is it rotated by 30 degrees.
+
+### Translate by the negated computed X, Y and Z values of `transform-origin`.
+
+The negation step ensures that transformations apply around the specified `transform-origin` without adding unintended extra shifts. If you set a custom `transform-origin`, the element will rotate around this new pivot point, which may result in a visible offset. However, the negation step still prevents double displacement, ensuring the transformation behaves predictably.
+
+## Putting It All Together
+
+That was a lot, but what exactly does it all mean, practically.
+
+### Control Over the Order of Transformations
+
+The first topic to understand is that irrespective of the order in which you set the individual transform properties, they will always apply in the same order. i.e.
+
+1. Apply `translate`.
+2. Apply `rotate`.
+3. Apply the specified `scale` factor.
+
+The upside of this is that it is very predictable. However, if the end result is not what you intended, you have no control over the order. But of course, with the `transform` property you do and you can call the same properties in their function forms in any order and they will always be applied from left to right.
+
+Below is a Codepen that you can interact with to see the difference of applying the same values for each property but, in the one case as individual properties and in the other as the `transform` property.
+
+<p
+  class="codepen"
+  data-height="500"
+  data-default-tab="html,result"
+  data-slug-hash="yyLOgMP"
+  data-pen-title="individual transform properties and transform function form compared"
+  data-preview="true"
+  data-editable="true"
+  data-user="schalkneethling"
+  style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;"
+>
+  <span>
+    See the Pen{" "}
+    <a href="https://codepen.io/schalkneethling/pen/yyLOgMP">
+      individual transform properties and transform function form compared
+    </a>{" "}
+    by Schalk Neethling (
+    <a href="https://codepen.io/schalkneethling">@schalkneethling</a>) on{" "}
+    <a href="https://codepen.io">CodePen</a>.
+  </span>
+</p>
+
+### Reuse Through Custom Properties
+
+While you can replicate this to some degree using different CSS classes, the order of the transformation matrix is still enforced. So, not only do you get the flexibility of calling the functions in any order, you can also call the same function more than once.
+
+```css
+--translate-rotate: translate(100px, 50px) rotate(30deg);
+--scale-1-5: scale(1.5);
+--scale3: scale(3);
+--complex-transform: var(--scale-3) var(--translate-rotate)
+  var(--translate-rotate) var(--scale-1-5);
+
+transform: var(--translate-rotate) var(--scale-1-5) var(--translate-rotate);
+transform: var(--translate-rotate) var(--scale-3) var(--translate-rotate);
+transform: var(--complex-transform);
+```
+
+### The Dragons Are In The Details
+
+The above are two great reasons why one will still reach for the function forms of the individual transform properties. You can of course also use both the individual properties and the `transform` property in the same rule set. However, this is where the dragons reside. 🐲
+
+```css
+.rotate {
+  rotate: 45deg;
+}
+
+.rotate-more {
+  rotate: 65deg;
+}
+
+.rotate-a-lot {
+  transform: rotate(295deg);
+}
+```
+
+Click through the example below. Each time you click another one of the three classes will be applied to the element. Before each click, try to predict what the result will be. If you scroll down within the output frame, you can see what each rotation looks like by itself.
+
+<p
+  class="codepen"
+  data-height="300"
+  data-default-tab="html,result"
+  data-slug-hash="QwWNdXm"
+  data-pen-title="Additive transform"
+  data-preview="true"
+  data-editable="true"
+  data-user="schalkneethling"
+  style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;"
+>
+  <span>
+    See the Pen{" "}
+    <a href="https://codepen.io/schalkneethling/pen/QwWNdXm">
+      Additive transform
+    </a>{" "}
+    by Schalk Neethling (
+    <a href="https://codepen.io/schalkneethling">@schalkneethling</a>) on{" "}
+    <a href="https://codepen.io">CodePen</a>.
+  </span>
+</p>
+
+Did the third rotation surprise you?
+
+When you use both the individual transform properties (`rotate`, `scale`, `translate`) and the `transform` shorthand on the same element, they accumulate rather than override each other. Let's list steps three to five and seven here again for ease of reference.
+
+3. Translate by the computed X, Y, and Z values of translate.
+4. Rotate by the computed `<angle>` about the specified axis of rotate.
+5. Scale by the computed X, Y, and Z values of scale.
+6. Multiply by each of the transform functions in transform from left to right. 🐲
+
+So what is happening? The first time you click the button we add the rotate class to the element:
+
+```css
+.rotate {
+  rotate: 45deg;
+}
+```
+
+Our element is now rotated by `45deg`. The second time we click the button we add the `rotate-more` class to the element:
+
+```css
+.rotate-more {
+  rotate: 65deg;
+}
+```
+
+Because of the CSS cascade, the value in `rotate-more` overrides the value in `rotate` so, the element is now rotated by `65deg`. The third time we click the button we add the `rotate-a-lot` class to the element:
+
+```css
+.rotate-a-lot {
+  transform: rotate(295deg);
+}
+```
+
+In this instance, the value of the `rotate` function is added to the value (multiplied to the result of the last transformation) and as a result our element is now rotated by `360deg` (65 + 295 = 360). The same holds true for `scale` and `translate`. Now you know where the dragons are. 🐲
+
+---
+
+And there you go. A pretty decent deep dive into the Matrix and a nice companion to my earlier article on individual transform properties. You go forth and make awesome things. Just ensure you keep an eye out for the dragons. 🐲
+
+---
+
+### Additional Reading
+
+- The folks over at [Polypane](https://polypane.app/) wrote a [great article covering some of the same topics](https://polypane.app/blog/the-css-transform-property-and-individual-transforms-are-additive/) which I recommend.
+- The CSS Transforms Module Level 2 [specification](https://drafts.csswg.org/css-transforms-2)
+- The [`transform` documentation on MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/transform) is always a great resource.
+
+<script async src="https://public.codepenassets.com/embed/index.js"></script>

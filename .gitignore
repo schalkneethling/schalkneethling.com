@@ -19,3 +19,8 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# test artifacts
+playwright-report/
+test-results/
+**/full-report.json

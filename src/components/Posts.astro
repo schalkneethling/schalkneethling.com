@@ -1,9 +1,14 @@
 ---
+import type { CollectionEntry } from "astro:content";
 import BlogPost from "./BlogPost.astro";
+
+interface Props {
+  posts: CollectionEntry<"posts">[];
+}
 
 const { posts } = Astro.props;
 ---
 
 <ul>
-  {posts.map((post) => <BlogPost frontMatter={post.frontmatter} post={post} />)}
+  {posts.map((post) => <BlogPost post={post} />)}
 </ul>

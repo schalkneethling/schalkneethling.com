@@ -1,29 +1,29 @@
 ---
+import type { CollectionEntry } from "astro:content";
+
 interface Props {
-  frontMatter: {
-    description: string;
-    pubDate: string;
-    title: string;
-  };
-  post: {
-    url: string;
-  };
+  post: CollectionEntry<"posts">;
 }
-const { frontMatter, post } = Astro.props;
+const { post } = Astro.props;
+const formattedDate = new Date(post.data.pubDate).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 ---
 
 <li class="card card-blog-post">
   <article>
     <header>
       <h3 class="card-title">
-        <a href={post.url}>{frontMatter.title}</a>
+        <a href={`/posts/${post.slug}/`}>{post.data.title}</a>
       </h3>
       <p class="card-pubdate">
-        This post was published on <time datetime={frontMatter.pubDate}
-          >{frontMatter.pubDate}</time
+        This post was published on <time datetime={post.data.pubDate.toISOString()}
+          >{formattedDate}</time
         >
       </p>
     </header>
-    <p>{frontMatter.description}</p>
+    <p>{post.data.description}</p>
   </article>
 </li>

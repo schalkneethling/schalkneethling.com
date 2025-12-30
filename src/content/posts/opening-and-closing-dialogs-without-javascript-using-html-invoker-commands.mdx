@@ -44,12 +44,12 @@ You could close the dialog without JavaScript using `<form method="dialog">`, bu
 With Invoker Commands, you add two attributes to your button:
 
 ```html
-<button commandfor="dialog" command="show-modal" type="button">
+<button commandFor="dialog" command="show-modal" type="button">
   Open Dialog
 </button>
 
 <dialog id="dialog">
-  <button commandfor="dialog" command="close" type="button">
+  <button commandFor="dialog" command="close" type="button">
     Close Dialog
   </button>
   <!-- dialog content -->
@@ -62,7 +62,7 @@ That's it. No JavaScript required.
 
 The two key attributes are:
 
-- **`commandfor`**: References the `id` of the element you want to control
+- **`commandFor`**: References the `id` of the element you want to control
 - **`command`**: Specifies what action to perform
 
 For dialogs, you have two command options:

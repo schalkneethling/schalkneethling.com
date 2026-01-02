@@ -1,0 +1,471 @@
+---
+title: "Precise Positioning with CSS Anchor Functions: anchor(), anchor-center, and anchor-size()"
+pubDate: 2026-01-02
+description: "Take your anchor positioning beyond the grid with functions that give you pixel-level control over placement and sizing."
+author: "Schalk Neethling"
+tags: ["css", "frontend-engineering-explained"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+In the [previous post](/posts/getting-started-with-css-anchor-positioning-anchor-name-position-anchor-and-position-area/), we explored how `position-area` places elements using a 3×3 grid around the anchor. That covers the common cases beautifully, tooltips above buttons, dropdowns below nav items, popovers beside icons.
+
+But sometimes the grid isn't enough. Maybe you need a precise gap between elements. Maybe you want a tooltip to track along a slider at a specific percentage. Maybe your dropdown should match its trigger button's width exactly.
+
+That's where anchor functions come in.
+
+## Baseline Status
+
+<BaselineStatus id="anchor-positioning" />
+
+## The `anchor()` Function
+
+While `position-area` thinks in grid regions, `anchor()` lets you reference specific edges of your anchor and use them directly in inset properties.
+
+Here's what the spec says:
+
+> An anchor-positioned element can use the anchor() function as a value in its inset properties to refer to the position of one or more anchor elements. The anchor() function resolves to a `<length>`.
+
+**In plain terms:** `anchor()` returns a measurement — the distance from the edge of your containing block to a specific edge of the anchor. You can use this value in inset properties like `inset-block-start`, `inset-inline-end`, and their physical equivalents.
+
+### Basic Syntax
+
+```css
+.tooltip {
+  position: absolute;
+  position-anchor: --button;
+  
+  /* Position my top edge at the anchor's bottom edge */
+  inset-block-start: anchor(end);
+}
+```
+
+The function takes an anchor side as its argument. Here are your options:
+
+| Type | Keywords |
+| --- | --- |
+| **Physical** | `top`, `right`, `bottom`, `left` |
+| **Logical** | `start`, `end`, `self-start`, `self-end` |
+| **Contextual** | `inside`, `outside` |
+| **Percentage** | `0%` to `100%`, or `center` (equivalent to `50%`) |
+
+A subtle but important distinction: `start` and `end` resolve based on the **anchor element's** writing mode, while `self-start` and `self-end` resolve based on the **positioned element's** writing mode. In most cases these are identical, but if your tooltip has a different writing mode than its anchor, they'd point to different edges.
+
+### How It Actually Works
+
+Here's the key insight: `anchor()` returns the distance from the **edge of the containing block** to the **specified edge of the anchor**.
+
+When you write:
+
+```css
+.tooltip {
+  position: fixed;
+  position-anchor: --button;
+  inset-block-end: anchor(start);
+}
+```
+
+You're saying: "Position my element so its block-end (bottom) edge aligns with the anchor's block-start (top) edge." The result? Your tooltip sits directly above the button.
+
+```
+┌─────────────────────────────────────────┐
+│                                         │
+│              ┌──────────┐               │
+│              │ TOOLTIP  │               │
+│              └──────────┘ ← block-end   │
+│              ┌──────────┐ ← anchor      │
+│              │  BUTTON  │   block-start │
+│              └──────────┘               │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+### Adding Gaps with calc()
+
+Because `anchor()` returns a length, you can use it in calculations:
+
+```css
+.tooltip {
+  position: fixed;
+  position-anchor: --button;
+  inset-block-end: calc(anchor(start) + 0.5rem);
+}
+```
+
+```
+┌─────────────────────────────────────────┐
+│              ┌──────────┐               │
+│              │ TOOLTIP  │               │
+│              └──────────┘               │
+│                 0.5rem                  │
+│              ┌──────────┐               │
+│              │  BUTTON  │               │
+│              └──────────┘               │
+└─────────────────────────────────────────┘
+```
+
+This is where `anchor()` shines over `position-area`. With `position-area`, gaps come from margins, a fixed offset that doesn't "know about" the anchor. With `anchor()`, the anchor's edge position is the input to your calculation.
+
+### The `inside` and `outside` Keywords
+
+These are contextual, they resolve based on which inset property you're using:
+
+| Keyword | In `inset-block-start` | In `inset-block-end` |
+| --- | --- | --- |
+| `inside` | `start` | `end` |
+| `outside` | `end` | `start` |
+
+`inside` means "the same side", useful for overlapping the anchor.
+
+`outside` means "the opposite side", useful for adjacent positioning.
+
+```css
+.tooltip {
+  position: fixed;
+  position-anchor: --button;
+  
+  /* "outside" in inset-block-end means anchor's start edge */
+  inset-block-end: anchor(outside);
+}
+```
+
+This is equivalent to `inset-block-end: anchor(start)`, but reads more semantically: "position my block-end (bottom) edge outside the anchor."
+
+### Axis Restrictions
+
+Here's an important constraint: **physical keywords can only be used in matching axes.**
+
+```css
+/* ✅ Valid — horizontal keyword in horizontal property */
+left: anchor(right);
+
+/* ✅ Valid — vertical keyword in vertical property */
+top: anchor(bottom);
+
+/* ❌ Invalid — vertical keyword in horizontal property */
+left: anchor(top);
+```
+
+The logical keywords (`start`, `end`, `self-start`, `self-end`) resolve based on the property's axis, so they work in any inset property:
+
+```css
+/* ✅ Both valid — "end" resolves appropriately for each axis */
+inset-inline-start: anchor(end);  /* end = inline-end */
+inset-block-start: anchor(end);   /* end = block-end */
+```
+
+This is another reason to prefer logical keywords, they adapt to writing modes and sidestep axis-matching concerns entirely.
+
+### Percentage Positioning
+
+Percentages let you position at any point along the anchor's edge:
+
+```css
+.slider-tooltip {
+  position: fixed;
+  position-anchor: --track;
+  inset-inline-start: anchor(25%);  /* 25% along the anchor's inline size */
+  inset-block-end: anchor(start);
+}
+```
+
+This is particularly useful for elements that need to track along an edge, like a tooltip showing a slider's current value.
+
+### Referencing Multiple Anchors
+
+Unlike `position-area`, which only references your default anchor, `anchor()` can reference different anchors for different edges:
+
+```css
+.stretched-element {
+  position: fixed;
+  inset-block-start: anchor(--header end);
+  inset-block-end: anchor(--footer start);
+}
+```
+
+This stretches an element between a header and footer, something the 3×3 grid model simply can't express.
+
+## Critical Gotcha: Popover UA Styles
+
+If you're using `anchor()` with the Popover API, you'll hit a wall that isn't obvious from the spec.
+
+The browser's default popover styles include:
+
+```css
+[popover] {
+  inset: 0;
+  margin: auto;
+}
+```
+
+These centre the popover in the viewport. When you use `anchor()` on one property (say `inset-block-start: anchor(end)`), that value *does* take effect. But the other inset properties remain `0` from the UA stylesheet. Combined with `margin: auto`, the element is still constrained on the axes you didn't explicitly set, leading to unexpected positioning.
+
+**The fix:**
+
+```css
+[popover] {
+  inset: auto;   /* Clear all UA inset values */
+  margin: unset; /* Clear the UA margin: auto */
+  
+  /* Now your anchor positioning works as expected */
+  inset-block-start: anchor(end);
+  inset-inline-start: anchor(start);
+}
+```
+
+**Important:** Unlike `position-area` (which has more sensible UA defaults when you only specify one axis), `anchor()` only affects the specific property you use it in. You need to explicitly position both axes, or clear the defaults so the unset axis behaves predictably.
+
+## The `anchor-center` Value
+
+Here's a common scenario: you want to position an element to the inline-end of its anchor, vertically centred on it.
+
+Your first instinct might be:
+
+```css
+.tooltip {
+  inset-inline-start: calc(anchor(end) + 0.5rem);
+  inset-block-start: anchor(center);
+}
+```
+
+But this doesn't centre your tooltip, it positions the tooltip's **block-start (top) edge** at the anchor's vertical centre. The tooltip sits below centre.
+
+`anchor-center` solves this. It's a special value for `align-self` and `justify-self` that centres your element on its anchor along that axis.
+
+```css
+.tooltip {
+  position: fixed;
+  position-anchor: --icon;
+  
+  inset-inline-start: calc(anchor(end) + 0.5rem); /* To the inline-end, with gap */
+  align-self: anchor-center; /* Vertically centred on anchor */
+}
+```
+
+```
+┌─────────────────────────────────────────┐
+│                         ┌─────────────┐ │
+│              ┌────┐     │             │ │
+│              │ICON│     │   TOOLTIP   │ │
+│              └────┘     │             │ │
+│                         └─────────────┘ │
+└─────────────────────────────────────────┘
+```
+
+### Quick Reference
+
+| Property | Axis | Effect |
+| --- | --- | --- |
+| `align-self: anchor-center` | Block axis | Centres vertically (in horizontal writing modes) |
+| `justify-self: anchor-center` | Inline axis | Centres horizontally (in horizontal writing modes) |
+
+### One Constraint
+
+`anchor-center` only works when you **haven't** constrained that axis with an inset property. If you set `inset-block-start` or `inset-block-end`, you've already positioned the element on the block axis, there's no room for `align-self` to centre it.
+
+## The `anchor-size()` Function
+
+This function lets you size your positioned element based on your anchor's dimensions. It returns a `<length>` for use in sizing properties.
+
+### Syntax
+
+```css
+anchor-size(<dimension>)
+```
+
+Where `<dimension>` can be:
+
+| Keyword | Returns |
+| --- | --- |
+| `width` | Anchor's width |
+| `height` | Anchor's height |
+| `block` | Anchor's block-axis size |
+| `inline` | Anchor's inline-axis size |
+| `self-block` | Anchor's size in the *positioned element's* block axis |
+| `self-inline` | Anchor's size in the *positioned element's* inline axis |
+
+### Basic Example
+
+A dropdown that matches its trigger button's inline size:
+
+```css
+.dropdown {
+  position: fixed;
+  position-anchor: --trigger;
+  position-area: block-end span-inline-start;
+  
+  inline-size: anchor-size(inline);
+}
+```
+
+### With Calculations
+
+A tooltip that's always at least as wide as its anchor:
+
+```css
+.tooltip {
+  min-inline-size: anchor-size(inline);
+}
+```
+
+A popover that's exactly twice the anchor's inline size:
+
+```css
+[popover] {
+  inline-size: calc(anchor-size(inline) * 2);
+}
+```
+
+### Why `self-block` and `self-inline` Exist
+
+The `block` and `inline` keywords resolve using the **containing block's** writing mode. The `self-block` and `self-inline` keywords resolve using the **positioned element's own** writing mode.
+
+In most cases these are identical. But if you have a vertical-writing-mode element anchored inside a horizontal-writing-mode container, they'd differ.
+
+### No Axis Restrictions
+
+Unlike `anchor()`, `anchor-size()` doesn't care about axis matching:
+
+```css
+/* Valid! Makes element's inline size match anchor's block size */
+inline-size: anchor-size(block);
+```
+
+This enables patterns like a square element sized to the anchor's larger dimension:
+
+```css
+.square-indicator {
+  inline-size: max(anchor-size(inline), anchor-size(block));
+  aspect-ratio: 1;
+}
+```
+
+### Implicit Dimension
+
+If you omit the dimension, it defaults to match the property's axis:
+
+```css
+/* These are equivalent */
+inline-size: anchor-size();
+inline-size: anchor-size(inline);
+```
+
+However, the explicit version is clearer, future-you won't need to look up the default behaviour.
+
+## When to Use Which
+
+After working through both approaches, here's how to choose:
+
+| Use `position-area` when... | Use `anchor()` when... |
+| --- | --- |
+| The 3×3 grid model covers your placement needs | The grid is too restrictive |
+| You're referencing one anchor at a time | You need different anchors for different edges |
+| Gaps via margin work fine | Gaps need to be calculated relative to anchor edges |
+| Edge and corner alignment is sufficient | You need percentage-based positioning along an edge |
+
+These aren't mutually exclusive. You might use `position-area` for basic placement and add `anchor-size()` for sizing:
+
+```css
+.dropdown {
+  position: fixed;
+  position-anchor: --button;
+  position-area: block-end span-inline-start;
+  inline-size: anchor-size(inline); /* Match button width */
+}
+```
+
+## Practice Exercises
+
+### Exercise 1
+
+Build a dropdown that appears **below** a button, with a **0.25rem gap**, and **inline-start-aligned** with the button's inline-start edge.
+
+<details>
+<summary>Solution</summary>
+
+```css
+[popover] {
+  inset: auto;
+  margin: unset;
+  
+  inset-block-start: calc(anchor(end) + 0.25rem);
+  inset-inline-start: anchor(start);
+}
+```
+
+The `inset-block-start: calc(anchor(end) + 0.25rem)` positions the dropdown's block-start (top) edge 0.25rem below the anchor's block-end (bottom) edge. The `inset-inline-start: anchor(start)` aligns the inline-start (left) edges.
+
+</details>
+
+### Exercise 2
+
+Build a tooltip that appears **to the inline-end** of an icon, **vertically centred** on it, with a **0.5rem gap**.
+
+<details>
+<summary>Solution</summary>
+
+```css
+.tooltip {
+  position: fixed;
+  position-anchor: --icon;
+  
+  inset: auto;
+  margin: unset;
+  
+  inset-inline-start: calc(anchor(end) + 0.5rem);
+  align-self: anchor-center;
+}
+```
+
+The `anchor(end)` references the icon's inline-end (right) edge. The `calc()` adds the gap. `align-self: anchor-center` handles vertical centring.
+
+</details>
+
+### Exercise 3
+
+Build a popover that appears **below** a button, **centred horizontally** on it, and **matches the button's width**.
+
+<details>
+<summary>Solution</summary>
+
+```css
+[popover] {
+  inset: auto;
+  margin: unset;
+  
+  inset-block-start: anchor(end);
+  justify-self: anchor-center;
+  inline-size: anchor-size(inline);
+}
+```
+
+Or, using `position-area` for placement with `anchor-size()` for sizing:
+
+```css
+[popover] {
+  position-area: block-end;
+  inline-size: anchor-size(inline);
+}
+```
+
+The second approach is simpler when the grid model suffices for placement.
+
+</details>
+
+## What's Next
+
+We've now covered placement (`position-area`, `anchor()`), alignment (`anchor-center`), and sizing (`anchor-size()`). But what happens when your preferred position doesn't fit? What if the tooltip would overflow the viewport?
+
+The next post tackles **position fallbacks**, the system for defining alternative positions when your first choice causes problems:
+
+- `position-try-fallbacks` — quick fallback patterns
+- `@position-try` — custom fallback rules
+- `position-try-order` — prioritising based on available space
+
+## Further Reading
+
+- [`anchor()` function on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/anchor)
+- [`anchor-size()` function on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/anchor-size)
+- [`anchor-center` on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_anchor_positioning/Using#centering_on_the_anchor_using_anchor-center)
+- [CSS Anchor Positioning Module Level 1 Specification](https://www.w3.org/TR/css-anchor-position-1/)
+

@@ -1,0 +1,97 @@
+/**
+ * Global site styles
+ * Overrides and extensions to the minimalist library
+ */
+
+@import url("./tokens/index.css");
+
+:root {
+  /* Enable light/dark mode support */
+  color-scheme: light dark;
+
+  /* Semantic color tokens using light-dark() */
+  --color-background: light-dark(#fff, #1b1b1b);
+  --color-text: light-dark(#1b1b1b, #f4f4f4);
+  --color-text-muted: light-dark(#5c5c5c, #a4a4a4);
+  --color-surface: light-dark(#f4f4f4, #2a2a2a);
+  --color-surface-elevated: light-dark(#fff, #343434);
+  --color-border: light-dark(#d5d5d5, #4e4e4e);
+
+  /* Primary accent colors using light-dark() */
+  --color-accent: light-dark(#b04198, #dca2cb);
+  --color-accent-hover: light-dark(#561c4a, #ebc7e0);
+  --color-link: light-dark(#0342a4, #82a1d5);
+  --color-link-visited: light-dark(#561c4a, #c1aad5);
+
+  /* Table overrides */
+  --table-thead-bg-color: light-dark(#343434, #3d3d3d);
+  --table-thead-color: #f4f4f4;
+  --table-tbody-color: var(--color-text);
+  --table-tfoot-bg-color: light-dark(#d5d5d5, #343434);
+  --table-code-bg: light-dark(#e8e8e8, #3a3a3a);
+
+  /* Override minimalist table row backgrounds for dark mode */
+  --table-tbody-bg-odd: light-dark(#f4f4f4, #2d2d2d);
+  --table-tbody-bg-even: light-dark(#fff, #252525);
+
+  /* Gradient for headings */
+  --gradient-heading: linear-gradient(
+    to right,
+    light-dark(var(--color-blue-base-60), var(--color-blue-light-30)),
+    light-dark(var(--color-primary-base-60), var(--color-primary-light-30))
+  );
+}
+
+/* Apply theme colors to body */
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+/* Link colors using semantic tokens */
+a {
+  color: var(--color-link);
+}
+
+a:visited {
+  color: var(--color-link-visited);
+}
+
+/* Table body text color */
+tbody {
+  color: var(--table-tbody-color);
+}
+
+/* Inline code in table cells - inherit from tbody */
+tbody code {
+  background-color: var(--table-code-bg);
+  color: inherit;
+}
+
+/* Ensure all table cell content is visible */
+tbody td,
+tbody td strong,
+tbody td b,
+tbody td em,
+tbody td span {
+  color: inherit;
+}
+
+/* Container utility - center and constrain width */
+.u-container {
+  margin-inline: auto;
+  max-inline-size: 55rem;
+  max-inline-size: 95ch;
+  padding-inline: var(--size-16, 1rem);
+}
+
+/* Add spacing below main content */
+main.u-container {
+  margin-block-end: var(--size-64);
+}
+
+@media (min-width: 48rem) {
+  main.u-container {
+    margin-block-end: var(--size-80);
+  }
+}

@@ -1,0 +1,17 @@
+---
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import Posts from "./Posts.astro";
+
+const posts = await getCollection("posts");
+const sortedPosts: CollectionEntry<"posts">[] = posts.toSorted(
+  (a, b) =>
+    new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
+);
+const latestPosts: CollectionEntry<"posts">[] = sortedPosts.slice(0, 3);
+---
+
+<section aria-labelledby="latest-posts">
+  <h2 id="latest-posts">Latest Posts</h2>
+  <Posts posts={latestPosts} />
+</section>

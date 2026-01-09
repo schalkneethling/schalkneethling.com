@@ -2,3 +2,38 @@
   <li><a href="#main-nav">Skip to navigation</a></li>
   <li><a href="#main-content">Skip to main content</a></li>
 </ul>
+
+<style>
+  .a11y-nav {
+    display: flex;
+    gap: var(--size-16);
+    list-style: none;
+    margin: 0;
+    padding: var(--size-8);
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    transform: translateY(-100%);
+    z-index: var(--bring-to-front);
+  }
+
+  .a11y-nav:focus-within {
+    background-color: var(--color-surface);
+    position: relative;
+    transform: translateY(0);
+  }
+
+  .a11y-nav a {
+    display: inline-block;
+    padding: var(--size-8) var(--size-16);
+    background-color: var(--color-accent);
+    color: var(--color-background);
+    text-decoration: none;
+    border-radius: var(--border-radius-default);
+  }
+
+  .a11y-nav a:focus-visible {
+    outline: var(--size-2) solid var(--color-text);
+    outline-offset: var(--size-4);
+  }
+</style>

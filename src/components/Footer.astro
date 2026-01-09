@@ -11,12 +11,8 @@ const socialLinks = [
     url: "https://www.youtube.com/channel/UCaIC2hpfo9av8-R7g9qE2sw",
   },
   {
-    linkLabel: "Let's chat on Mastodon (Hachyderm)",
-    url: "https://hachyderm.io/@schalkneethling",
-  },
-  {
-    linkLabel: "Get the newsletters on Substack",
-    url: "https://schalkneethling.substack.com/",
+    linkLabel: "Let's chat on BlueSky",
+    url: "https://bsky.app/profile/schalkneethling.com",
   },
   {
     linkLabel: "Connect with me on LinkedIn",
@@ -26,21 +22,97 @@ const socialLinks = [
 ---
 
 <footer class="page-footer">
-  <nav aria-label="Social links">
-    <ul>
-      {
-        socialLinks.map((link) => (
-          <li>
-            <Social {...link} />
-          </li>
-        ))
-      }
-    </ul>
-  </nav>
-  <p>
-    Thanks to <a href="https://www.opendoodles.com/"
-      >Open Doodles for the great graphics</a
-    >. Ain’t open-source great?!
-  </p>
-  <p>Copyright © {new Date().getFullYear()} - Schalk Neethling</p>
+  <div class="footer-content">
+    <nav aria-label="Social links" class="social-nav">
+      <ul class="social-links">
+        {
+          socialLinks.map((link) => (
+            <li>
+              <Social {...link} />
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <p class="footer-copyright">
+      Copyright © {new Date().getFullYear()} - Schalk Neethling
+    </p>
+  </div>
 </footer>
+
+<style>
+  .page-footer {
+    background-color: var(--color-surface);
+    border-block-start: var(--size-1) solid var(--color-border);
+    margin-block-start: auto;
+    padding-block: var(--size-48);
+  }
+
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--size-24);
+    max-inline-size: 75rem;
+    margin-inline: auto;
+    padding-inline: var(--size-16);
+    text-align: center;
+  }
+
+  .social-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--size-16);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .social-links a {
+    display: inline-block;
+    padding: var(--size-8) var(--size-16);
+    background-color: var(--color-surface-elevated);
+    border: var(--size-1) solid var(--color-border);
+    border-radius: var(--border-radius-default);
+    color: var(--color-text);
+    font-size: var(--typography-size-small);
+    text-decoration: none;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .social-links a:hover,
+  .social-links a:focus {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-background);
+  }
+
+  .social-links a:focus-visible {
+    outline: var(--size-2) solid var(--color-accent);
+    outline-offset: var(--size-4);
+  }
+
+  .footer-attribution,
+  .footer-copyright {
+    color: var(--color-text-muted);
+    font-size: var(--typography-size-small);
+    margin: 0;
+  }
+
+  .footer-attribution a {
+    color: var(--color-link);
+  }
+
+  @media (min-width: 48rem) {
+    .footer-content {
+      padding-inline: var(--size-32);
+    }
+
+    .social-links {
+      gap: var(--size-24);
+    }
+  }
+</style>

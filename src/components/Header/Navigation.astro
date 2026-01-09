@@ -1,5 +1,5 @@
-<nav aria-label="Main navigation">
-  <ul class="reset-list nav-links" id="main-nav">
+<nav aria-label="Main navigation" class="main-nav">
+  <ul class="nav-links" id="main-nav">
     <li><a href="/">Return home</a></li>
     <li><a href="/now">What I'm doing now</a></li>
     <li><a href="/about">#whoami</a></li>
@@ -7,3 +7,56 @@
     <li><a href="/contact">Get in touch</a></li>
   </ul>
 </nav>
+
+<style>
+  .main-nav {
+    padding-block: var(--size-16);
+  }
+
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--size-8) var(--size-24);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-links a {
+    color: var(--color-text);
+    font-family: var(--minimalist-typography-body-family);
+    font-size: var(--typography-size-default);
+    text-decoration: none;
+    padding-block: var(--size-4);
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: "";
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    inline-size: 0;
+    block-size: var(--size-2);
+    background-color: var(--color-accent);
+    transition: inline-size 0.2s ease;
+  }
+
+  .nav-links a:hover::after,
+  .nav-links a:focus::after {
+    inline-size: 100%;
+  }
+
+  .nav-links a:focus-visible {
+    outline: var(--size-2) solid var(--color-accent);
+    outline-offset: var(--size-4);
+  }
+
+  @media (min-width: 48rem) {
+    .nav-links {
+      gap: var(--size-32);
+    }
+  }
+</style>

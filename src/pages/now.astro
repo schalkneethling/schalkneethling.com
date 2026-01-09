@@ -2,13 +2,12 @@
 import CurrentlyLearning from "@components/Now/CurrentlyLearning.astro";
 import CurrentlyReading from "../components/Now/CurrentlyReading.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { openSource, podcaster } from "./index.astro";
 
 const pageTitle = "What I'm doing now";
 ---
 
 <BaseLayout pageTitle={pageTitle}>
-  <main class="main-content" id="main-content">
+  <main class="u-container" id="main-content">
     <h1>What I'm doing now</h1>
 
     <p>
@@ -70,48 +69,8 @@ const pageTitle = "What I'm doing now";
       web components. Unless I am guest posting, all my writing will happen on
       this blog. On the open source side I will be focusing on completing my
       book on HTML, finishing the first version of the CSS library minimalist,
-      and iteratively improving the Developer Toolchest.
+      and iteratively improving the MakerBench.
     </p>
-
-    <p>
-      The only other project I will be spening time on will be the Ctrl+C
-      non-profit project I am starting with some friends. All the podcasts and
-      the Mycelium Network community will now be co-managed by all of us under
-      the Ctrl+C non-profit. I am excited to see how the next year (starting on
-      23 June 2024) will play out with this renewed focus.
-    </p>
-
-    <CurrentlyReading />
-
-    <CurrentlyLearning />
-
-    <h3>My open source projects</h3>
-    <ul>
-      {
-        openSource.map((topic) => (
-          <li>
-            <h3 class={`topic-icon icon-${topic.icon}`}>
-              <a href={topic.url}>{topic.title}</a>
-            </h3>
-            <p>{topic.description}</p>
-          </li>
-        ))
-      }
-    </ul>
-
-    <h4>I also make podcasts</h4>
-    <ul>
-      {
-        podcaster.map((podcast) => (
-          <li>
-            <h3 class={`icon icon-${podcast.icon}`}>
-              <a href={podcast.url}>{podcast.title}</a>
-            </h3>
-            <p>{podcast.description}</p>
-          </li>
-        ))
-      }
-    </ul>
 
     <p>
       What now? Go <a href="https://sive.rs/nowff"

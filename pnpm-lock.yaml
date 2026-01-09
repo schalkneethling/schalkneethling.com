@@ -21,8 +21,8 @@ importers:
         specifier: ^5.16.6
         version: 5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2)
       astro-embed:
-        specifier: ^0.10.0
-        version: 0.10.0(astro@5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2))
+        specifier: ^0.12.0
+        version: 0.12.0(astro@5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2))
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
@@ -48,16 +48,22 @@ packages:
   '@astro-community/astro-embed-bluesky@0.1.6':
     resolution: {integrity: sha512-3y6Y3cRelLnR9AYMItmEAjcr83KAEa6WvsxQ1eHq1cPBzICXknuzphaZlmQZ+QG5NTtmEJD+2lQWrFba/BfM1A==}
 
-  '@astro-community/astro-embed-integration@0.9.0':
-    resolution: {integrity: sha512-E/rLvgofFgHbvLoMARQrbTQ+WUWqkamqCt00LNFqFqL6KIXWo3QoqI3vSzZkA+wMErfHaMLdVz3Z938s7RbsgA==}
+  '@astro-community/astro-embed-gist@0.1.0':
+    resolution: {integrity: sha512-wP3EoBZZjDoPLH6TZzem8jDJxOuweDoK5zWmSra0QBKz3Lry1tZGCwKII5mlnOL2AmTKLrfqrBXTxSGwb7AimQ==}
+
+  '@astro-community/astro-embed-integration@0.11.0':
+    resolution: {integrity: sha512-xmwXN8039zUT0/lBO2GUr8cm5t/v+9Fh8QkPUhTWy+A7RR0+PwT1M3PBm8q01A1rK9q0myOyFHEcSOp+WkH5tg==}
     peerDependencies:
       astro: ^5.0.0 || ^6.0.0-alpha
 
   '@astro-community/astro-embed-link-preview@0.3.1':
     resolution: {integrity: sha512-TI++efm08+kJqxqA7bvxBr7+Zt4yCceA6s3wvAQJ87eiaxbLqAFUSQ+paQD66ET9dIC+IuKzHOMwsoDfqBidYw==}
 
-  '@astro-community/astro-embed-twitter@0.5.10':
-    resolution: {integrity: sha512-5opDlH12zGE1lpZ998PApIfIePXDKsGPSRQcGJqlR/kvCMl3UJDG2mQw3aAB9NvkY5ptavIWYK6A+soUTQuO0g==}
+  '@astro-community/astro-embed-mastodon@0.1.0':
+    resolution: {integrity: sha512-IEgoBps2OI+Ayov77B08KVTmgMDvPLimXkUj76/po8SMc/Cjq5/2dByaOBqU/sk5brHZlacR+9ZbtO/JOoihXA==}
+
+  '@astro-community/astro-embed-twitter@0.5.11':
+    resolution: {integrity: sha512-6cmyQY4LVVJj6x7qC6XrhWcxNffLvR+QGE/iw5HTOtAn60AStr6u+IX2Txpy6N6bta0DLjGqhTBhkC3NxmVKJg==}
 
   '@astro-community/astro-embed-utils@0.2.0':
     resolution: {integrity: sha512-Ia70AMCFOUOSoaMfMaK7Ovk7VyIY4opwzBJoA6GeL+omkvpFwDbSWmA8MOiMF4gJC0j/1dgrEir+txIb+WvsCA==}
@@ -118,14 +124,14 @@ packages:
   '@atproto/api@0.13.35':
     resolution: {integrity: sha512-vsEfBj0C333TLjDppvTdTE0IdKlXuljKSveAeI4PPx/l6eUKNnDTsYxvILtXUVzwUlTDmSRqy5O4Ryh78n1b7g==}
 
-  '@atproto/common-web@0.4.8':
-    resolution: {integrity: sha512-2YDVTYAXmd8UStebscDglisrxT5q7qt+0Fbf2zpkOITeNEEXCeTcoE0X369/ssdPtiw4CMq2rGHDH003SO7bdQ==}
+  '@atproto/common-web@0.4.10':
+    resolution: {integrity: sha512-TLDZSgSKzT8ZgOrBrTGK87J1CXve9TEuY6NVVUBRkOMzRRtQzpFb9/ih5WVS/hnaWVvE30CfuyaetRoma+WKNw==}
 
-  '@atproto/lex-data@0.0.4':
-    resolution: {integrity: sha512-ziWY8R4wJ0NGDSlt+gzPxMsIh1DXFeLt+lsBoVc6wPaJamCxngwWAxONuQ3p9oRE6zR/gXsCOdtZAH5yjWW5ag==}
+  '@atproto/lex-data@0.0.6':
+    resolution: {integrity: sha512-MBNB4ghRJQzuXK1zlUPljpPbQcF1LZ5dzxy274KqPt4p3uPuRw0mHjgcCoWzRUNBQC685WMQR4IN9DHtsnG57A==}
 
-  '@atproto/lex-json@0.0.4':
-    resolution: {integrity: sha512-BTBnRZUW7XFCbJnuSMvUZSLXYP6RK/RdTg68sySoK+Hg0A5k43uniA7xtFhJFZCfZ96brl3k/ykdVh76LizQ8Q==}
+  '@atproto/lex-json@0.0.6':
+    resolution: {integrity: sha512-EILnN5cditPvf+PCNjXt7reMuzjugxAL1fpSzmzJbEMGMUwxOf5pPWxRsaA/M3Boip4NQZ+6DVrPOGUMlnqceg==}
 
   '@atproto/lexicon@0.4.14':
     resolution: {integrity: sha512-jiKpmH1QER3Gvc7JVY5brwrfo+etFoe57tKPQX/SmPwjvUsFnJAow5xLIryuBaJgFAhnTZViXKs41t//pahGHQ==}
@@ -785,8 +791,8 @@ packages:
     peerDependencies:
       astro: ^2.0.0 || ^3.0.0-beta || ^4.0.0-beta || ^5.0.0-beta
 
-  astro-embed@0.10.0:
-    resolution: {integrity: sha512-kKxaXyN6Iz4fxv944aJtXewyyotUbTOI+53wxW7SwoGOWFAA6BfKyATcjqvuYPUaQm+1Fp1/3kdz7UJdLAwTBw==}
+  astro-embed@0.12.0:
+    resolution: {integrity: sha512-Hp/zfIFsibBSCXEC09Lk38uYq5IJyXClbNASiT/06fqrMvgWJzPEPvtnCEo1qIw8hxIh+4+esAJoktu5YKRIEA==}
     peerDependencies:
       astro: ^5.0.0 || ^6.0.0-alpha
 
@@ -909,8 +915,8 @@ packages:
   css-select@5.2.2:
     resolution: {integrity: sha512-TizTzUddG/xYLA3NXodFM0fSbNizXjOKhqiQQwvhlspadZokn1KDy0NZFS0wuEubIYAV5/c1/lAr0TaaFXEXzw==}
 
-  css-selector-parser@1.4.1:
-    resolution: {integrity: sha512-HYPSb7y/Z7BNDCOrakL4raGO2zltZkbeXyAd6Tg9obzix6QhzxCotdBl6VT0Dv4vZfJGVz3WL/xaEI9Ly3ul0g==}
+  css-selector-parser@3.3.0:
+    resolution: {integrity: sha512-Y2asgMGFqJKF4fq4xHDSlFYIkeVfRsm69lQC1q9kbEsH5XtnINTMrweLkjYMeaUgiXBy/uvKeO/a1JHTNnmB2g==}
 
   css-tree@2.2.1:
     resolution: {integrity: sha512-OA0mILzGc1kCOCSJerOeqDxDQ4HOh+G8NbOJFOTgOCzpw7fCBubk0fEyxp8AgOL/jvLgYA/uV0cMbe43ElF1JA==}
@@ -1854,8 +1860,8 @@ packages:
   unist-util-remove-position@5.0.0:
     resolution: {integrity: sha512-Hp5Kh3wLxv0PHj9m2yZhhLt58KzPtEYKQQ4yxfYFEO7EvHwzyDYnduhHnY1mDxoqr7VUwVuHXk9RXKIiYS1N8Q==}
 
-  unist-util-select@4.0.3:
-    resolution: {integrity: sha512-1074+K9VyR3NyUz3lgNtHKm7ln+jSZXtLJM4E22uVuoFn88a/Go2pX8dusrt/W+KWH1ncn8jcd8uCQuvXb/fXA==}
+  unist-util-select@5.1.0:
+    resolution: {integrity: sha512-4A5mfokSHG/rNQ4g7gSbdEs+H586xyd24sdJqF1IWamqrLHvYb+DH48fzxowyOhOfK7YSqX+XlCojAyuuyyT2A==}
 
   unist-util-stringify-position@4.0.0:
     resolution: {integrity: sha512-0ASV06AAoKCDkS2+xw5RXJywruurpbC4JZSm7nr7MOt1ojAzvyyaO+UxZf18j8FCF6kmzCZKcAgN/yu2gm2XgQ==}
@@ -2167,17 +2173,23 @@ snapshots:
     dependencies:
       '@atproto/api': 0.13.35
 
-  '@astro-community/astro-embed-integration@0.9.0(astro@5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2))':
+  '@astro-community/astro-embed-gist@0.1.0':
+    dependencies:
+      '@astro-community/astro-embed-utils': 0.2.0
+
+  '@astro-community/astro-embed-integration@0.11.0(astro@5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2))':
     dependencies:
       '@astro-community/astro-embed-bluesky': 0.1.6
+      '@astro-community/astro-embed-gist': 0.1.0
       '@astro-community/astro-embed-link-preview': 0.3.1
-      '@astro-community/astro-embed-twitter': 0.5.10
+      '@astro-community/astro-embed-mastodon': 0.1.0
+      '@astro-community/astro-embed-twitter': 0.5.11
       '@astro-community/astro-embed-vimeo': 0.3.12
       '@astro-community/astro-embed-youtube': 0.5.10
-      '@types/unist': 2.0.11
+      '@types/unist': 3.0.3
       astro: 5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2)
       astro-auto-import: 0.4.6(astro@5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2))
-      unist-util-select: 4.0.3
+      unist-util-select: 5.1.0
 
   '@astro-community/astro-embed-link-preview@0.3.1':
     dependencies:
@@ -2185,7 +2197,11 @@ snapshots:
       '@parse5/tools': 0.7.0(parse5@8.0.0)
       parse5: 8.0.0
 
-  '@astro-community/astro-embed-twitter@0.5.10':
+  '@astro-community/astro-embed-mastodon@0.1.0':
+    dependencies:
+      '@astro-community/astro-embed-utils': 0.2.0
+
+  '@astro-community/astro-embed-twitter@0.5.11':
     dependencies:
       '@astro-community/astro-embed-utils': 0.2.0
 
@@ -2311,7 +2327,7 @@ snapshots:
 
   '@atproto/api@0.13.35':
     dependencies:
-      '@atproto/common-web': 0.4.8
+      '@atproto/common-web': 0.4.10
       '@atproto/lexicon': 0.4.14
       '@atproto/syntax': 0.3.4
       '@atproto/xrpc': 0.6.12
@@ -2320,13 +2336,13 @@ snapshots:
       tlds: 1.261.0
       zod: 3.25.76
 
-  '@atproto/common-web@0.4.8':
+  '@atproto/common-web@0.4.10':
     dependencies:
-      '@atproto/lex-data': 0.0.4
-      '@atproto/lex-json': 0.0.4
+      '@atproto/lex-data': 0.0.6
+      '@atproto/lex-json': 0.0.6
       zod: 3.25.76
 
-  '@atproto/lex-data@0.0.4':
+  '@atproto/lex-data@0.0.6':
     dependencies:
       '@atproto/syntax': 0.4.2
       multiformats: 9.9.0
@@ -2334,14 +2350,14 @@ snapshots:
       uint8arrays: 3.0.0
       unicode-segmenter: 0.14.5
 
-  '@atproto/lex-json@0.0.4':
+  '@atproto/lex-json@0.0.6':
     dependencies:
-      '@atproto/lex-data': 0.0.4
+      '@atproto/lex-data': 0.0.6
       tslib: 2.8.1
 
   '@atproto/lexicon@0.4.14':
     dependencies:
-      '@atproto/common-web': 0.4.8
+      '@atproto/common-web': 0.4.10
       '@atproto/syntax': 0.4.2
       iso-datestring-validator: 2.2.2
       multiformats: 9.9.0
@@ -2884,13 +2900,15 @@ snapshots:
       acorn: 8.15.0
       astro: 5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2)
 
-  astro-embed@0.10.0(astro@5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2)):
+  astro-embed@0.12.0(astro@5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2)):
     dependencies:
       '@astro-community/astro-embed-baseline-status': 0.2.2
       '@astro-community/astro-embed-bluesky': 0.1.6
-      '@astro-community/astro-embed-integration': 0.9.0(astro@5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2))
+      '@astro-community/astro-embed-gist': 0.1.0
+      '@astro-community/astro-embed-integration': 0.11.0(astro@5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2))
       '@astro-community/astro-embed-link-preview': 0.3.1
-      '@astro-community/astro-embed-twitter': 0.5.10
+      '@astro-community/astro-embed-mastodon': 0.1.0
+      '@astro-community/astro-embed-twitter': 0.5.11
       '@astro-community/astro-embed-vimeo': 0.3.12
       '@astro-community/astro-embed-youtube': 0.5.10
       astro: 5.16.6(@types/node@25.0.3)(rollup@4.54.0)(typescript@5.9.3)(yaml@2.8.2)
@@ -3092,7 +3110,7 @@ snapshots:
       domutils: 3.2.2
       nth-check: 2.1.1
 
-  css-selector-parser@1.4.1: {}
+  css-selector-parser@3.3.0: {}
 
   css-tree@2.2.1:
     dependencies:
@@ -4512,10 +4530,11 @@ snapshots:
       '@types/unist': 3.0.3
       unist-util-visit: 5.0.0
 
-  unist-util-select@4.0.3:
+  unist-util-select@5.1.0:
     dependencies:
-      '@types/unist': 2.0.11
-      css-selector-parser: 1.4.1
+      '@types/unist': 3.0.3
+      css-selector-parser: 3.3.0
+      devlop: 1.1.0
       nth-check: 2.1.1
       zwitch: 2.0.4
 

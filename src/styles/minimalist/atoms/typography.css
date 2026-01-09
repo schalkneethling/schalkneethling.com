@@ -41,6 +41,20 @@ h3 {
   font-size: var(--typography-size-large);
 }
 
+/* Gradient headings */
+.heading-xxl,
+.heading-xl,
+.heading-large,
+h1,
+h2,
+h3 {
+  background-image: var(--gradient-heading);
+  background-size: 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .heading-medium,
 h4 {
   font-size: var(--typography-size-medium);

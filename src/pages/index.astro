@@ -1,105 +1,18 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-import AreaOfInterestCard from "../components/Home/AreaOfInterestCard.astro";
-import FeaturedPodcast from "../components/Home/FeaturedPodcast.astro";
 import HomepageHero from "../components/Home/HomepageHero.astro";
+import LatestPosts from "../components/LatestPosts.astro";
 import TheCollective from "../components/Home/TheCollective.astro";
-
-const frontendEngineer = [
-  {
-    icon: "github",
-    title: "Collaborate on GitHub",
-    url: "https://github.com/schalkneethling",
-    description:
-      "Let’s create, sustain, and collaborate on open-source together.",
-  },
-  {
-    icon: "book",
-    title: "HTML: A Comprehensive Guide",
-    url: "https://schalkneethling.github.io/html-comprehensive-guide/",
-    description:
-      "A book about HTML, written in public, and released as open source.",
-  },
-  {
-    icon: "pencil",
-    title: "Blog: Scripting on Caffeine",
-    url: "https://schalkneethling.com/blog",
-    description:
-      "My blog serves as a comprehensive guide to navigating the ever-evolving landscape of accessible, standards-based frontend web development.",
-  },
-];
-export const podcaster = [
-  {
-    icon: "microphone",
-    title: "The Mechanical Ink podcast",
-    url: "https://schalkneethling.substack.com/s/mechanical-ink-podcast",
-    description:
-      "Conversations about open source, the open web, and those who want to make the web and the world, a better place.",
-  },
-  {
-    icon: "microphone",
-    title: "Mental Health in Tech",
-    url: "https://schalkneethling.substack.com/s/mental-health-in-tech",
-    description: "Honest conversations about difficult topics.",
-  },
-  {
-    icon: "microphone",
-    title: "The Mycelium Network podcast",
-    url: "https://schalkneethling.substack.com/s/the-mycelium-network-podcast",
-    description:
-      "A podcast with and for junior web developers. Share your story, share your dreams.",
-  },
-];
-export const openSource = [
-  {
-    icon: "heart",
-    title: "minimalist",
-    url: "https://github.com/schalkneethling/minimalist",
-    description: "Minimal pure CSS library for web projects.",
-  },
-  {
-    icon: "heart",
-    title: "Project Calavera",
-    url: "https://github.com/schalkneethling/create-project-calavera",
-    description:
-      "Add common linters, formatters, and hopefully sane configurations, for common web projects with an intuitive CLI.",
-  },
-  {
-    icon: "heart",
-    title: "Developer Toolchest",
-    url: "https://github.com/schalkneethling/developer-toolchest",
-    description: "Collect all your tools. Tag, filter, find, and use.",
-  },
-  {
-    icon: "heart",
-    title: "Qilin",
-    url: "https://github.com/schalkneethling/qilin-open-source-project-starter-template",
-    description: "A starter template for open source projects.",
-  },
-];
-const featuredEpisode = {
-  description:
-    'In this episode of the Mechanical Ink podcast, host Schalk Neethling sits down with Ethan Marcotte, a prominent figure in web design known for coining the term "responsive web design." Ethan\'s journey in the design world spans over two decades, during which he has significantly influenced how websites are created and experienced across various devices.',
-  guest: "Ethan Marcotte",
-  linkLabel: "Listen to the episode",
-  title: "Responsive, Generative, Accessible, Unions, The Web",
-  url: "https://schalkneethling.substack.com/p/responsive-generative-accessible",
-};
 const pageTitle = "Scripting on Caffeine";
 ---
 
 <BaseLayout pageTitle={pageTitle}>
-  <HomepageHero />
-  <main class="main-content" id="main-content">
-    <section aria-label="Areas of Interest" class="areas-of-interest-container">
-      <AreaOfInterestCard title="Frontend Engineer" topics={frontendEngineer} />
-      <AreaOfInterestCard title="Podcaster" topics={podcaster} />
-      <AreaOfInterestCard title="Open Source" topics={openSource} />
-    </section>
-
-    <FeaturedPodcast featuredEpisode={featuredEpisode} />
-
+  <div class="u-container">
+    <HomepageHero />
+  </div>
+  <main class="u-container" id="main-content">
+    <LatestPosts />
     <TheCollective />
   </main>
 </BaseLayout>

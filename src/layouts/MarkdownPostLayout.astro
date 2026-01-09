@@ -11,7 +11,7 @@ const tags = frontmatter.tags;
   pageDescription={frontmatter.description}
   pageTitle={frontmatter.title}
 >
-  <main class="main-content" id="main-content">
+  <main class="u-container" id="main-content">
     <h1>{frontmatter.title}</h1>
     <p><em>{frontmatter.description}</em></p>
     <p>Published on: {frontmatter.pubDate.toString().slice(0, 10)}</p>
@@ -26,17 +26,21 @@ const tags = frontmatter.tags;
       )
     }
     <slot />
+    <footer class="post-footer">
+      <h2 class="visually-hidden">Tags</h2>
+      <Tags tags={tags} />
+    </footer>
   </main>
-  <Tags tags={tags} />
 </BaseLayout>
 
 <style>
-  .main-content {
-    max-width: 65rem;
-    max-width: 90rch;
+  .u-container p {
+    font-size: var(--typography-size-default);
+  }
 
-    p {
-      font-size: var(--typography-size-default);
-    }
+  .post-footer {
+    border-block-start: 1px solid var(--color-border);
+    margin-block-start: var(--size-32, 2rem);
+    padding-block-start: var(--size-24, 1.5rem);
   }
 </style>

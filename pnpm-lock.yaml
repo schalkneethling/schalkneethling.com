@@ -15,8 +15,8 @@ importers:
         specifier: ^4.3.13
         version: 4.3.13(astro@5.16.11(@types/node@25.0.3)(rollup@4.55.1)(typescript@5.9.3)(yaml@2.8.2))
       '@astrojs/rss':
-        specifier: ^4.0.13
-        version: 4.0.14
+        specifier: ^4.0.15
+        version: 4.0.15
       astro:
         specifier: ^5.16.11
         version: 5.16.11(@types/node@25.0.3)(rollup@4.55.1)(typescript@5.9.3)(yaml@2.8.2)
@@ -111,8 +111,8 @@ packages:
     resolution: {integrity: sha512-q8VwfU/fDZNoDOf+r7jUnMC2//H2l0TuQ6FkGJL8vD8nw/q5KiL3DS1KKBI3QhI9UQhpJ5dc7AtqfbXWuOgLCQ==}
     engines: {node: 18.20.8 || ^20.3.0 || >=22.0.0}
 
-  '@astrojs/rss@4.0.14':
-    resolution: {integrity: sha512-KCe1imDcADKOOuO/wtKOMDO/umsBD6DWF+94r5auna1jKl5fmlK9vzf+sjA3EyveXA/FoB3khtQ/u/tQgETmTw==}
+  '@astrojs/rss@4.0.15':
+    resolution: {integrity: sha512-uXO/k6AhRkIDXmRoc6xQpoPZrimQNUmS43X4+60yunfuMNHtSRN5e/FiSi7NApcZqmugSMc5+cJi8ovqgO+qIg==}
 
   '@astrojs/telemetry@3.3.0':
     resolution: {integrity: sha512-UFBgfeldP06qu6khs/yY+q1cDAaArM2/7AEIqQ9Cuvf7B1hNLq0xDrZkct+QoIGyjq56y8IaE2I3CTvG99mlhQ==}
@@ -2299,7 +2299,7 @@ snapshots:
     dependencies:
       prismjs: 1.30.0
 
-  '@astrojs/rss@4.0.14':
+  '@astrojs/rss@4.0.15':
     dependencies:
       fast-xml-parser: 5.3.3
       piccolore: 0.1.3

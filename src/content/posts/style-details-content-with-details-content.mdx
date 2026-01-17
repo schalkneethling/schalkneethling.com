@@ -1,0 +1,60 @@
+---
+title: "Style Details Content with ::details-content"
+pubDate: 2026-01-18
+description: "Learn how to use the new CSS ::details-content pseudo-element to style the content area of HTML details elements with greater control and flexibility."
+author: "Schalk Neethling"
+tags: ["css", "web-standards"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+For years, the `<details>` and `<summary>` elements have offered a native way to create disclosure widgets without JavaScript. But styling the expandable content has always been problematic. You couldn't target the content container directly, which meant reaching for extra wrapper divs or giving up on certain design patterns altogether.
+
+The new `::details-content` pseudo-element changes this. It gives you direct access to style the expandable content container however you need. Chrome 131 shipped it in November 2024, Safari 18.4 added support on March 31, 2025, and Firefox 143 brought it in September 2025, making it Baseline newly available.
+
+## Baseline Status
+
+<BaselineStatus id="details-content" />
+
+One particularly useful application is positioning. I ran into this recently building a bookmark manager where optional form fields collapse into details elements. Below the form sits a grid of bookmark cards. When someone expands a field to add notes or metadata, those cards get shoved down the page. What I wanted was for the content to overlay on top of the cards instead.
+
+Here's how I used `::details-content` to make my form field overlay on top of the bookmark cards:
+
+```css
+.form-field-collapsible[open] {
+  &::details-content {
+    background-color: var(--bg-primary, #fff);
+    border: var(--border-primary-border);
+    border-block-start: 0;
+    inline-size: 100%;
+    inset-block-start: 100%;
+    inset-inline-start: -0.125rem;
+    position: absolute;
+    z-index: 10;
+  }
+}
+```
+
+Now that we have a direct reference to the content container, we can place it wherever it makes sense for our design. I'm positioning it directly below the summary, spanning the full width of the parent, with enough `z-index` to ensure it is not obscured by the cards.
+
+Beyond positioning, you can use `::details-content` for animations, adding backgrounds, controlling overflow behavior, or applying any other styles you'd normally need a wrapper div for. The [MDN Web Docsdocumentation has examples of animating height transitions](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/::details-content), which work particularly well now that you can target the content container directly.
+
+As always, the beauty of the web is that you can use this as a progressive enhancement. In browsers that don't support `::details-content` yet, the details element still works perfectly fine. The content just pushes things down instead of overlaying. For my use case, that's an acceptable fallback since I'm building for developers who typically run modern browsers.
+
+You can detect support with a simple feature query:
+
+```css
+@supports selector(::details-content) {
+  /* Enhanced styles */
+}
+```
+
+If you need the overlay behavior to work everywhere, you'll still need a JavaScript solution. But for projects where you can rely on modern browsers, `::details-content` fills a gap in the CSS feature set.
+
+## References
+
+- [::details-content - CSS: Cascading Style Sheets | MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/::details-content)
+- [New in Chrome 131 | Chrome for Developers](https://developer.chrome.com/blog/new-in-chrome-131)
+- [More options for styling &lt;details&gt; | Chrome for Developers](https://developer.chrome.com/blog/styling-details)
+- [WebKit Features in Safari 18.4 | WebKit](https://webkit.org/blog/16574/webkit-features-in-safari-18-4/)
+- [Firefox 143 release notes for developers | MDN](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/143)

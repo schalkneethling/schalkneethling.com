@@ -12,10 +12,11 @@ const tags = frontmatter.tags;
   pageTitle={frontmatter.title}
 >
   <main class="u-container" id="main-content">
-    <h1>{frontmatter.title}</h1>
-    <p><em>{frontmatter.description}</em></p>
-    <p>Published on: {frontmatter.pubDate.toString().slice(0, 10)}</p>
-    <p>Written by {frontmatter.author}</p>
+    <header class="post-header">
+      <h1>{frontmatter.title}</h1>
+      <p class="synopsis">{frontmatter.description}</p>
+      <p class="post-meta">Published on: {frontmatter.pubDate.toString().slice(0, 10)} • Written by {frontmatter.author}</p>
+    </header>
     {
       frontmatter.image && (
         <img
@@ -34,8 +35,25 @@ const tags = frontmatter.tags;
 </BaseLayout>
 
 <style>
-  .u-container p {
-    font-size: var(--typography-size-default);
+  .u-container {
+
+    p {
+      font-size: var(--typography-size-small-medium);
+    }
+    .post-header {
+      border-block-end: 1px solid var(--color-border);
+      margin-block-end: var(--size-32, 2rem);
+      padding-block-end: var(--size-24, 1.5rem);
+    }
+
+    .synopsis {
+      font-size: var(--typography-size-medium);
+    }
+
+    .post-meta {
+      color: var(--color-text-muted);
+      font-size: var(--typography-size-default);
+    }
   }
 
   .post-footer {

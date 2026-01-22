@@ -1,0 +1,378 @@
+---
+title: "CSS Anchor Positioning Fallbacks: What to Do When Things Don't Fit"
+pubDate: 2026-01-22
+description: "Build resilient anchor-positioned layouts that adapt when space runs out."
+author: "Schalk Neethling"
+tags: ["css", "frontend-engineering-explained"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+In my previous posts (links at the end of this post), I covered how to position elements relative to anchors using `position-area` and the `anchor()` function. But there's a problem we haven't addressed: what happens when your carefully positioned tooltip, dropdown, or popover doesn't fit?
+
+Picture a tooltip above a button. Works great, until the button is near the top of the viewport. Now your tooltip gets clipped or overflows awkwardly. The traditional JavaScript solution involves measuring, calculating, and repositioning. CSS anchor positioning handles this declaratively with fallbacks.
+
+## Baseline Status
+
+<BaselineStatus id="anchor-positioning" />
+
+## The Fallback System
+
+Position fallbacks let you define alternative positions that the browser tries automatically when your preferred position causes overflow. The system has three parts:
+
+| Property / Rule          | Purpose                                             |
+| ------------------------ | --------------------------------------------------- |
+| `position-try-fallbacks` | List of alternative positions to try                |
+| `@position-try`          | Custom fallback rules with full positioning control |
+| `position-try-order`     | How to choose between fallbacks when multiple fit   |
+
+Let's work through each.
+
+## `position-try-fallbacks`
+
+This property accepts a comma-separated list of fallback options. The browser tries your original position first, then each fallback in order until one fits without overflow.
+
+```css
+.tooltip {
+  position: fixed;
+  position-anchor: --button;
+  position-area: block-start center;
+
+  position-try-fallbacks: flip-block;
+}
+```
+
+With this setup:
+
+1. Browser tries `block-start center` (above the button, centred)
+2. If that overflows, it tries `flip-block` — which mirrors across the block axis to `block-end center` (below the button, centred)
+
+### The Built-in Flip Keywords
+
+CSS provides five flip keywords that mirror your position:
+
+| Keyword       | What it does                               |
+| ------------- | ------------------------------------------ |
+| `flip-block`  | Mirrors across the block axis              |
+| `flip-inline` | Mirrors across the inline axis             |
+| `flip-start`  | Swaps start for end on both axes (logical) |
+| `flip-x`      | Mirrors horizontally (physical)            |
+| `flip-y`      | Mirrors vertically (physical)              |
+
+The logical keywords (`flip-block`, `flip-inline`, `flip-start`) adapt to writing modes. The physical keywords (`flip-x`, `flip-y`) always flip in the same direction regardless of writing mode. Use these only when you have a specific reason.
+
+You can combine keywords to flip across multiple axes. For example, `flip-block flip-inline` mirrors across both axes (a diagonal flip).
+
+These keywords transform your existing `position-area` value. If you're positioned at `block-start inline-end` (above, right-aligned in LTR horizontal writing):
+
+- `flip-block` → `block-end inline-end` (below, right-aligned)
+- `flip-inline` → `block-start inline-start` (above, left-aligned)
+- `flip-block flip-inline` → `block-end inline-start` (below, left-aligned)
+
+### Chaining Multiple Fallbacks
+
+You can specify multiple fallbacks, tried in order:
+
+```css
+.dropdown {
+  position: fixed;
+  position-anchor: --trigger;
+  position-area: block-end inline-start;
+
+  position-try-fallbacks: flip-block, /* Try above */ flip-inline, /* Try to the right */
+      flip-block flip-inline; /* Try above and to the right */
+}
+```
+
+The browser stops at the first fallback that fits. If none fit, it reverts to the original position, even if that overflows.
+
+## `@position-try` — Custom Fallback Rules
+
+The flip keywords cover common cases, but sometimes you need more control. Maybe your fallback needs:
+
+- Different sizing
+- Different margins or gaps
+- Entirely different anchor edges
+- A different anchor element altogether using `position-anchor`
+
+The `@position-try` at-rule lets you define named fallbacks with their own positioning properties. This works regardless of whether your original positioning uses `position-area`, or `anchor()`.
+
+```css
+@position-try --below-with-gap {
+  position-area: block-end center;
+  margin-block-start: 0.5rem;
+}
+
+.tooltip {
+  position: fixed;
+  position-anchor: --button;
+  position-area: block-start center;
+  margin-block-end: 0.5rem;
+
+  position-try-fallbacks: --below-with-gap;
+}
+```
+
+When the original position (above with a gap below) overflows, the browser switches to `--below-with-gap` — which positions below with a gap above.
+
+### What Can Go Inside `@position-try`?
+
+Only positioning-related descriptors are allowed:
+
+- `position-anchor` (to reference a different anchor)
+- `position-area`
+- Inset properties (`inset-block-start`, `inset-inline-end`, etc.)
+- Sizing properties (`inline-size`, `block-size`, `min-*`, `max-*`)
+- Margin properties
+- Self alignment properties (`align-self`, `justify-self`)
+
+You cannot change colours, fonts, borders, or other non-positioning styles. The rule is strictly for layout adjustments. This constraint keeps fallbacks focused and predictable.
+
+### Combining Flip Keywords and Custom Rules
+
+You can mix both in the same fallback list:
+
+```css
+@position-try --compact-below {
+  position-area: block-end center;
+  max-block-size: 10rem;
+}
+
+.tooltip {
+  position: fixed;
+  position-anchor: --button;
+  position-area: block-start center;
+
+  position-try-fallbacks: flip-block,
+    /* First: try flipping below */ --compact-below; /* Last resort: below, but constrained height */
+}
+```
+
+This tries a simple flip first. If there's still not enough room (maybe the content is tall), it falls back to a height-constrained version.
+
+### A Practical Example: Dropdown Menu
+
+Here's a dropdown that adapts to available space:
+
+```css
+@position-try --above-aligned {
+  position-area: block-start span-inline-end;
+  margin-block-end: 0.25rem;
+}
+
+@position-try --below-full-width {
+  position-area: block-end;
+  inline-size: anchor-size(inline);
+}
+
+.dropdown-menu {
+  position: fixed;
+  position-anchor: --nav-item;
+  position-area: block-end span-inline-end;
+  margin-block-start: 0.25rem;
+
+  position-try-fallbacks: --above-aligned,
+    /* Flip above if no room below */ flip-inline, /* Try other side if still tight */
+      --below-full-width; /* Last resort: below, match trigger width */
+}
+```
+
+## `position-try-order` — Choosing Between Valid Options
+
+By default, the browser picks the _first_ fallback that fits. But what if multiple positions fit, and you want to pick the one with the _most_ available space?
+
+```css
+.tooltip {
+  position: fixed;
+  position-anchor: --button;
+  position-area: block-start center;
+
+  position-try-fallbacks: flip-block;
+  position-try-order: most-block-size;
+}
+```
+
+### Available Values
+
+| Value              | Behaviour                                                        |
+| ------------------ | ---------------------------------------------------------------- |
+| `normal`           | Use first fitting position (default)                             |
+| `most-block-size`  | Prefer the position with most space on the block axis (logical)  |
+| `most-inline-size` | Prefer the position with most space on the inline axis (logical) |
+| `most-height`      | Prefer the position with most vertical space (physical)          |
+| `most-width`       | Prefer the position with most horizontal space (physical)        |
+
+As with other anchor positioning properties, prefer the logical keywords unless you have a specific reason to use physical ones.
+
+### Important: Initial Display, Not Just Overflow
+
+Here's a nuance worth noting: `position-try-order` affects positioning **when the element is first displayed**, not only when overflow occurs during scrolling. The browser evaluates all fallback options and picks the one with the most space in your specified dimension, even if the original position would have fit fine.
+
+This makes it useful for elements where you want to maximise available space from the start, not just as a fallback mechanism.
+
+### When Is This Useful?
+
+Consider a button near the vertical centre of the viewport. Both above and below technically fit. With `normal` ordering, you'd always get your original position (above). But if the button is slightly above centre, there's actually _more_ room below.
+
+`most-block-size` tells the browser: "Pick whichever position gives the tooltip more breathing room." This is particularly valuable for elements with variable content length.
+
+## How Overflow Is Determined
+
+A few important details about when fallbacks trigger:
+
+1. **Checked against the containing block** — For `position: fixed`, this is typically the viewport. For `position: absolute`, it's the nearest positioned ancestor.
+
+2. **Only triggers on overflow** — If your element fits in its original position, fallbacks are ignored entirely (see note about `@position-try-order` above for the exception). There's no performance cost for defining fallbacks that aren't needed.
+
+3. **Considers the entire element** — Including margins, borders, and any box decorations. If any part overflows, fallbacks are considered.
+
+4. **Evaluated when overflow changes** — The browser re-evaluates fallback positions when the positioned element would overflow its containing block. This happens during layout (including viewport resize) and can be affected by scrolling, though scroll handling has performance optimizations that may limit continuous re-evaluation.
+
+## Combining with the Popover API
+
+If you're using the Popover API with implicit anchors, fallbacks work the same way:
+
+```css
+@position-try --above {
+  position-area: block-start center;
+  margin-block-end: 0.5rem;
+}
+
+[popover] {
+  position-area: block-end center;
+  margin-block-start: 0.5rem;
+
+  position-try-fallbacks: --above;
+}
+```
+
+No need for `anchor-name` or `position-anchor` — the implicit relationship from `popovertarget` handles that.
+
+## Practice Exercises
+
+### Exercise 1
+
+Build a tooltip that appears above its anchor by default. If there's no room above, it should flip below. Add a `0.5rem` gap in both positions.
+
+<details>
+<summary>Solution</summary>
+
+```html
+<button class="trigger">Click for more</button>
+<div class="tooltip">Helpful information here</div>
+```
+
+```css
+.trigger {
+  anchor-name: --trigger;
+}
+
+.tooltip {
+  position: fixed;
+  position-anchor: --trigger;
+  position-area: block-start center;
+  margin-block-end: 0.5rem;
+
+  position-try-fallbacks: flip-block;
+}
+```
+
+The `flip-block` keyword handles this case well — it flips the position _and_ swaps the margin values, so `margin-block-end` becomes `margin-block-start` when the element flips to the bottom. The gap ends up on the correct side automatically.
+
+Alternatively, you could use custom `@position-try` rules if you need different gap sizes or other property changes in each position.
+
+</details>
+
+### Exercise 2
+
+Build a dropdown menu that appears below its trigger button, aligned to the inline-start edge (left in LTR). If there's no room below, it should flip above. If there's no room aligned to inline-start, it should align to inline-end instead.
+
+<details>
+<summary>Solution</summary>
+
+```html
+<button commandfor="menu" command="toggle-popover">Options</button>
+<menu id="menu" popover>
+  <li><button>Edit</button></li>
+  <li><button>Duplicate</button></li>
+  <li><button>Delete</button></li>
+</menu>
+```
+
+```css
+[popover] {
+  position-area: block-end inline-start;
+  margin-block-start: 0.25rem;
+
+  position-try-fallbacks: flip-block,
+    /* Try above, same alignment */ flip-inline, /* Try below, opposite alignment */
+      flip-block flip-inline; /* Try above, opposite alignment */
+}
+```
+
+The four positions (original plus three fallbacks) cover all combinations of above/below and start/end alignment. The `flip-block` and `flip-inline` keywords handle the mirroring, including swapping the margin to the correct side.
+
+Note: The `commandfor` and `command` attributes (Invoker Commands) let you toggle the popover without JavaScript. The implicit anchor relationship means no `anchor-name` or `position-anchor` is needed.
+
+</details>
+
+### Exercise 3
+
+Build a popover that prefers to appear below its trigger. When space is limited, it should choose whichever vertical position (above or below) has more room.
+
+<details>
+<summary>Solution</summary>
+
+```html
+<button popovertarget="info">More info</button>
+<article id="info" popover>
+  <p>Here's some additional information that appears in a popover.</p>
+</article>
+```
+
+```css
+[popover] {
+  position-area: block-end center;
+  margin-block-start: 0.5rem;
+
+  position-try-fallbacks: flip-block;
+  position-try-order: most-block-size;
+}
+```
+
+The `flip-block` provides the alternative position (and swaps the margin direction automatically). The `position-try-order: most-block-size` tells the browser to pick whichever position — original or flipped — has more vertical space available.
+
+Note: When using the Popover API with `popovertarget`, the implicit anchor relationship is established automatically — no need for `anchor-name` or `position-anchor`.
+
+</details>
+
+## Accessibility Considerations
+
+Position fallbacks are purely visual — they don't affect the DOM or focus order. Keep these points in mind:
+
+- **Screen readers get the same content** regardless of which position is used. This is generally good as the fallback is a visual adaptation, not a content change.
+
+- **Focus order remains unchanged.** If your tooltip appears visually above or below the trigger, keyboard navigation still follows DOM order.
+
+- **Test fallback positions with keyboard navigation.** Ensure that when a fallback triggers, the positioned element doesn't visually obscure important interactive elements.
+
+- **Consider reduced motion.** If you animate between positions when fallbacks trigger, respect `prefers-reduced-motion`.
+
+## What's Next
+
+This wraps up the core of CSS anchor positioning:
+
+- **Post 1:** Fundamentals — `anchor-name`, `position-anchor`, `position-area`
+- **Post 2:** Precise control — `anchor()`, `anchor-center`, `anchor-size()`
+- **Post 3:** Fallbacks — `position-try-fallbacks`, `@position-try`, `position-try-order`
+
+There's more in the spec we haven't covered — `anchor-scope` for limiting which anchors are visible, the `inset-area()` function, and details around anchor visibility and scroll behaviour. But with these three posts, you have the tools to build robust, anchor-positioned UI components with pure CSS.
+
+## Further Reading
+
+- [Getting Started with CSS Anchor Positioning: anchor-name, position-anchor, and position-area](/posts/getting-started-with-css-anchor-positioning-anchor-name-position-anchor-and-position-area/)
+- [Precise Positioning with CSS Anchor Functions: anchor(), anchor-center, and anchor-size()](/posts/precise-positioning-with-css-anchor-functions-anchor-anchor-center-and-anchor-size/)
+- [`position-try-fallbacks` on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/position-try-fallbacks)
+- [`@position-try` on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/@position-try)
+- [`position-try-order` on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/position-try-order)
+- [CSS Anchor Positioning Module Level 1 Specification](https://www.w3.org/TR/css-anchor-position-1/)

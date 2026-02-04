@@ -19,7 +19,7 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.11.0",
+    "@axe-core/playwright": "^4.11.1",
     "@playwright/test": "^1.58.1",
     "axe-core": "^4.11.1"
   }

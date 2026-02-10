@@ -1,0 +1,104 @@
+---
+title: "Safely Selecting Elements with Special Characters Using CSS.escape()"
+pubDate: 2026-02-10
+description: "Learn how to safely select DOM elements with special characters in their IDs or classes using CSS.escape() to avoid selector parsing errors."
+author: "Schalk Neethling"
+tags: ["javascript", "css"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+A few days ago I got a report that a piece of JavaScript code that was working for the longest time was throwing the following error:
+
+```text/plain
+Uncaught (in promise) TypeError: Cannot read properties of null (reading 'parentElement')
+```
+
+There was a change made to the Algolia index schema and so my first thought was that somwehow this played a role. However, when I looked at the code it seemed like this was not the case. So what was the problem?
+
+The nuance here is that the value of the `id` attribute is dynamically generated based on the facet key passed from the backend. And these keys changed as part of the schema refactor. The new facet keys now contain a dot, which creates a problem when building these dynamic IDs.
+
+<BaselineStatus id="css-escape" />
+
+## The Problem
+
+In HTML, the rules for valid `id` attribute values are surprisingly relaxed. An `id` must contain at least one character, must not contain ASCII whitespace, and must be unique within the document. That is it. Characters like dots, colons, and brackets are all perfectly valid.
+
+The trouble starts when you try to select these elements using `querySelector`. Consider an element with this `id`:
+
+```html
+<div id="metadata-filters.year-refinement-list">...</div>
+```
+
+If you try to select it like this:
+
+```js
+const el = document.querySelector("#metadata-filters.year-refinement-list");
+```
+
+You will not get what you expect. The CSS selector engine interprets the dot as a class selector, so it looks for an element with `id="metadata-filters"` that also has the class `year-refinement-list`. That is not what we want at all, and depending on the rest of your JavaScript code, this will either return `null` or as a result, throw the aforementioned `SyntaxError`.
+
+## Enter CSS.escape()
+
+The [`CSS.escape()`](https://developer.mozilla.org/docs/Web/API/CSS/escape_static) static method takes a string and returns a properly escaped version that is safe to use in a CSS selector. Here are a few examples of what it does:
+
+```js
+CSS.escape("filters.year"); // "filters\.year"
+CSS.escape("section:main"); // "section\:main"
+CSS.escape("item[0]"); // "item\[0\]"
+```
+
+Using it with `querySelector` is straightforward:
+
+```js
+const id = "metadata-filters.year-refinement-list";
+const el = document.querySelector(`#${CSS.escape(id)}`);
+```
+
+That is it. The dot is escaped, and the selector engine correctly interprets the entire string as a single `id` value.
+
+## A Real-World Fix
+
+Here is how those IDs are built:
+
+```js
+containerIdBuilder = (key) =>
+  key.split("_").join("-").concat("-refinement-list"),
+```
+
+Was this the best solution? Perhaps not, but at the time there was no indication that these facet keys were ever going to change or contain anything other than letters and one or more underscores. However, as the only constant is change, the unforseen did happen and these keys now contain dots, which meant the generated `id` values, while valid HTML, caused `querySelector` to fail when attempting to select the container elements. And this is how I stumbled upon `CSS.escape()`. The fix was a one-line change:
+
+```js
+containerIdBuilder = (key) =>
+  CSS.escape(key.split("_").join("-").concat("-refinement-list")),
+```
+
+To be honest, one could likely throw away the whole split and join parts and simply pass the `key` to `CSS.escape()` directly, and you know what, I just might still do that.
+
+## Alternative Approaches
+
+There are also two alternative approaches you could consider. The first is to use an attribute selector, which treats the value as a plain string:
+
+```js
+const el = document.querySelector(
+  '[id="metadata-filters.year-refinement-list"]'
+);
+```
+
+The second is `getElementById`, which does not use CSS selectors at all:
+
+```js
+const el = document.getElementById("metadata-filters.year-refinement-list");
+```
+
+Both work, but `CSS.escape()` is the most robust general-purpose solution. It handles any character that has special meaning in CSS selectors, and it works well when building selectors dynamically from values you do not control.
+
+## Browser Support
+
+`CSS.escape()` is [Baseline Widely available](https://developer.mozilla.org/en-US/docs/Web/API/CSS/escape_static#browser_compatibility) since January 2020, with support across all major browsers. You can use it with confidence in production today.
+
+## Further Reading
+
+- [CSS.escape() on MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/CSS/escape_static)
+- [CSSOM specification — the CSS interface](<https://drafts.csswg.org/cssom/#the-css.escape()-method>)
+- [HTML specification — the id attribute](https://html.spec.whatwg.org/multipage/dom.html#the-id-attribute)

@@ -1,6 +1,6 @@
 ---
 title: "Part 3: Running an AI Agent Implementation Planning Session"
-pubDate: 2026-02-14
+pubDate: 2026-02-15
 description: "How to structure an AI agent session with sequential tasks, review checkpoints, and explicit deliverables—turning a handoff document into actionable state machines, gap reports, and implementation plans."
 author: "Schalk Neethling"
 tags: ["ai", "codingwithai"]

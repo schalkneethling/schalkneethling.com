@@ -9,7 +9,7 @@ part: 2
 
 A handoff document alone is not enough. When working with AI agents on implementation planning, the agent needs a self-contained working context it can reference at any point, without relying on conversation history or asking you to re-upload files.
 
-This is Part 2 of a three-part series. [Part 1](/blog/structuring-feature-specifications-for-ai-agents) covered the structure of the handoff document itself. Here I will cover how to organise reference materials into a folder structure that serves both the agent and your team. [Part 3](/blog/running-an-ai-agent-implementation-session) covers the session prompt and workflow.
+This is Part 2 of a three-part series. [Part 1](/posts/structuring-feature-specifications-for-ai-agents/) covered the structure of the handoff document itself. Here I will cover how to organise reference materials into a folder structure that serves both the agent and your team. [Part 3](/posts/part-3-running-an-ai-agent-implementation-planning-session/) covers the session prompt and workflow.
 
 ## The Problem with Conversation-Based Context
 
@@ -205,7 +205,7 @@ docs/features/{feature-name}/
 
 Over time, you build a library of feature documentation that serves multiple purposes: guiding AI agent sessions, onboarding new developers, and recording implementation decisions for your future selves.
 
-In [Part 3](/blog/running-an-ai-agent-implementation-session), I will cover the session prompt, how to structure tasks with checkpoints, guide the agent through sequential deliverables, and create space for collaborative iteration.
+In [Part 3](/posts/part-3-running-an-ai-agent-implementation-planning-session/), I will cover the session prompt, how to structure tasks with checkpoints, guide the agent through sequential deliverables, and create space for collaborative iteration.
 
 ## Further Reading
 

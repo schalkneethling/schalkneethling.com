@@ -13,7 +13,7 @@ The challenge was not whether an AI agent could help, but how to hand off the wo
 
 What I needed was a handoff document that distilled scattered requirements into a focused, unambiguous specification. Something that would guide the agent's work while also serving as lasting documentation.
 
-This is Part 1 of a three-part series. Here I will cover the structure of the handoff document itself. [Part 2](/blog/organising-reference-materials-for-ai-agents) covers organising reference materials and folder structure, and [Part 3](/blog/running-an-ai-agent-implementation-session) covers the session prompt and workflow.
+This is Part 1 of a three-part series. Here I will cover the structure of the handoff document itself. [Part 2](/posts/part-2-organising-reference-materials-for-ai-agent-sessions/) covers organising reference materials and folder structure, and [Part 3](/posts/part-3-running-an-ai-agent-implementation-planning-session/) covers the session prompt and workflow.
 
 ## Start with Explicit Scope
 
@@ -201,7 +201,7 @@ This structure works because it treats the AI agent as a collaborator that needs
 
 **Business logic documentation prevents hallucination.** The agent does not need to guess country-specific search radii or ranking algorithms. Documenting them explicitly means the agent uses real requirements, not plausible-sounding inventions.
 
-In [Part 2](/blog/organising-reference-materials-for-ai-agents), I will cover how I organised reference materials, screenshots, Figma links, and agent outputs, into a self-contained folder structure the agent can access throughout the session.
+In [Part 2](/posts/part-2-organising-reference-materials-for-ai-agent-sessions/), I will cover how I organised reference materials, screenshots, Figma links, and agent outputs, into a self-contained folder structure the agent can access throughout the session.
 
 ## Further Reading
 

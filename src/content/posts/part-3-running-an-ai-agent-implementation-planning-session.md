@@ -9,7 +9,7 @@ part: 3
 
 With a structured handoff document and organised reference materials in place, the final piece is the session itself. How do you prompt the agent to produce useful deliverables while maintaining checkpoints for review and course-correction?
 
-This is Part 3 of a three-part series. [Part 1](/blog/structuring-feature-specifications-for-ai-agents) covered structuring the handoff document, and [Part 2](/blog/organising-reference-materials-for-ai-agents) covered organising reference materials. Here I will cover the session prompt and workflow.
+This is Part 3 of a three-part series. [Part 1](/posts/structuring-feature-specifications-for-ai-agents/) covered structuring the handoff document, and [Part 2](/posts/part-2-organising-reference-materials-for-ai-agent-sessions/) covered organising reference materials. Here I will cover the session prompt and workflow.
 
 ## The Problem with Open-Ended Prompts
 

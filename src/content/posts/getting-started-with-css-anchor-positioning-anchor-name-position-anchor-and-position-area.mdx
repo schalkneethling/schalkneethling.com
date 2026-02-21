@@ -145,13 +145,13 @@ position-area: top inline-end;
 
 Sometimes you want your element to span two adjacent cells. The `span-*` keywords handle this:
 
-| Keyword               | Spans                              |
-| --------------------- | ---------------------------------- |
-| `span-block-start`    | block-start + center rows          |
-| `span-block-end`      | center + block-end rows            |
-| `span-inline-start`   | inline-start + center columns      |
-| `span-inline-end`     | center + inline-end columns        |
-| `span-all`            | all three                          |
+| Keyword             | Spans                         |
+| ------------------- | ----------------------------- |
+| `span-block-start`  | block-start + center rows     |
+| `span-block-end`    | center + block-end rows       |
+| `span-inline-start` | inline-start + center columns |
+| `span-inline-end`   | center + inline-end columns   |
+| `span-all`          | all three                     |
 
 Physical equivalents follow the same pattern: `span-top`, `span-right`, and so on.
 
@@ -246,7 +246,7 @@ With the Popover API, it is even simpler:
 ```css
 [popover] {
   position-area: block-start;
-  
+
   /* Styling */
   max-inline-size: 20em;
   padding: 0.5em 1em;
@@ -264,7 +264,7 @@ When using anchor positioning, keep accessibility in mind:
 
 - **Focus management**: Ensure that users navigating with a keyboard can reach positioned elements logically. The DOM order should make sense for screen reader users.
 - **Visibility**: Positioned elements should remain visible when they receive focus. Test with keyboard navigation to ensure nothing gets hidden or cut off.
-- **Semantic relationships**: When using the Popover API, be sure you understand what the browser does and does not  do in terms of accessibility. This post by Hidde de Vries and Scott O'Hara is a great resource: [On popover accessibility: what the browser does and doesn’t do](https://hidde.blog/popover-accessibility/)
+- **Semantic relationships**: When using the Popover API, be sure you understand what the browser does and does not do in terms of accessibility. This post by Hidde de Vries and Scott O'Hara is a great resource: [On popover accessibility: what the browser does and doesn’t do](https://hidde.blog/popover-accessibility/)
 
 Remember, CSS anchor positioning handles the visual relationship, but you still need to ensure the semantic relationship is clear for all users.
 
@@ -335,3 +335,5 @@ I will tackle those in the next post.
 - [`position-anchor` property on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/position-anchor)
 - [`position-area` property on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area)
 - [CSS Anchor Positioning Module Level 1 Specification](https://www.w3.org/TR/css-anchor-position-1/)
+
+_This is part 1 of a series on CSS Anchor Positioning._

@@ -1,0 +1,510 @@
+---
+title: "CSS Anchor Positioning: Scoping, Implicit Anchors, and Conditional Hiding"
+pubDate: 2026-02-21
+description: "Manage anchor relationships with anchor-scope, leverage the Popover API's implicit anchors, and hide positioned elements gracefully with position-visibility."
+author: "Schalk Neethling"
+tags: ["css", "frontend-engineering-explained"]
+part: 4
+---
+
+import { BaselineStatus } from "astro-embed";
+
+In the previous posts, we covered [the fundamentals](/posts/getting-started-with-css-anchor-positioning-anchor-name-position-anchor-and-position-area/) of anchor positioning, [precise control](/posts/precise-positioning-with-css-anchor-functions-anchor-anchor-center-and-anchor-size/) with `anchor()` and `anchor-size()`, and [fallback strategies](/posts/css-anchor-positioning-fallbacks-what-to-do-when-things-dont-fit/) for when things do not fit.
+
+Those three posts give you everything you need to build anchor-positioned components. But as soon as you start using them in real component architectures — repeated cards, lists of tooltips, dynamic popovers — a new set of questions emerges:
+
+- What happens when dozens of elements share the same anchor name?
+- Can we skip the naming ceremony entirely?
+- What should happen when a positioned element has nowhere sensible to display?
+
+This final post covers the three features that answer those questions: [`anchor-scope`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/anchor-scope), implicit anchor elements, and [`position-visibility`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-visibility).
+
+## Baseline Status
+
+<BaselineStatus id="anchor-positioning" />
+
+## The Naming Collision Problem
+
+Consider a list of product cards, each with a tooltip:
+
+```html
+<ul>
+  <li>
+    <div class="card">Card 1</div>
+    <div class="tooltip">Details about Card 1</div>
+  </li>
+  <li>
+    <div class="card">Card 2</div>
+    <div class="tooltip">Details about Card 2</div>
+  </li>
+  <li>
+    <div class="card">Card 3</div>
+    <div class="tooltip">Details about Card 3</div>
+  </li>
+</ul>
+```
+
+```css
+.card {
+  anchor-name: --card;
+}
+
+.tooltip {
+  position: absolute;
+  position-anchor: --card;
+  position-area: block-start;
+}
+```
+
+This looks reasonable, but every tooltip ends up stacked on top of Card 3. Why? Because anchor names are **globally visible** by default. When multiple elements share the same `anchor-name`, the browser uses a [two-step resolution](https://drafts.csswg.org/css-anchor-position-1/#target): first, it checks whether any **ancestor** of the positioned element has the matching name (nearest ancestor wins). If no ancestor matches, it falls back to the **last element in DOM order**. Since our tooltips are siblings of the cards — not descendants — the ancestor check finds nothing, and all three tooltips attach to the final `--card` in the document.
+
+## `anchor-scope` — Containing Anchor Name Visibility
+
+The [`anchor-scope`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/anchor-scope) property limits where anchor names are visible. Apply it to a common ancestor, and names defined inside that subtree become invisible to elements outside it — and positioned elements inside can only match anchors within the same subtree.
+
+### Fixing the Cards
+
+```css
+li {
+  anchor-scope: --card;
+}
+
+.card {
+  anchor-name: --card;
+}
+
+.tooltip {
+  position: absolute;
+  position-anchor: --card;
+  position-area: block-start;
+}
+```
+
+Each `<li>` now creates a scope boundary. The tooltip inside the first `<li>` only sees the `--card` defined within that same `<li>`. Problem solved.
+
+### Where to Apply It
+
+This is important: apply `anchor-scope` to the **common ancestor** of both the anchor and the positioned element — not to the anchor itself. The property scopes names defined by "this element or its descendants" to be visible only to "this element's descendants."
+
+### The Values
+
+```
+anchor-scope: none | all | <dashed-ident>#
+```
+
+**`none`** — The default. No scoping. Anchor names are globally visible.
+
+**`all`** — Scopes every anchor name in the subtree. This is the broadest containment — nothing leaks in or out.
+
+**`<dashed-ident>#`** — Scopes only the specified names. Other anchor names remain globally visible. Accepts a comma-separated list for selective scoping:
+
+```css
+li {
+  anchor-scope: --card, --badge;
+}
+```
+
+### A Dual Effect
+
+Scoping works in both directions. It limits visibility **outward** — anchor names inside the subtree are invisible from outside. And it limits lookups **inward** — positioned elements inside can only match scoped names to anchors within the same subtree.
+
+### Nested Scopes
+
+When scopes nest, the innermost scope wins. The spec phrases it as: scopes names "whose scope is not already limited by a descendant." If a deeper ancestor also sets `anchor-scope` for the same name, that tighter boundary takes precedence.
+
+## Implicit Anchor Elements — Skipping the Naming Ceremony
+
+Throughout this series, we have been writing `anchor-name` and `position-anchor` to establish relationships. But if you have been following the exercises, you may have noticed something: the [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) examples did not need either property. Popovers just... worked.
+
+That is because certain HTML APIs create **implicit anchor elements** — direct element-to-element relationships that bypass CSS naming entirely.
+
+### How They Work
+
+When you write:
+
+```html
+<button popovertarget="info">More info</button>
+<div id="info" popover>Some helpful content</div>
+```
+
+The button becomes the **implicit anchor** for the popover. No `anchor-name` on the button, no `position-anchor` on the popover. The HTML attribute establishes the connection directly.
+
+The same applies with [Invoker Commands](https://developer.mozilla.org/en-US/docs/Web/API/Invoker_Commands_API):
+
+```html
+<button commandfor="menu" command="toggle-popover">Options</button>
+<menu id="menu" popover>
+  <li><button>Edit</button></li>
+  <li><button>Duplicate</button></li>
+</menu>
+```
+
+And programmatically via JavaScript:
+
+```js
+popoverElement.showPopover({ source: triggerElement });
+```
+
+In each case, the trigger element becomes the implicit anchor for the popover.
+
+### Using Implicit Anchors in CSS
+
+Once the HTML relationship exists, you can position against it in CSS. You do not need to set `position-anchor` at all — the initial value of `normal` handles it automatically when `position-area` is in use:
+
+```css
+[popover] {
+  position-area: block-start;
+  margin-block-end: 0.5rem;
+}
+```
+
+That is it. The `position-anchor` property's initial value (`normal`) detects that `position-area` is active and resolves to `auto`, which in turn resolves to the implicit anchor element. Everything chains together without explicit opt-in.
+
+If you are using `anchor()` instead of `position-area`, you do need to set `position-anchor: auto` explicitly:
+
+```css
+[popover] {
+  position-anchor: auto;
+  inset-block-start: anchor(end);
+  inset-inline-start: anchor(self-start);
+}
+```
+
+Why the difference? When omitted, as we do with implicit anchors, the [`position-anchor`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-anchor) property is set to its default value of `normal`. What this evaluates to is conditional based on the context. If we use `position-area`, everything works as expected — `normal` evaluates to the `auto` value for `position-anchor`. This, in turn, resolves the anchor as follows:
+
+From the [specification](https://drafts.csswg.org/css-anchor-position-1/#valdef-position-anchor-auto):
+
+> Use the implicit anchor element if it exists; otherwise the box has no default anchor element.
+
+However, when we use the `anchor()` function without `position-area`, `normal` evaluates to `none`:
+
+From the [specification](https://drafts.csswg.org/css-anchor-position-1/#valdef-position-anchor-none):
+
+> The box has no default anchor element.
+
+Setting `position-anchor: auto` explicitly opts into implicit anchor resolution regardless of whether `position-area` is in use.
+
+### Implicit Anchors Are Inherently Scoped
+
+Here is the key insight we identified when studying `anchor-scope`: implicit anchors do not suffer from naming collisions because there is no name-based lookup. The `popovertarget` attribute points at a specific `id`, and that popover's implicit anchor is set to exactly that invoking element. There is no search, no ambiguity, no "last one wins."
+
+So if you loop through data and render fifty cards, each with a button and a popover:
+
+```html
+<li>
+  <button popovertarget="info-1">Details</button>
+  <div id="info-1" popover>Card 1 details</div>
+</li>
+<li>
+  <button popovertarget="info-2">Details</button>
+  <div id="info-2" popover>Card 2 details</div>
+</li>
+<!-- ... and so on -->
+```
+
+Every popover automatically anchors to its own button. No `anchor-scope` needed. The direct element reference means each relationship is inherently scoped by design.
+
+### Other Sources of Implicit Anchors
+
+The spec leaves the door open for future HTML APIs to define implicit anchors. Currently, the defined sources are:
+
+- **Popover API** — Both declarative (`popovertarget`, `commandfor`) and programmatic (`showPopover({ source })`)
+- **Customisable `<select>`** — When `<select>` uses `appearance: base-select`, the dropdown picker has an implicit anchor relationship with the `<select>` element
+- **Pseudo-elements** — The implicit anchor of `::before`, `::after`, and similar pseudo-elements is their originating element
+
+### When to Use Implicit vs. Explicit Anchoring
+
+Reach for implicit anchoring (Popover API) when your use case fits the popover pattern — tooltips, dropdowns, menus, disclosure widgets. You get the anchor relationship for free, plus semantic HTML relationships that assistive technology understands.
+
+Use explicit anchoring (`anchor-name` / `position-anchor`) when there is no natural HTML relationship — positioning a highlight ring around a selected item, attaching annotations to arbitrary elements, or connecting elements that do not have a trigger/content relationship.
+
+## `position-visibility` — The Last Resort
+
+We covered `position-try-fallbacks` for repositioning when overflow occurs. But what happens when every fallback has been tried and the element still does not fit? Or when the anchor has scrolled offscreen but the positioned element remains awkwardly visible, pointing at nothing?
+
+[`position-visibility`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-visibility) answers: "If we cannot display this sensibly, hide it."
+
+### The Property
+
+```
+position-visibility: always | [ anchors-valid || anchors-visible || no-overflow ]
+```
+
+| Detail         | Value                       |
+| -------------- | --------------------------- |
+| Initial value  | `anchors-visible`           |
+| Applies to     | absolutely positioned boxes |
+| Inherited      | no                          |
+| Animation type | discrete                    |
+
+A quick note: the spec defines the initial value as `anchors-visible`, but Chrome's implementation defaults to `always` behaviour — meaning Chrome does not currently follow the specification as written. There is a [CSSWG discussion](https://github.com/w3c/csswg-drafts/issues/10425) about this discrepancy. It remains unclear whether Chrome will change to match the spec, and whether other engines have made the same implementation choice. In practice, if you do not set `position-visibility` explicitly, test the actual behaviour in your target browsers.
+
+### The Values
+
+**`always`** — The property has no effect. The positioned element is displayed no matter what — whether it overflows, whether its anchor is offscreen, whether its anchor even exists.
+
+**`anchors-visible`** — If the default anchor box is **completely** invisible — scrolled entirely out of view or fully covered by other elements — the positioned element is hidden. The key word is _completely_: if even a sliver of the anchor remains visible, the positioned element stays.
+
+**`no-overflow`** — If the positioned element itself overflows its containing block, even after all `position-try` fallbacks have been evaluated, it is hidden.
+
+**`anchors-valid`** — If any required anchor references do not resolve to an actual anchor element, hide the positioned element. This value is defined in the spec but **not yet implemented in any browser** — likely because the spec itself has [unresolved questions](https://drafts.csswg.org/css-anchor-position-1/#position-visibility) about what exactly constitutes a "required anchor reference" and whether hiding should trigger when _any_ anchor is missing or only when _all_ anchors are missing.
+
+### Combining Values
+
+Notice the `||` (double-bar) in the syntax? The values `anchors-valid`, `anchors-visible`, and `no-overflow` can be combined:
+
+```css
+[popover] {
+  position-visibility: anchors-visible no-overflow;
+}
+```
+
+This is an OR relationship — if _either_ condition is met, the element is hidden. The `always` keyword stands alone and cannot be combined with the others.
+
+### How Hiding Works — "Strongly Hidden"
+
+When `position-visibility` triggers, the element's [`visibility`](https://developer.mozilla.org/en-US/docs/Web/CSS/visibility) property computes to [`force-hidden`](https://drafts.csswg.org/css-display-4/#valdef-visibility-force-hidden). This is a relatively new addition to the `visibility` property, introduced specifically for this purpose.
+
+The effect is what MDN calls **strongly hidden**: the element and all its descendants behave as if they have `visibility: hidden`, regardless of what their actual `visibility` value is. Unlike regular `visibility: hidden`, descendants cannot opt back in with `visibility: visible`. It is a hard override.
+
+The spec chose `force-hidden` over a custom mechanism specifically to enable better integration with CSS transitions — you can transition the element's appearance when it shows and hides.
+
+### What Counts as "Invisible"?
+
+For `anchors-visible` to work, the browser needs to determine whether an anchor is actually visible on screen. The spec defines this precisely, and the definition is carefully crafted to catch a specific problem: a positioned element that remains visible while its anchor has scrolled or clipped away.
+
+The rule is: an anchor is considered invisible when it is fully clipped by a box that sits _between_ the anchor and the positioned element's containing block in the DOM hierarchy:
+
+```
+containing block (of the positioned element)
+  │
+  └── intervening box (ancestor of anchor, descendant of containing block)
+        │                 ↑
+        │         THIS is what can "clip"
+        │
+        └── anchor
+```
+
+Let me illustrate with two scenarios.
+
+**Scenario A — The clipping happens between containing block and anchor:**
+
+```html
+<body>
+  <!-- containing block for the fixed tooltip -->
+  <div class="panel" style="overflow: hidden; height: 200px;">
+    <button class="anchor">Click me</button>
+  </div>
+  <div class="tooltip" style="position: fixed;">...</div>
+</body>
+```
+
+Here, `.panel` sits between `<body>` (the tooltip's containing block) and the anchor button. If the button scrolls out of `.panel`'s visible area, the anchor **is** considered invisible — and `anchors-visible` would hide the tooltip. This is exactly the problem we want to solve: a tooltip floating on screen while the thing it points to has scrolled away.
+
+**Scenario B — The clipping container is the containing block itself:**
+
+```html
+<div class="panel" style="overflow: hidden; height: 200px; position: relative;">
+  <button class="anchor">Click me</button>
+  <div class="tooltip" style="position: absolute;">...</div>
+</div>
+```
+
+Here, `.panel` is both the clipping container _and_ the tooltip's containing block. If the button scrolls out of `.panel`'s visible area, the anchor is **not** considered invisible by this rule. Why? Because both the anchor and the tooltip are clipped by their shared containing block — they scroll away together. There is no need for `force-hidden` when both elements are already implicitly hidden by the same container.
+
+This distinction is why the spec uses the phrase "clipped by intervening boxes." When a clipping container sits _between_ the anchor and the positioned element's containing block, the anchor can scroll out of view while the positioned element remains visible — creating that awkward orphaned tooltip. That is when `anchors-visible` steps in with `force-hidden`. When there is no intervening container, both elements are clipped together naturally, and no intervention is needed.
+
+The browser uses the same visibility checks that `IntersectionObserver` uses (`overflow`, `clip-path`, paint containment), so the behaviour should feel familiar if you have worked with that API.
+
+### The Evaluation Order
+
+For `no-overflow`, the check happens **after** all `position-try` fallbacks have been evaluated. The sequence is:
+
+1. Try the original position
+2. Try each fallback from `position-try-fallbacks` in order
+3. If none prevent overflow, and `no-overflow` is set, hide the element
+
+This means `position-try-fallbacks` and `position-visibility` are designed to work together — reposition first, hide as a last resort:
+
+```css
+[popover] {
+  position-area: block-start;
+  margin-block-end: 0.5rem;
+
+  /* First: try alternative positions */
+  position-try-fallbacks: flip-block;
+
+  /* Then: if still overflowing, hide */
+  position-visibility: no-overflow;
+}
+```
+
+### Chained Anchors
+
+The spec addresses an interesting edge case. Imagine element A anchors to element B, and element B anchors to element C. If C scrolls offscreen and B gets hidden via `position-visibility: anchors-visible`, then A sees its anchor (B) as hidden too, so A also gets hidden. The chain collapses cleanly rather than leaving A floating in a nonsensical location.
+
+## Practice Exercises
+
+### Exercise 1
+
+You are building a dashboard with multiple metric cards. Each card has a status indicator that should be positioned at the `block-start inline-end` corner of its card. Using explicit anchor names, make sure each indicator attaches to its own card, not the last card in the list.
+
+<details>
+<summary>Solution</summary>
+
+```html
+<ul class="dashboard">
+  <li class="metric">
+    <div class="card">Revenue</div>
+    <div class="indicator">▲</div>
+  </li>
+  <li class="metric">
+    <div class="card">Users</div>
+    <div class="indicator">▼</div>
+  </li>
+  <li class="metric">
+    <div class="card">Conversion</div>
+    <div class="indicator">▲</div>
+  </li>
+</ul>
+```
+
+```css
+.metric {
+  position: relative;
+  anchor-scope: --card;
+}
+
+.card {
+  anchor-name: --card;
+}
+
+.indicator {
+  position: absolute;
+  position-anchor: --card;
+  position-area: block-start inline-end;
+}
+```
+
+The `anchor-scope: --card` on each `.metric` element creates a scope boundary. Each `.indicator` only sees the `--card` defined within its own `.metric` parent. Without `anchor-scope`, all three indicators would pile up on the "Conversion" card.
+
+</details>
+
+### Exercise 2
+
+Refactor Exercise 1 to use the Popover API and implicit anchors instead. Each card should have a button that toggles a detail popover, positioned below the button.
+
+<details>
+<summary>Solution</summary>
+
+```html
+<ul class="dashboard">
+  <li class="metric">
+    <div class="card">
+      <h3>Revenue</h3>
+      <button popovertarget="revenue-details">Details</button>
+    </div>
+    <div id="revenue-details" popover>
+      <p>Revenue is up 12% this quarter.</p>
+    </div>
+  </li>
+  <li class="metric">
+    <div class="card">
+      <h3>Users</h3>
+      <button popovertarget="users-details">Details</button>
+    </div>
+    <div id="users-details" popover>
+      <p>Active users decreased by 3%.</p>
+    </div>
+  </li>
+</ul>
+```
+
+```css
+[popover] {
+  position-area: block-end;
+  margin-block-start: 0.25rem;
+}
+```
+
+No `anchor-name`, no `position-anchor`, no `anchor-scope`. Each popover knows its trigger through the `popovertarget` attribute, and the implicit anchor relationship is inherently scoped — every popover anchors to its own button automatically.
+
+</details>
+
+### Exercise 3
+
+Build a tooltip that:
+
+- Appears above its trigger by default
+- Flips below if there is no room above
+- Hides entirely if the trigger scrolls out of view
+- Also hides if the tooltip itself would overflow even after flipping
+
+<details>
+<summary>Solution</summary>
+
+```html
+<button popovertarget="tip">More info</button>
+<div id="tip" popover>Additional details appear here.</div>
+```
+
+```css
+[popover] {
+  position-area: block-start;
+  margin-block-end: 0.5rem;
+
+  position-try-fallbacks: flip-block;
+  position-visibility: anchors-visible no-overflow;
+}
+```
+
+The `position-try-fallbacks: flip-block` handles repositioning (above ↔ below). The `position-visibility` combines two conditions: `anchors-visible` hides the popover when the trigger scrolls fully offscreen, and `no-overflow` hides it when it still overflows after trying both positions.
+
+</details>
+
+## Accessibility Considerations
+
+### Explicit Anchoring Is Purely Visual
+
+The spec is clear on this point:
+
+> CSS Anchor Positioning does not create, delete, or alter any accessibility bindings between elements. Authors must use appropriate markup features to control such bindings.
+
+When you use `anchor-name` and `position-anchor`, you are creating a visual relationship only. Screen readers have no idea these elements are connected. If the relationship is meaningful, you need to provide it through HTML:
+
+```html
+<button aria-describedby="tooltip-1">Settings</button>
+<div role="tooltip" id="tooltip-1" class="tooltip">Adjust your preferences</div>
+```
+
+### Implicit Anchors Carry Semantics
+
+This is one of the strongest arguments for using the Popover API when your use case fits. Implicit anchors from HTML APIs (via `popovertarget` or `commandfor`) carry semantic relationships that assistive technology understands — the browser knows the button controls the popover, and communicates that to screen readers automatically. You get both the visual anchoring and the accessible relationship from a single HTML attribute.
+
+### Hidden Is Hidden
+
+When `position-visibility` hides an element via `force-hidden`, it is hidden from assistive technology as well. This is appropriate behaviour — if a tooltip is hidden because its anchor scrolled away, it should not be announced to screen readers either.
+
+## Wrapping Up the Series
+
+This completes our exploration of CSS Anchor Positioning:
+
+- **Post 1:** Fundamentals — `anchor-name`, `position-anchor`, `position-area`
+- **Post 2:** Precise control — `anchor()`, `anchor-center`, `anchor-size()`
+- **Post 3:** Fallbacks — `position-try-fallbacks`, `@position-try`, `position-try-order`
+- **Post 4:** Scoping and visibility — `anchor-scope`, implicit anchors, `position-visibility`
+
+The progression across these posts mirrors how you might build a real component: establish the anchor relationship, position the element, handle overflow with fallbacks, scope names for reusable components, and hide gracefully when positioning fails entirely.
+
+What makes anchor positioning particularly compelling is how it integrates with HTML APIs. Implicit anchors — whether from the Popover API, Invoker Commands, or future specifications — provide the relationship without CSS naming ceremonies, with inherent scoping and accessibility semantics built in. When your use case aligns with one of these APIs, you get a lot for free.
+
+## Further Reading
+
+- [`anchor-scope` on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/anchor-scope)
+- [`position-visibility` on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/position-visibility)
+- [Using CSS Anchor Positioning: Implicit Anchors on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Anchor_positioning/Using#implicit_anchor_association)
+- [Fallback Options and Conditional Hiding Guide on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Anchor_positioning/Try_options_hiding)
+- [CSS Anchor Positioning Module Level 1 Specification](https://www.w3.org/TR/css-anchor-position-1/)
+- [Popover API on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API)
+
+_This is part 4 of a series on CSS Anchor Positioning._

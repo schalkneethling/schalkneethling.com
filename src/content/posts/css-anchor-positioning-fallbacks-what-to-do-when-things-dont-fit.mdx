@@ -79,8 +79,10 @@ You can specify multiple fallbacks, tried in order:
   position-anchor: --trigger;
   position-area: block-end inline-start;
 
-  position-try-fallbacks: flip-block, /* Try above */ flip-inline, /* Try to the right */
-      flip-block flip-inline; /* Try above and to the right */
+  position-try-fallbacks:
+    flip-block,
+    /* Try above */ flip-inline,
+    /* Try to the right */ flip-block flip-inline; /* Try above and to the right */
 }
 ```
 
@@ -143,7 +145,8 @@ You can mix both in the same fallback list:
   position-anchor: --button;
   position-area: block-start center;
 
-  position-try-fallbacks: flip-block,
+  position-try-fallbacks:
+    flip-block,
     /* First: try flipping below */ --compact-below; /* Last resort: below, but constrained height */
 }
 ```
@@ -171,9 +174,10 @@ Here's a dropdown that adapts to available space:
   position-area: block-end span-inline-end;
   margin-block-start: 0.25rem;
 
-  position-try-fallbacks: --above-aligned,
-    /* Flip above if no room below */ flip-inline, /* Try other side if still tight */
-      --below-full-width; /* Last resort: below, match trigger width */
+  position-try-fallbacks:
+    --above-aligned,
+    /* Flip above if no room below */ flip-inline,
+    /* Try other side if still tight */ --below-full-width; /* Last resort: below, match trigger width */
 }
 ```
 
@@ -304,9 +308,10 @@ Build a dropdown menu that appears below its trigger button, aligned to the inli
   position-area: block-end inline-start;
   margin-block-start: 0.25rem;
 
-  position-try-fallbacks: flip-block,
-    /* Try above, same alignment */ flip-inline, /* Try below, opposite alignment */
-      flip-block flip-inline; /* Try above, opposite alignment */
+  position-try-fallbacks:
+    flip-block,
+    /* Try above, same alignment */ flip-inline,
+    /* Try below, opposite alignment */ flip-block flip-inline; /* Try above, opposite alignment */
 }
 ```
 
@@ -376,3 +381,5 @@ There's more in the spec we haven't covered — `anchor-scope` for limiting whic
 - [`@position-try` on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/@position-try)
 - [`position-try-order` on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/position-try-order)
 - [CSS Anchor Positioning Module Level 1 Specification](https://www.w3.org/TR/css-anchor-position-1/)
+
+_This is part 3 of a series on CSS Anchor Positioning._

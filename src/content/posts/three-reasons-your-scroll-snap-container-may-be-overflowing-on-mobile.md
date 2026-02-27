@@ -1,6 +1,6 @@
 ---
 title: "Three Reasons Your scroll-snap Container May Be Overflowing on Mobile"
-pubDate: 2026-02-21
+pubDate: 2026-02-27
 description: "Take a fieldset, pour some radio buttons and visually hidden labels into it, wrap it in scroll-snap, and you have a clean, semantic horizontal scroller on mobile. What could go wrong? Well... there is nuance we need to talk about."
 author: "Schalk Neethling"
 tags: ["html", "css", "frontend-engineering-explained"]

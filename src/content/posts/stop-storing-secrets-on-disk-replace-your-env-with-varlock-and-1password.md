@@ -104,6 +104,8 @@ This authenticates against 1Password, pulls the values, and validates them again
 
 If the 1Password vault is shared across a team, every team member with vault access gets the same secrets without any manual copying or syncing. In a team context, you should omit the `account` parameter from `@initOp` so that [authentication is not tied to a specific user](https://varlock.dev/plugins/1password/#initop).
 
+> **UPDATE: March 10, 2026**: One of the creators of Varlock, [Theo Ephraim](https://bsky.app/profile/theozero.bsky.social), reached out to ad this clarification about `account`: "One small note - the `account` param in the 1pass init is a hint to tie it to the 1pass org/account, so it wont accidentally try to read from your personal account which is usually separate. It's not 100% necessary but extra protection."
+
 ## Why this matters
 
 Beyond the convenience of not managing `.env` files, there are some meaningful wins here.

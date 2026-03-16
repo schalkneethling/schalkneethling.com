@@ -1,0 +1,92 @@
+---
+title: "Accessible Text Colour with the CSS contrast-color() Function"
+pubDate: 2026-03-16
+description: "The CSS contrast-color() function lets the browser pick the most readable text colour for any background. Here is what it does, how it works, and why it matters for accessibility and the web."
+author: "Schalk Neethling"
+tags: ["css", "accessibility", "color", "contrast", "web-standards"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+If you have ever built a design system, a themeable component, or even just a set of coloured buttons, you have run into this problem: given a background colour, which text colour, black or white, provides the best contrast? Until now, the answer required manual checking, preprocessor functions, or JavaScript. The CSS `contrast-color()` function changes that.
+
+<BaselineStatus id="contrast-color" />
+
+## What is `contrast-color()`?
+
+The function accepts a single colour value and returns either `black` or `white`, whichever provides the highest contrast against the input colour. The syntax is refreshingly simple:
+
+```css
+color: contrast-color(<color>);
+```
+
+That is the entire API. Pass it any valid CSS [`<color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value), a hex value, a named colour, a custom property, the result of `color-mix()`, and the browser does the rest.
+
+```css
+color: contrast-color(purple); /* returns: white */
+color: contrast-color(yellow); /* returns: black */
+color: contrast-color(var(--bg)); /* returns: whichever has higher contrast */
+```
+
+Under the hood, the browser determines which of `white` or `black` has the greater contrast against your input colour. The specification does not mandate a specific algorithm (it is left to the user agent), but it must conform to the [WCAG AA minimum contrast ratio](https://w3c.github.io/wcag/guidelines/22/#contrast-minimum) of 4.5:1 for normal text, as meeting this threshold is often a legal obligation. Whichever value produces the higher contrast ratio wins. In the event of a tie (a perfectly mid-grey, for example), `white` is returned.
+
+## A Practical Example
+
+Imagine a set of cards in a design system where the background colour is driven by a custom property. Previously, you would need to maintain a separate text colour for each variant, or reach for JavaScript. With `contrast-color()`, a single declaration handles it:
+
+```css
+.card {
+  --bg: var(--brand-colour, rebeccapurple);
+
+  background-color: var(--bg);
+  color: contrast-color(var(--bg));
+}
+```
+
+Change `--brand-colour` to anything, a deep purple, a bright yellow, a teal, and the text colour adapts automatically. This also pairs well with `prefers-color-scheme` for automatic light and dark mode support:
+
+```css
+:root {
+  --bg: #eee;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #222;
+  }
+}
+
+body {
+  background-color: var(--bg);
+  color: contrast-color(var(--bg));
+}
+```
+
+No second colour property to manage across themes. One declaration, and the browser handles the rest.
+
+## What You Should Know
+
+It is worth being honest about the limitations. The `contrast-color()` function does not guarantee WCAG-compliant contrast in every situation. Mid-tone background colours, where neither black nor white provides a strong contrast ratio, remain a challenge. The WCAG 2 algorithm itself [has known shortcomings](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Understanding_WCAG/Perceivable/Color_contrast), particularly with dark backgrounds. The specification acknowledges this and notes that future revisions will likely introduce additional contrast algorithms as the standards evolve.
+
+The current version is also deliberately scoped. The function was originally being developed in [CSS Color Level 6](https://drafts.csswg.org/css-color-6/) under the name `color-contrast()`, with a richer syntax that included a list of candidate colours and the ability to specify a preferred contrast algorithm. However, settling on that full design proved difficult, particularly the question of which contrast algorithm to default to, so the CSS Working Group (CSSWG) resolved to pull a simplified minimum viable product (MVP) into CSS Color Level 5. This MVP, renamed to `contrast-color()`, accepts only a single colour and returns `black` or `white`. The fuller version with candidate colour lists and algorithm selection remains in Level 6, where it continues to evolve.
+
+That said, there are already creative ways to push beyond plain black and white. [Una Kravets](https://una.im/) wrote two excellent posts that explore using `contrast-color()` in combination with [`color-mix()`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color-mix) and style queries to create tinted contrast variants and even fully customised light/dark palette choices. I highly recommend reading both:
+
+- [Automated accessible text with contrast-color()](https://una.im/contrast-color)
+- [contrast-color() beyond black & white](https://una.im/advanced-contrast-color)
+
+> **NOTE**: Una's writing was the inspiration for this post and the related playground linked below. Credit where credit is well deserved.
+
+Inspired by Una's posts, I also built a [contrast-color() playground](https://contrast-color-playground.netlify.app) where you can experiment with the function itself, and see how it works alongside other CSS features like `color-mix()`, custom properties, and more. Give it a try and see what you can build.
+
+## Why This Matters
+
+For years, accessible text contrast has been a manual, error-prone process. Designers pick colours, developers double-check ratios in external tools, and things inevitably drift. `contrast-color()` does not solve everything, but it bakes contrast awareness directly into CSS. That is a meaningful shift. It makes the accessible path the easy path, and that is exactly where the web platform should be heading.
+
+## Further Reading
+
+- [MDN: `contrast-color()`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/contrast-color)
+- [CSS Color Module Level 5 — `contrast-color()`](https://drafts.csswg.org/css-color-5/#contrast-color)
+- [CSS Color Module Level 6 (future candidate colours and algorithms)](https://drafts.csswg.org/css-color-6/)
+- [WebKit: How to have the browser pick a contrasting color in CSS](https://webkit.org/blog/16929/contrast-color/)
+- [MDN: Colour contrast accessibility](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Understanding_WCAG/Perceivable/Color_contrast)

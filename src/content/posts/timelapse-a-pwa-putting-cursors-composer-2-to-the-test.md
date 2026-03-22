@@ -18,5 +18,5 @@ Accessibility needs some work, but it is fully keyboard accessible
 
 I did some code review and had to guide it here and there (mostly CSS and some HTML), but in general, it did a really good job.
 
-The repo is here: [Timelapse](https://github.com/schalkneethling/timelapse)
-You can see the app here: [Timelapse on Netlify](https://dot-timelapse.netlify.app)
+- The repo is here: [Timelapse](https://github.com/schalkneethling/timelapse)
+- You can see the app here: [Timelapse on Netlify](https://dot-timelapse.netlify.app)

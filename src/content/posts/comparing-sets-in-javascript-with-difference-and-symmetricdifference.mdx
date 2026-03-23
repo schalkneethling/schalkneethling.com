@@ -1,0 +1,120 @@
+---
+title: "Comparing Sets in JavaScript With difference() and symmetricDifference()"
+pubDate: 2026-03-23
+description: "How the new Set methods difference() and symmetricDifference() can replace verbose Set comparisons with clear, expressive code."
+author: "Schalk Neethling"
+tags: ["javascript"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+If you have ever written unit tests that assert against a `Set`, you have likely ended up with something like this:
+
+```javascript
+const result = detectUnsupported();
+expect(result.size).toBe(7);
+expect(result.has("playing")).toBe(true);
+expect(result.has("paused")).toBe(true);
+expect(result.has("seeking")).toBe(true);
+// and so forth for all seven expected Set entries
+```
+
+It works, and you could reduce the repetition by looping over an array of expected values, but either way it feels tedious, verbose, and error-prone. There is a better way.
+
+## Enter Set.prototype.difference()
+
+The [`difference()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/difference) method on `Set` returns a new `Set` containing elements that exist in the calling `Set` but not in the one passed as an argument. In other words, it gives you what is left over after removing the shared entries.
+
+<BaselineStatus id="set-methods" />
+
+With `difference()`, the assertion above becomes:
+
+```javascript
+const expected = new Set([
+  "playing",
+  "paused",
+  "seeking",
+  "buffering",
+  "stalled",
+  "muted",
+  "volume-locked",
+]);
+const result = detectUnsupported();
+
+expect(result.size).toBe(expected.size);
+expect(expected.difference(result).size).toBe(0);
+```
+
+The first assertion confirms both sets have the same number of entries. This is important because `difference()` alone does not guarantee equal size. Why?
+
+`difference()` is directional. `expected.difference(result)` returns a new `Set` containing items that are in `expected` but _not_ in `result`. It does not look in the other direction. Imagine `result` came back with two unexpected extras:
+
+```javascript
+// result contains everything in expected, plus two extras
+new Set([
+  "playing",
+  "paused",
+  "seeking",
+  "buffering",
+  "stalled",
+  "muted",
+  "volume-locked",
+  "ended",
+  "error",
+]);
+```
+
+Calling `expected.difference(result)` would still return an empty `Set`, because every item in `expected` _is_ present in `result`. The extras (`"ended"` and `"error"`) would go unnoticed. The size check catches this: `expected` has 7 entries, `result` has 9, and the assertion fails.
+
+The second assertion is where `difference()` earns its keep. By calling `expected.difference(result)`, we get back a `Set` of every item in `expected` that is _not_ in `result`. If that `Set` is empty, every expected item is accounted for.
+
+Together, these two lines form a complete equality check: same size, same items, no gaps, no extras.
+
+## But what if you want both directions?
+
+Understanding that `difference()` is directional raises an obvious question: what if you are not checking for equality but actually want to know what is different between two sets, in _both_ directions?
+
+That is exactly what [`symmetricDifference()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/symmetricDifference) is for. It returns a new `Set` containing items that are in either set, but not in both. Think of it as asking "compare these two lists and tell me everything that does not overlap."
+
+```javascript
+const expected = new Set(["playing", "paused", "seeking", "buffering"]);
+const result = new Set(["playing", "paused", "stalled", "muted"]);
+
+console.log(expected.symmetricDifference(result));
+// Set {"seeking", "buffering", "stalled", "muted"}
+```
+
+The items shared by both sets (`"playing"` and `"paused"`) are excluded. Everything else — items unique to either side — ends up in the result. This is incredibly useful outside of testing, for instance any time you need to present a user with the differences between two collections.
+
+Because `symmetricDifference()` looks in both directions, we can also use it to simplify our earlier test. The size check is no longer needed. If the symmetric difference is empty, the two sets are identical:
+
+```javascript
+const expected = new Set([
+  "playing",
+  "paused",
+  "seeking",
+  "buffering",
+  "stalled",
+  "muted",
+  "volume-locked",
+]);
+const result = detectUnsupported();
+
+expect(expected.symmetricDifference(result).size).toBe(0);
+```
+
+One line. If `result` is missing an item, it shows up in the symmetric difference. If `result` has extras, they show up too. An empty `Set` means the two are equal.
+
+## Why this is better
+
+With the original approach, the size check and the content checks are disconnected. The size tells you the count, the `has` calls tell you about individual items, but no single assertion ties them together. You are left mentally combining them to convince yourself the test is sound.
+
+With `difference()`, the two assertions form a complete contract. The size check catches any drift in length between the two sets. The difference check then ensures they contain the exact same items. If either condition fails, you know immediately. Two lines, full coverage, and the assertion logic stays the same no matter how many entries the `Set` contains. And with `symmetricDifference()`, you can take it even further; a single line that checks both directions at once, no size comparison required.
+
+## Further reading
+
+- [`Set.prototype.difference()` on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/difference)
+- [`Set.prototype.symmetricDifference()` on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/symmetricDifference)
+- [New JavaScript Set methods — MDN Blog](https://developer.mozilla.org/en-US/blog/javascript-set-methods/)
+- [The JavaScript Set methods are now part of Baseline — web.dev](https://web.dev/blog/set-methods)
+- [TC39 Set methods proposal](https://github.com/tc39/proposal-set-methods)

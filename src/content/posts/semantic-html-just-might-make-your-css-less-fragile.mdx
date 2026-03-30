@@ -1,0 +1,197 @@
+---
+title: "Semantic HTML Just Might Make Your CSS Less Fragile"
+pubDate: 2026-03-30
+description: "A real-world exploration of how choosing the right HTML elements for interview transcripts solves both semantic and styling challenges in one cascading swoop."
+author: "Schalk Neethling"
+tags: ["css", "html"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+When you inherit a design for an interview article, the markup decisions can feel straightforward at first glance. Bold questions, speaker labels, body text — a few `<strong>` elements and you are done, right? As with most things in HTML, the right answer emerges when you slow down and ask what each piece of content actually _is_.
+
+This post walks through a real markup problem and the reasoning that leads to a solution that is semantic, accessible, and robust against CMS editor whoopsies.
+
+## The Design
+
+The layout presents an interview transcript with three distinct visual treatments:
+
+- **Interview questions** in bold, sans-serif
+- **Speaker labels** (abbreviated names like `SHN` or `TLN`) in bold, sans-serif
+- **Body text** in regular weight, serif
+
+The challenge is that body paragraphs are serif but the speaker label within them is sans-serif. A naive CSS approach will not hold up.
+
+## Are Those Questions Headings?
+
+The bold question paragraphs are visually prominent and appear between sections of dialogue, which might tempt you to reach for heading elements. Resist that temptation.
+
+A heading (`<h1>` through `<h6>`) is a label for the section of content that follows it. It communicates document structure and is a primary navigation mechanism for screen reader users, who commonly navigate by headings using the `H` key. An interview question is not a section label; it is part of the content itself. Marking it up as a heading would produce a misleading document outline and send screen reader users to what sounds like a heading but is actually mid-dialogue prose.
+
+The semantically accurate element is `<p>` with `<strong>`:
+
+```html
+<p>
+  <strong
+    >The café has no Wi-Fi and no laptop policy. That is a bold choice for a
+    city-centre location. Where did that decision come from?</strong
+  >
+</p>
+```
+
+[`<strong>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong) carries semantic weight: it indicates strong importance or prominence, which aligns well with the editorial role these questions play. They are foregrounded, but they are not structural landmarks.
+
+<BaselineStatus id="strong" />
+
+## The Speaker Label Problem
+
+Speaker labels like `SHN` and `TLN` are abbreviated forms of the speakers' names. The natural instinct is to reach for `<strong>` to reproduce the bold visual treatment, but that creates a problem: speaker paragraphs become indistinguishable from question paragraphs in the markup, which breaks the CSS selector you need.
+
+Consider what you want to express in CSS:
+
+```css
+/* Question paragraphs: sans-serif */
+p:has(> strong) {
+  font-family: /* sans-serif stack */;
+}
+```
+
+If speaker paragraphs also contain `<strong>`, this selector matches them too and the design falls apart.
+
+### Why Not `<b>`?
+
+The HTML spec describes [`<b>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/b) as appropriate for text "stylistically offset from the normal prose without conveying extra importance" — lead-ins, keywords, typographic conventions. Speaker names in a transcript arguably fit that description, and using `<b>` alongside `<strong>` would give you two distinct elements to target in CSS. But this approach depends on CMS editors consistently choosing the correct one, and in a WYSIWYG editor like CKEditor, bold is likely bold — the toolbar does not distinguish between `<b>` and `<strong>`, and editors likely will not either.
+
+### `<abbr>` Is the Right Answer
+
+`SHN` and `TLN` are abbreviations. That is precisely what [`<abbr>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/abbr) is for. Pairing it with a `title` attribute provides the full name on hover and exposes it to assistive technology:
+
+```html
+<p>
+  <abbr title="Schalk Neethling">SHN</abbr>: We wanted people to actually talk
+  to each other…
+</p>
+```
+
+Note the colon sits _outside_ the `<abbr>`, as it is punctuation, not part of the abbreviation.
+
+Since `<abbr>` carries no implicit visual weight, the bold treatment and font family are handled in CSS, as you will see in full in the next section.
+
+<BaselineStatus id="abbr" />
+
+## The CSS Selector Now Works
+
+With `<strong>` reserved exclusively for question paragraphs and `<abbr>` handling speaker labels, the CSS is clean and trustworthy:
+
+```css
+.RichText {
+  p {
+    font-family: var(--typo-Serif-font-family);
+
+    abbr {
+      font-family: var(--typo-Default-font-family);
+      font-weight: 700;
+    }
+  }
+
+  p:has(> strong) {
+    font-family: var(--typo-Default-font-family);
+  }
+}
+```
+
+This reads as a clear cascade. Serif is the default for all paragraphs within `.RichText`. The nested `abbr` rule opts out of that locally: only the abbreviation switches to sans-serif and picks up its bold weight, leaving the rest of the paragraph untouched. Question paragraphs opt out of serif entirely via `p:has(> strong)`. Each rule does exactly one job.
+
+One thing worth considering: `<abbr>` renders with a dotted underline by default in most browsers. If your design calls for removing it with `text-decoration: none`, be aware that you are removing a deliberate browser affordance, a visual hint to users that the element carries additional information via its `title` attribute. Whether that trade-off is acceptable depends on your design and context, but it is worth making the decision consciously rather than resetting it out of habit.
+
+The direct child combinator (`>`) in `p:has(> strong)` is intentional and worth being explicit about. It ensures you are only matching paragraphs where `<strong>` is an immediate child (that is, the question fills the whole paragraph) rather than any paragraph that might contain an inline `<strong>` for some other reason in the future.
+
+To see the markup and styles working together, here is a single question and answer pair alongside the CSS that styles it:
+
+```html
+<p>
+  <strong
+    >The café has no Wi-Fi and no laptop policy. That is a bold choice for a
+    city-centre location. Where did that decision come from?</strong
+  >
+</p>
+<p>
+  <abbr title="Schalk Neethling">SHN</abbr>: We wanted people to actually talk
+  to each other. Or at least stare out of the window for a bit…
+</p>
+```
+
+```css
+.RichText {
+  p {
+    font-family: var(--typo-Serif-font-family);
+
+    abbr {
+      font-family: var(--typo-Default-font-family);
+      font-weight: 700;
+    }
+  }
+
+  p:has(> strong) {
+    font-family: var(--typo-Default-font-family);
+  }
+}
+```
+
+The question paragraph matches `p:has(> strong)` and renders in the default sans-serif font family. The answer paragraph matches only the base `p` rule and renders in serif, but the `<abbr>` within it opts out locally, rendering in sans-serif and bold.
+
+<BaselineStatus id="has" />
+
+## A Note on `title` and the CMS
+
+The `title` attribute on `<abbr>` is not required by the HTML spec. An abbreviation can be marked up without expansion when the full form is provided in surrounding prose or when the abbreviation is well understood in context. In an interview article the speakers are typically introduced in an opening paragraph, so context often exists.
+
+If you cannot guarantee that CMS editors will always provide a `title` value, the markup remains semantically valid. You are still communicating that the text is an abbreviation. This is an improvement over `<strong>`, which communicated nothing about the nature of the text at all. Treat a missing `title` as a content quality concern rather than a structural failure, document the intent, and keep pushing for CMS support that makes providing it easy.
+
+If the architecture allows it, the most robust solution is to handle the speaker label outside the rich text field entirely, as a structured field in the CMS that the template renders with the correct markup and punctuation automatically. That removes the punctuation and markup from editorial responsibility entirely, though editors will still need to provide the full names as a structured field value.
+
+## The Full Structure
+
+In practice, with a CKEditor rich text field, you will not have control over the wrapping structure. The editor produces sequential paragraphs inside whatever element the template provides — most likely an `<article>`. The realistic output looks like this:
+
+```html
+<article>
+  <p>
+    <strong
+      >The café has no Wi-Fi and no laptop policy. That is a bold choice for a
+      city-centre location. Where did that decision come from?</strong
+    >
+  </p>
+  <p>
+    <abbr title="Schalk Neethling">SHN</abbr>: We wanted people to actually talk
+    to each other. Or at least stare out of the window for a bit…
+  </p>
+
+  <p>
+    <strong
+      >You close at two in the afternoon, every day. Most coffee shops are
+      chasing the afternoon slump crowd. Why cut the day short?</strong
+    >
+  </p>
+  <p>
+    <abbr title="Theresa Leigh Neethling">TLN</abbr>: Because that is when the
+    good coffee stops. We only pull shots when we can taste them properly, and
+    by two our palates are done…
+  </p>
+</article>
+```
+
+## Why This Matters
+
+What makes this solution satisfying is that the right semantic choice and the right technical choice are the same choice. `<abbr>` is not being used as a CSS hook that happens to have a convenient side effect. It is used because the content genuinely is an abbreviation. The CSS benefit follows naturally from that.
+
+It is also robust against the reality of CMS authoring. An editor reaching for bold will never accidentally choose `<abbr>`. It lives in a different mental category entirely, which means your selector remains trustworthy regardless of what happens in the rich text field.
+
+## Further Reading
+
+- [The `<abbr>` element — MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/abbr)
+- [The `<strong>` element — MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong)
+- [The `<b>` element — MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/b)
+- [`:has()` pseudo-class — MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/:has)
+- [The `title` attribute — MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)
+- [HTML Living Standard — The `abbr` element](https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-abbr-element)

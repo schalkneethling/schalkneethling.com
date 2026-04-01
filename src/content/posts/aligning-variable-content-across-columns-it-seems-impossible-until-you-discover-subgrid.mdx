@@ -1,0 +1,203 @@
+---
+title: "Aligning Variable Content Across Columns. It Seems Impossible Until You Discover Subgrid"
+pubDate: 2026-04-01
+description: "A layout that seems impossible; aligning titles and dividers across sibling cards regardless of content length. No JavaScript, no table layouts, just CSS subgrid."
+author: "Schalk Neethling"
+tags: ["css"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+Imagine a product features section. Four cards sit side by side, each with an icon, a heading, and a description. The headings vary in length — some are short, like "File Vault", while others wrap to two or three lines, like "End-to-End Encrypted Messaging". The design calls for a divider between each heading and its description, and that divider must align horizontally across all four cards.
+
+When you think about this from the outside, you consider each card to be isolated from the others in the list. Every card is its own little world — it has its content, it sizes itself, and it has no knowledge of what its siblings are doing, let alone how their contents could be affecting their overall layout. So how could the browser possibly look sideways at neighbouring cards to figure out the correct height for the title section? It feels like the kind of thing that simply is not possible with CSS alone.
+
+What makes it even harder to reason about is that layouts are responsive. The card sitting in row one, column four at your current viewport width might end up in row two when the window gets a little narrower. It might even end up on a row by itself — and in that case, you absolutely do not want it stretching its title area to match a three-line heading from a completely different visual row.
+
+At this point, a dark thought creeps in: what about a table for layout? In a table, cells in the same row grow uniformly to accommodate the tallest cell, and you would end up with exactly this kind of aligned result. But — and this is not even a question worth pondering for more than a microsecond — good luck making that table responsive. We left table layouts behind for good reason, and we are not going back. Say it with me: tables are not for layout. Tables are for displaying tabular data with relationships between cells, rows, and headers.
+
+So it can feel like you are up the creek without a paddle. Until you dig into `subgrid` and realise just how powerful these — not so new anymore — layout tools in CSS really are.
+
+<BaselineStatus id="subgrid" />
+
+## The challenge
+
+To make this concrete, let us use a product features section for a fictitious privacy-focused application called VaultGuard. Four cards, each with an icon, a heading, and a description. The design requirement is clear: every divider between the heading and the description must align horizontally across all four cards. The tallest heading dictates where the divider sits, and all sibling cards follow suit.
+
+If you want to see the end result before diving into the code, [the live demo is here](https://subgrid-is-awesome.schalkneethling.com).
+
+Here is the HTML structure we are working with:
+
+```html
+<section class="Features" aria-labelledby="features-heading">
+  <h2 id="features-heading">Why VaultGuard?</h2>
+
+  <div class="Features-grid">
+    <article class="FeatureCard">
+      <svg class="FeatureCard-icon" aria-hidden="true" viewBox="0 0 24 24">
+        <!-- lock icon -->
+      </svg>
+      <h3 class="FeatureCard-title">End-to-End Encrypted Messaging</h3>
+      <p class="FeatureCard-description">
+        Every message is encrypted on your device before it leaves. Not even we
+        can read your conversations. Your words, your eyes only.
+      </p>
+    </article>
+
+    <article class="FeatureCard">
+      <svg class="FeatureCard-icon" aria-hidden="true" viewBox="0 0 24 24">
+        <!-- folder icon -->
+      </svg>
+      <h3 class="FeatureCard-title">File Vault</h3>
+      <p class="FeatureCard-description">
+        Store sensitive documents in a zero-knowledge encrypted vault. Access
+        them from any device, knowing that your files remain private by default.
+      </p>
+    </article>
+
+    <article class="FeatureCard">
+      <svg class="FeatureCard-icon" aria-hidden="true" viewBox="0 0 24 24">
+        <!-- shield icon -->
+      </svg>
+      <h3 class="FeatureCard-title">Privacy Dashboard</h3>
+      <p class="FeatureCard-description">
+        See exactly what data exists, where it lives, and who has accessed it.
+        Full transparency over your digital footprint, presented in plain
+        language.
+      </p>
+    </article>
+
+    <article class="FeatureCard">
+      <svg class="FeatureCard-icon" aria-hidden="true" viewBox="0 0 24 24">
+        <!-- globe icon -->
+      </svg>
+      <h3 class="FeatureCard-title">Anonymous Browsing with Built-In Relay</h3>
+      <p class="FeatureCard-description">
+        Route your traffic through multiple encrypted relays. No logs, no
+        tracking, no compromises. Browse the web as if nobody is watching.
+      </p>
+    </article>
+  </div>
+</section>
+```
+
+Each `<article>` uses an SVG icon (marked `aria-hidden="true"` since the heading provides the meaning), a heading, and a description. Semantic, accessible, and straightforward.
+
+## The problem with regular grids
+
+This is where the mental model from the introduction plays out in practice. When you set `.Features-grid` to `display: grid` and define your columns, each card becomes a grid item. You can make each card its own grid container to arrange the icon, title, and description vertically. But here is the catch: those inner grids are completely independent of one another. Each card sizes its own rows based solely on its own content. The title row in card one has no knowledge of the title row in card two.
+
+That intuition about cards being isolated little worlds? With a regular nested grid, it is entirely correct. And that is exactly the problem that `subgrid` was designed to solve.
+
+## How subgrid works
+
+The [`subgrid`](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Grid_layout/Subgrid) value can be applied to [`grid-template-rows`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/grid-template-rows), [`grid-template-columns`](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns), or both. When a grid item is itself a grid container and you set one of its template properties to `subgrid`, it stops defining its own tracks in that dimension. Instead, it participates in the parent grid's tracks.
+
+This means that if three sibling cards each span three row tracks from the parent grid, and each uses `grid-template-rows: subgrid`, the first row track across all three cards will be sized by whichever card has the tallest content in that track. The same goes for the second and third row tracks.
+
+The rows are shared. The sizing is communal. And our dividers align, naturally.
+
+Here is the part that addresses the responsive concern from earlier: the parent grid only shares row tracks among cards that are in the same visual row. When the viewport narrows and a card wraps to a new row, it gets its own set of row tracks. A card sitting alone on its row will not inherit the three-line title height from the row above. The browser handles this correctly because the track sharing is determined by which cards actually occupy the same grid row — not by some global look-ahead across the entire grid.
+
+Isn't CSS magical!
+
+## The solution
+
+Let us walk through the CSS. First, the parent grid:
+
+```css
+.Features-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  row-gap: 4rem;
+}
+```
+
+The `repeat(auto-fit, minmax(15rem, 1fr))` pattern gives us a responsive column layout without media queries. The `row-gap: 4rem` provides generous spacing between visual rows of cards when they wrap.
+
+Now, the key part — each card spans three row tracks from the parent (one for the icon, one for the title, one for the description) and opts into the parent's row sizing via `subgrid`:
+
+```css
+.FeatureCard {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+}
+```
+
+Notice the `row-gap: 0`. This is important. The parent's `row-gap: 4rem` is intended for spacing between visual rows of cards, not between elements within a card. Since `subgrid` inherits the parent's gap values by default, we override the row gap here to keep the card's internal spacing tight.
+
+The title gets a border on its block-end edge to create the divider:
+
+```css
+.FeatureCard-title {
+  border-block-end: 0.0625rem solid currentcolor;
+  padding-block-end: 1rem;
+}
+```
+
+Because all cards share the same parent row tracks, the title row height is determined by the tallest title across all sibling cards in that visual row. The border naturally sits at the boundary between the title track and the description track, and it aligns perfectly across every card.
+
+That is all there is to it. No JavaScript. No fragile hacks. No tables. Just good, clean, modern CSS.
+
+## Handling variants with :has()
+
+<BaselineStatus id="has" />
+
+In a real-world component, you might have cards that sometimes include a media element and sometimes do not. A text-only card needs two row tracks (title and description), while a card with an icon or image needs three (media, title, and description).
+
+The [`:has()`](https://developer.mozilla.org/en-US/docs/Web/CSS/:has) pseudo-class lets you handle this cleanly:
+
+```css
+/* Text-only cards: title + description = 2 rows */
+.FeatureCard:not(:has(.FeatureCard-icon)) {
+  grid-row: span 2;
+}
+```
+
+```css
+/* Cards with an icon: icon + title + description = 3 rows */
+.FeatureCard:has(.FeatureCard-icon) {
+  grid-row: span 3;
+}
+```
+
+This keeps the logic declarative and co-located with the styles. No need for modifier classes or variant props — the CSS adapts based on the actual DOM structure.
+
+## Accessibility considerations
+
+This layout approach has a meaningful accessibility advantage over hack-based alternatives. Because the visual alignment is achieved entirely through CSS grid track sharing, the DOM order remains logical and linear: icon, then title, then description. There is no need for `aria-` attributes to patch over a broken reading order, and no `role` overrides to compensate for misused elements. The CSS handles the visual complexity; the HTML stays clean and semantic.
+
+## Browser support
+
+Subgrid reached [Baseline Widely Available](https://web.dev/baseline) status in March 2026, with support in Chrome 117+, Firefox 71+, Safari 16+, and Edge 117+. It has been supported across all major browsers for over 30 months.
+
+If you need to support browsers that predate subgrid support, a progressive enhancement approach works well. Without `subgrid`, the cards still display as a regular grid — the only difference is that the dividers will not align across siblings. That is a graceful degradation that does not break functionality or readability.
+
+```css
+@supports (grid-template-rows: subgrid) {
+  .FeatureCard {
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+  }
+}
+```
+
+## Wrapping up
+
+The more I work with modern CSS, the more I find that the platform already has an answer for challenges that once required JavaScript or layout hacks. Subgrid is a perfect example — it solves a real, common layout problem in a way that is declarative, maintainable, and respectful of the document structure.
+
+If you have been putting off learning subgrid because you thought it was niche or overly complex, I hope this post shows that it is neither. The core pattern is just three lines of CSS: `display: grid`, `grid-row: span N`, and `grid-template-rows: subgrid`. That is it.
+
+## Further reading
+
+- [Live demo: subgrid-is-awesome.schalkneethling.com](https://subgrid-is-awesome.schalkneethling.com) — the complete working example from this post
+- [MDN: Subgrid](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Grid_layout/Subgrid) — the comprehensive guide to subgrid with examples and use cases
+- [MDN: grid-template-rows](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/grid-template-rows) — property reference including the `subgrid` value
+- [MDN: :has()](https://developer.mozilla.org/en-US/docs/Web/CSS/:has) — the relational pseudo-class used for variant handling
+- [CSS Grid Layout Module Level 2 specification](https://www.w3.org/TR/css-grid-2/#subgrids) — the W3C specification for subgrid
+- [CSS subgrid — web.dev](https://web.dev/articles/css-subgrid) — a thorough introduction with interactive examples

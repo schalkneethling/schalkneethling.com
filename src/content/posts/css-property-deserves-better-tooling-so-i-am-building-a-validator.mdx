@@ -1,0 +1,143 @@
+---
+title: "CSS @property Deserves Better Tooling — So I Am Building a Validator"
+pubDate: 2026-04-02
+description: "CSS @property gives authors a type contract for custom properties, but no tooling enforces it at the consumption site. CSS Property Type Validator is an attempt to close this gap."
+author: "Schalk Neethling"
+tags: ["css", "tooling"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+The CSS `@property` at-rule was a huge step forward for custom properties. For the first time, authors can formally declare what kind of value a custom property holds — a colour, a length, a time, an image — and the browser can use that information for transitions, animations, and initial-value behaviour.
+
+But here is the thing: while Chrome DevTools can now warn when a value directly assigned to a registered property violates its declared syntax, there is no equivalent feedback at the consumption site. If you write `background-image: var(--brand-color)` and `--brand-color` is registered as a `<color>`, the browser will not tell you that a colour value does not belong in a property that expects an `<image>`. It simply fails silently at computed-value time — a behaviour the spec calls [invalid at computed-value time (IACVT)](https://www.bram.us/2024/02/26/css-what-is-iacvt/).
+
+<BaselineStatus id="registered-custom-properties" />
+
+That gap between what authors declare and what tooling actually validates is what [CSS Property Type Validator](https://github.com/schalkneethling/css-property-type-validator) sets out to close.
+
+## The problem in practice
+
+Consider a straightforward design-token setup:
+
+```css
+@property --brand-color {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+```
+
+This registration is a contract. It says: `--brand-color` will always be a colour. But without tooling that reads that contract, nothing stops an author from writing:
+
+```css
+.card {
+  background-image: var(--brand-color);
+  color: var(--brand-color);
+}
+```
+
+Both lines are syntactically valid CSS. Both will parse without errors. But one of these is wrong, and will fail at computed-value time — `background-image` expects an `<image>` value like a gradient, not a plain colour. In a large codebase with dozens of design tokens, this kind of mismatch is easy to introduce and difficult to trace.
+
+This is not a new observation. There has been an [open Stylelint issue since 2020](https://github.com/stylelint/stylelint/issues/5061) asking for exactly this kind of validation. And with CSS features like [mixins](https://github.com/LeaVerou/blog/discussions/137#discussioncomment-16340589) on the horizon, the need for type validation tooling is only going to grow. Mixin arguments will need to be typed to avoid subtle and hard-to-debug failures — whether that typing happens inline, via `@property`, or through some combination of both is still being discussed. But regardless of the mechanism, tooling that validates types will be critical. One can even imagine a validator like this playing a role similar to TypeScript: when you call a mixin and pass it arguments, the validator could check that the values you are passing match the types the mixin expects.
+
+## What CSS Property Type Validator does today
+
+The project is a standalone TypeScript library and CLI. It is intentionally not a Stylelint plugin or an editor extension — at least not yet. The goal was to validate the core idea first, keep the logic reusable, and avoid locking into a single tooling ecosystem.
+
+The workspace is split into two scoped packages: [`@schalkneethling/css-property-type-validator-core`](https://www.npmjs.com/package/@schalkneethling/css-property-type-validator-core) contains the validation engine, and [`@schalkneethling/css-property-type-validator-cli`](https://www.npmjs.com/package/@schalkneethling/css-property-type-validator-cli) wraps it in a command-line interface suitable for local development and CI.
+
+Running the CLI against your stylesheets produces either human-readable output or structured JSON:
+
+```bash
+npx @schalkneethling/css-property-type-validator-cli "src/**/*.css"
+npx @schalkneethling/css-property-type-validator-cli "src/**/*.css" --format json
+```
+
+The exit codes are conventional: `0` for no diagnostics, `1` when issues are found, and `2` for input failures. That makes it straightforward to integrate into a CI pipeline.
+
+The default human-readable output is designed to get straight to the point:
+
+```bash
+example.css:78:26 incompatible-var-usage
+Registered property --fast-transition uses syntax "<time>" which is incompatible
+with border-end-end-radius at this var() usage.
+  border-end-end-radius:var(--fast-transition)
+```
+
+The JSON format (`--format json`) returns structured diagnostics with source locations, making it straightforward to consume programmatically:
+
+```json
+{
+  "code": "incompatible-var-usage",
+  "loc": {
+    "start": { "line": 82, "column": 17 },
+    "end": { "line": 82, "column": 36 }
+  },
+  "message": "Registered property --heading-font uses syntax \"<font-family>\" which is incompatible with aspect-ratio at this var() usage.",
+  "propertyName": "--heading-font",
+  "registeredSyntax": "<font-family>",
+  "expectedProperty": "aspect-ratio",
+  "snippet": "aspect-ratio:var(--heading-font)"
+}
+```
+
+## How the validation works
+
+Under the hood, the validator uses [css-tree](https://github.com/csstree/csstree) for both parsing and syntax validation. The high-level flow is:
+
+1. Parse one or more CSS files.
+2. Collect all `@property` rules into a combined registry.
+3. Walk each declaration and find `var()` usage sites.
+4. For each `var()` that references a registered custom property, look up its declared syntax.
+5. Generate a representative sample value for that syntax.
+6. Substitute the sample into the declaration and ask css-tree whether the result is valid for the consuming property.
+
+So the approach is straightforward: rather than comparing abstract types, generate a concrete value that is known to be valid for the registered `syntax` type, substitute it into the declaration, and let css-tree validate the result. The validator maintains a [map of syntax types to representative sample values](https://github.com/schalkneethling/css-property-type-validator/blob/main/packages/core/src/syntax-samples.ts) for exactly this purpose:
+
+```typescript
+const SIMPLE_TYPE_SAMPLES: Record<string, string[]> = {
+  color: ["red"],
+  image: ['url("image.png")'],
+  length: ["1px"],
+  time: ["1s"],
+  percentage: ["50%"],
+  angle: ["45deg"],
+  number: ["1"],
+  // ... and so on for each supported syntax type
+};
+```
+
+When the validator encounters `background-image: var(--brand-color)`, it looks up `--brand-color` in the registry, finds that it is registered as `<color>`, and retrieves the representative sample `red`. It then internally checks something like `background-image: red`. Since css-tree rejects `red` as a valid value for `background-image`, the tool reports the original `var()` usage as incompatible.
+
+This approach keeps the implementation lean by reusing css-tree's built-in [lexer](https://github.com/csstree/csstree?tab=readme-ov-file#syntax-matching) — the part of css-tree responsible for validating whether a given value matches the syntax of a CSS property — rather than reinventing it. It works well for straightforward cases, which covers the majority of real-world design-token usage.
+
+## What it does not do yet
+
+The current release is intentionally narrow in scope. The goal was to prove that `@property` registrations can be consumed by tooling in a practical way and that the resulting registry can be effectively used to catch real type mismatches with no false positives. That goal has been met. With the core concept validated, the plan is to iterate quickly and close the remaining gaps.
+
+Today, the validator only checks declarations with a single `var()` usage. Declarations that combine multiple `var()` calls in one value are skipped. Direct assignments to registered custom properties — for example, `--brand-color: 10px` — are not yet validated either. The tool also does not resolve `@import` graphs automatically, so it only validates the files you explicitly pass to it.
+
+These are all on the [roadmap](https://github.com/schalkneethling/css-property-type-validator/blob/main/ROADMAP.md), and the standalone architecture is designed to make each of them an incremental addition rather than a rewrite.
+
+## Where this can go
+
+The most exciting direction is editor integration. Because the core returns structured diagnostics with source locations, it is a natural fit for VS Code extensions or language server integrations. Imagine inline squiggles under `var(--brand-color)` when the registered `syntax` type does not fit the consuming property, or quick info showing the registered `syntax` type of a custom property on hover. The JSON output already provides everything an extension would need.
+
+Beyond editors, the standalone core is designed to be wrapped by Stylelint plugins, ESLint CSS adapters, or any other tooling that wants to consume `@property` registrations. The validation logic does not depend on any particular linting framework.
+
+## The broader point
+
+This project is less about inventing new syntax and more about finally using the type information CSS already gives us. The platform has provided authors with `@property` for years. What has been missing is tooling that treats those declarations as more than decoration — tooling that reads the contract and holds our code to it.
+
+CSS Property Type Validator is a first step toward that goal. The proof of concept is validated, the architecture is in place, and the gaps are well understood. What comes next is closing them.
+
+If you work with `@property` registrations or design tokens in CSS, I would love for you to try the validator against your own stylesheets and see what it catches. The most valuable way to contribute right now is through [issues](https://github.com/schalkneethling/css-property-type-validator/issues) — whether that is a bug report, a false positive, a missing edge case, or a use case the tool does not handle yet. That feedback directly shapes where the project goes next.
+
+## Further reading
+
+- [MDN: `@property`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@property)
+- [CSS Properties and Values API Level 1 specification](https://drafts.css-houdini.org/css-properties-values-api/)
+- [What is IACVT? — Bramus Van Damme](https://www.bram.us/2024/02/26/css-what-is-iacvt/)
+- [CSS Property Type Validator on GitHub](https://github.com/schalkneethling/css-property-type-validator)
+- [Stylelint issue #5061: Check against custom property registration](https://github.com/stylelint/stylelint/issues/5061)

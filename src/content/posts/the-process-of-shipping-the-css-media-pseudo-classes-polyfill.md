@@ -1,7 +1,7 @@
 ---
 title: "The Process of Shipping The CSS Media Pseudo Classes Polyfill"
 pubDate: 2026-04-07
-description: The CSS Media Pseudo Classes Polyfill is now available on npm. This post covers what shipped, what I learned about the CSSOM and unsupported CSS, how you can try it, and what comes next."
+description: The CSS Media Pseudo Classes Polyfill is now available on npm. This post covers what shipped, what I learned about the CSSOM and unsupported CSS, how you can try it, and what comes next.
 author: "Schalk Neethling"
 tags: ["css", "web-standards"]
 ---

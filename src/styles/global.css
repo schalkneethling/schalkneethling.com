@@ -17,6 +17,9 @@
   --color-surface-elevated: light-dark(#fff, #343434);
   --color-border: light-dark(#d5d5d5, #4e4e4e);
 
+  /* Reduce mobile typescale from 1.25 (major third) to 1.2 (minor third) */
+  --minimalist-typography-scale-mobile: 1.2;
+
   /* Primary accent colors using light-dark() */
   --color-accent: light-dark(#b04198, #dca2cb);
   --color-accent-hover: light-dark(#561c4a, #ebc7e0);
@@ -46,6 +49,7 @@
 body {
   background-color: var(--color-background);
   color: var(--color-text);
+  overflow-wrap: anywhere;
 }
 
 /* Link colors using semantic tokens */

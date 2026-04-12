@@ -14,7 +14,17 @@ const { name, description, url, language, stars, imageUrl, featured } =
 ---
 
 <article class:list={["project-card", { "project-card--featured": featured }]}>
-  {imageUrl && <img src={imageUrl} alt="" class="project-card-image" loading="lazy" />}
+  {
+    imageUrl && (
+      <img
+        src={imageUrl}
+        alt=""
+        class="project-card-image"
+        loading="lazy"
+        onerror="this.remove()"
+      />
+    )
+  }
   <div class="project-card-content">
     <h3 class="project-card-name">{name}</h3>
     <p class="project-card-description">{description}</p>

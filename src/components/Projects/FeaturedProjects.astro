@@ -1,0 +1,98 @@
+---
+import ProjectCard from "./ProjectCard.astro";
+import { fetchFeaturedProjects } from "../../lib/github";
+
+const FEATURED_NAMES = [
+  "css-property-type-validator",
+  "css-media-pseudo-polyfill",
+  "linkstack",
+  "css-tree-ast-viewer",
+  "css-community-reset",
+];
+
+const FALLBACK_DATA: Record<
+  string,
+  { description: string; language: string; url: string }
+> = {
+  "css-property-type-validator": {
+    description:
+      "Standalone tooling for validating CSS custom property registrations declared with @property",
+    language: "TypeScript",
+    url: "https://github.com/schalkneethling/css-property-type-validator",
+  },
+  "css-media-pseudo-polyfill": {
+    description:
+      "A CSS polyfill for media pseudo-classes (:playing, :paused, :seeking, :buffering, :stalled, :muted)",
+    language: "TypeScript",
+    url: "https://github.com/schalkneethling/css-media-pseudo-polyfill",
+  },
+  linkstack: {
+    description:
+      "A bookmark manager web app for anyone who wants to save links with some twists",
+    language: "JavaScript",
+    url: "https://github.com/schalkneethling/linkstack",
+  },
+  "css-tree-ast-viewer": {
+    description:
+      "Focused CSS AST explorer. Paste or write your CSS in one pane and get the CSS Tree AST in the other",
+    language: "TypeScript",
+    url: "https://github.com/schalkneethling/css-tree-ast-viewer",
+  },
+  "css-community-reset": {
+    description: "A CSS reset inspired by the community",
+    language: "CSS",
+    url: "https://github.com/schalkneethling/css-community-reset",
+  },
+};
+
+const featuredRepos = await fetchFeaturedProjects(FEATURED_NAMES);
+
+const projects = FEATURED_NAMES.map((name) => {
+  const repo = featuredRepos.find((r) => r.name === name);
+  const fallback = FALLBACK_DATA[name];
+
+  return {
+    name,
+    description: repo?.description || fallback.description,
+    url: repo?.url || fallback.url,
+    language: repo?.language || fallback.language,
+    stars: repo?.stargazerCount ?? 0,
+    imageUrl: repo?.openGraphImageUrl ?? "",
+  };
+});
+---
+
+<section aria-labelledby="featured-projects">
+  <h2 id="featured-projects" class="gradient-text">Featured Projects</h2>
+  <masonry-grid-lanes min-column-width="280" gap="16">
+    {
+      projects.map((project) => (
+        <ProjectCard
+          name={project.name}
+          description={project.description}
+          url={project.url}
+          language={project.language}
+          stars={project.stars}
+          imageUrl={project.imageUrl}
+          featured={true}
+        />
+      ))
+    }
+  </masonry-grid-lanes>
+</section>
+
+<style>
+  section {
+    margin-block-start: var(--spacing-section-default);
+  }
+
+  masonry-grid-lanes {
+    margin-block-start: var(--size-24);
+  }
+
+  masonry-grid-lanes:not(:defined) {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+</style>

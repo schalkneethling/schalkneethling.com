@@ -1,0 +1,163 @@
+---
+interface Props {
+  name: string;
+  description: string;
+  url: string;
+  language: string | null;
+  stars: number;
+  imageUrl: string;
+  featured?: boolean;
+}
+
+const { name, description, url, language, stars, imageUrl, featured } =
+  Astro.props;
+---
+
+<article class:list={["project-card", { "project-card--featured": featured }]}>
+  {
+    imageUrl && (
+      <img
+        src={imageUrl}
+        alt=""
+        class="project-card-image"
+        loading="lazy"
+        onerror="this.remove()"
+      />
+    )
+  }
+  <div class="project-card-content">
+    <h3 class="project-card-name">{name}</h3>
+    <p class="project-card-description">{description}</p>
+    <footer class="project-card-meta">
+      {
+        language && (
+          <span class="project-card-language">
+            <span class="language-dot" aria-hidden="true" />
+            {language}
+          </span>
+        )
+      }
+      <span
+        class="project-card-stars"
+        aria-label={`${stars} ${stars === 1 ? "star" : "stars"} on GitHub`}
+      >
+        <span aria-hidden="true">&#9733;</span>
+        {stars}
+      </span>
+    </footer>
+    <a href={url} class="project-card-link">
+      View on GitHub <span aria-hidden="true">&rarr;</span>
+    </a>
+  </div>
+</article>
+
+<style>
+  .project-card {
+    background-color: var(--color-surface-elevated);
+    border: var(--size-1) solid var(--color-border);
+    border-radius: var(--border-radius-default);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .project-card:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  .project-card:focus-within {
+    border-color: var(--color-accent);
+    outline: var(--size-2) solid var(--color-accent);
+    outline-offset: var(--size-2);
+    transform: translateY(-2px);
+  }
+
+  .project-card--featured {
+    border-inline-start: var(--size-4) solid var(--color-accent);
+  }
+
+  .project-card-image {
+    aspect-ratio: 2 / 1;
+    display: block;
+    inline-size: 100%;
+    object-fit: cover;
+  }
+
+  .project-card-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: var(--size-24);
+  }
+
+  .project-card-name {
+    font-size: var(--typography-sm-md-font-size);
+    margin-block: 0 var(--size-8);
+  }
+
+  .project-card-description {
+    color: var(--color-text);
+    flex-grow: 1;
+    margin-block: 0 var(--size-16);
+  }
+
+  .project-card-meta {
+    align-items: center;
+    color: var(--color-text-muted);
+    display: flex;
+    font-size: var(--typography-sm-font-size);
+    gap: var(--size-16);
+    margin-block-end: var(--size-16);
+  }
+
+  .project-card-language {
+    align-items: center;
+    display: flex;
+    gap: var(--size-4);
+  }
+
+  .language-dot {
+    background-color: var(--color-accent);
+    block-size: var(--size-8);
+    border-radius: var(--border-border-radius-circlular);
+    display: inline-block;
+    inline-size: var(--size-8);
+  }
+
+  .project-card-stars {
+    color: var(--color-accent);
+  }
+
+  .project-card-link {
+    color: var(--color-link);
+    font-size: var(--typography-default-font-size);
+    position: relative;
+    text-decoration: none;
+    width: fit-content;
+  }
+
+  .project-card-link::after {
+    background-color: var(--color-accent);
+    block-size: var(--size-2);
+    content: "";
+    inline-size: 0;
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    position: absolute;
+    transition: inline-size 0.2s ease;
+  }
+
+  .project-card-link:hover::after,
+  .project-card-link:focus::after {
+    inline-size: 100%;
+  }
+
+  .project-card-link:focus-visible {
+    outline: var(--size-2) solid var(--color-accent);
+    outline-offset: var(--size-4);
+  }
+</style>

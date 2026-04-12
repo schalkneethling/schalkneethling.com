@@ -1,0 +1,50 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import FeaturedProjects from "@components/Projects/FeaturedProjects.astro";
+import RandomProjects from "@components/Projects/RandomProjects.astro";
+import { fetchRandomProjects } from "../lib/github";
+
+const pageTitle = "Things I'm building";
+
+const FEATURED_NAMES = [
+  "css-property-type-validator",
+  "css-media-pseudo-polyfill",
+  "linkstack",
+  "css-tree-ast-viewer",
+  "css-community-reset",
+  "schalkneethling.com",
+];
+
+const randomProjects = await fetchRandomProjects(FEATURED_NAMES, 7);
+---
+
+<BaseLayout pageTitle={pageTitle}>
+  <main class="u-container" id="main-content">
+    <h1>{pageTitle}</h1>
+    <p>
+      I love making things. Whether it's a developer tool, a web component, a
+      polyfill, or a weekend experiment that takes on a life of its own &mdash;
+      building is how I learn and how I give back. Everything here is open source
+      because I still believe in the original ethos: build in public, share what
+      you make, and trust that others will do the same.
+    </p>
+    <p>
+      Below you'll find projects I'm most invested in right now, plus a rotating
+      selection from the rest of my GitHub repos. If something catches your eye,
+      I'd love a star, a bug report, or a conversation about it.
+    </p>
+
+    <FeaturedProjects />
+    <RandomProjects projects={randomProjects} />
+  </main>
+</BaseLayout>
+
+<script>
+  import {
+    adoptMasonryGridLanesStyles,
+    defineMasonryGridLanes,
+  } from "@schalkneethling/masonry-gridlanes-wc";
+
+  defineMasonryGridLanes();
+  await adoptMasonryGridLanesStyles(document);
+</script>

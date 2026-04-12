@@ -1,0 +1,49 @@
+---
+import type { GitHubRepo } from "../../lib/github";
+import ProjectCard from "./ProjectCard.astro";
+
+interface Props {
+  projects: GitHubRepo[];
+}
+
+const { projects } = Astro.props;
+---
+
+<section aria-labelledby="more-projects">
+  <h2 id="more-projects" class="gradient-text">More from the Workshop</h2>
+  <p>A random selection from my GitHub repos, reshuffled with every deploy.</p>
+  {
+    projects.length > 0 ? (
+      <masonry-grid-lanes min-column-width="260" gap="16">
+        {projects.map((project) => (
+          <ProjectCard
+            name={project.name}
+            description={project.description}
+            url={project.url}
+            language={project.language}
+            stars={project.stargazerCount}
+            imageUrl={project.openGraphImageUrl}
+          />
+        ))}
+      </masonry-grid-lanes>
+    ) : (
+      <p>GitHub is being shy right now. Check back later for more projects.</p>
+    )
+  }
+</section>
+
+<style>
+  section {
+    margin-block-start: var(--spacing-section-large);
+  }
+
+  masonry-grid-lanes {
+    margin-block-start: var(--size-24);
+  }
+
+  masonry-grid-lanes:not(:defined) {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+</style>

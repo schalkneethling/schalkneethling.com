@@ -21,7 +21,7 @@ More importantly, conversation-based context is ephemeral. Once the session ends
 
 I created a dedicated folder in our docs app:
 
-```text/plain
+```plaintext
 docs/features/store-locator-overview/
 ├── README.md
 ├── handoff.md
@@ -46,7 +46,7 @@ The store locator specification is "what we are building", its feature requireme
 
 Rather than restructure the entire docs hierarchy (which would require team buy-in and potentially break existing links), I added `features/` as a new top-level folder:
 
-```text/plain
+```plaintext
 docs/
 ├── backend/
 ├── devops/
@@ -63,7 +63,7 @@ This is the lowest-lift change that solves the immediate need while establishing
 
 I numbered the screenshots to match their order in the handoff document and gave them descriptive names:
 
-```text/plain
+```plaintext
 01-initial-state.png
 02-autocomplete.png
 03-results-relevance.png
@@ -93,7 +93,7 @@ This cross-referencing reduces ambiguity. When the agent analyses the autocomple
 
 The `outputs/` folder is where the agent saves its deliverables:
 
-```text/plain
+```plaintext
 outputs/
 ├── state-machines.md
 ├── gap-report.md
@@ -195,7 +195,7 @@ I tend to let these accumulate during the active planning and development phases
 
 This folder structure is not specific to the store locator feature. Any feature with enough complexity to warrant a handoff document can follow the same pattern:
 
-```text/plain
+```plaintext
 docs/features/{feature-name}/
 ├── README.md
 ├── handoff.md

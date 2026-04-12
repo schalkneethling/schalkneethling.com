@@ -14,7 +14,7 @@ const { projects } = Astro.props;
   <p>A random selection from my GitHub repos, reshuffled with every deploy.</p>
   {
     projects.length > 0 ? (
-      <masonry-grid-lanes min-column-width="260" gap="16">
+      <masonry-grid-lanes min-column-width="260" gap="24">
         {projects.map((project) => (
           <ProjectCard
             name={project.name}

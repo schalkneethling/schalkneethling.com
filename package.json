@@ -24,6 +24,6 @@
     "@axe-core/playwright": "^4.11.1",
     "@playwright/test": "^1.59.1",
     "@varlock/1password-plugin": "^0.3.5",
-    "axe-core": "^4.11.2"
+    "axe-core": "^4.11.3"
   }
 }

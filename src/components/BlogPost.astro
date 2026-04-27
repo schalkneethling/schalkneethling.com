@@ -16,7 +16,7 @@ const formattedDate = new Date(post.data.pubDate).toLocaleDateString("en-US", {
   <article>
     <header>
       <h3 class="card-title">
-        <a href={`/posts/${post.slug}/`}>{post.data.title}</a>
+        <a href={`/posts/${post.id}/`}>{post.data.title}</a>
       </h3>
       <p class="card-pubdate">
         This post was published on <time datetime={post.data.pubDate.toISOString()}

@@ -1,16 +1,16 @@
 ---
-import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import Posts from "@components/Posts.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getPublishedPosts, sortPostsByPubDateDesc } from "../../lib/posts";
 
 export async function getStaticPaths() {
-  const allPosts = await getCollection("posts");
+  const allPosts = await getPublishedPosts();
   const uniqueTags = [...new Set(allPosts.map((post) => post.data.tags).flat())];
 
   return uniqueTags.map((tag) => {
-    const filteredPosts = allPosts.filter((post) =>
-      post.data.tags.includes(tag)
+    const filteredPosts = sortPostsByPubDateDesc(
+      allPosts.filter((post) => post.data.tags.includes(tag))
     );
 
     return {

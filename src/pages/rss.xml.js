@@ -1,12 +1,9 @@
 import rss from "@astrojs/rss";
-import { getCollection } from "astro:content";
+import { getPublishedPosts, sortPostsByPubDateDesc } from "../lib/posts";
 
 export async function GET(context) {
-  const posts = await getCollection("posts");
-  const sortedPosts = posts.toSorted(
-    (a, b) =>
-      new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime(),
-  );
+  const posts = await getPublishedPosts();
+  const sortedPosts = sortPostsByPubDateDesc(posts);
 
   return rss({
     title: "Schalk Neethling - Open Web, Open Source, and Web Accessibility",

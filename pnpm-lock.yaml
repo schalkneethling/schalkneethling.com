@@ -46,8 +46,8 @@ importers:
         specifier: ^0.3.5
         version: 0.3.5(varlock@0.7.4)
       axe-core:
-        specifier: ^4.11.3
-        version: 4.11.3
+        specifier: ^4.11.4
+        version: 4.11.4
       vitest:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@25.0.3)(vite@7.3.2(@types/node@25.0.3)(yaml@2.8.2))
@@ -914,8 +914,8 @@ packages:
     engines: {node: '>=22.12.0', npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
 
-  axe-core@4.11.3:
-    resolution: {integrity: sha512-zBQouZixDTbo3jMGqHKyePxYxr1e5W8UdTmBQ7sNtaA9M2bE32daxxPLS/jojhKOHxQ7LWwPjfiwf/fhaJWzlg==}
+  axe-core@4.11.4:
+    resolution: {integrity: sha512-KunSNx+TVpkAw/6ULfhnx+HWRecjqZGTOyquAoWHYLRSdK1tB5Ihce1ZW+UY3fj33bYAFWPu7W/GRSmmrCGuxA==}
     engines: {node: '>=4'}
 
   axobject-query@4.1.0:
@@ -2469,7 +2469,7 @@ snapshots:
 
   '@axe-core/playwright@4.11.2(playwright-core@1.59.1)':
     dependencies:
-      axe-core: 4.11.3
+      axe-core: 4.11.4
       playwright-core: 1.59.1
 
   '@babel/helper-string-parser@7.27.1': {}
@@ -3168,7 +3168,7 @@ snapshots:
       - uploadthing
       - yaml
 
-  axe-core@4.11.3: {}
+  axe-core@4.11.4: {}
 
   axobject-query@4.1.0: {}
 

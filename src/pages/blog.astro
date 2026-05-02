@@ -1,17 +1,14 @@
 ---
-import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Tags from "@components/Tags.astro";
 import Posts from "@components/Posts.astro";
+import { getPublishedPosts, sortPostsByPubDateDesc } from "../lib/posts";
 
 const pageTitle = "My thoughts, ideas, experiences, and ramblings";
 
-const posts = await getCollection("posts");
+const posts = await getPublishedPosts();
 const tags = [...new Set(posts.map((post) => post.data.tags).flat())];
-const sortedPosts = posts.toSorted(
-  (a, b) =>
-    new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
-);
+const sortedPosts = sortPostsByPubDateDesc(posts);
 ---
 
 <BaseLayout pageTitle={pageTitle}>

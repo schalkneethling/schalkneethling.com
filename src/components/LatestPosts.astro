@@ -1,13 +1,10 @@
 ---
-import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import Posts from "./Posts.astro";
+import { getPublishedPosts, sortPostsByPubDateDesc } from "../lib/posts";
 
-const posts = await getCollection("posts");
-const sortedPosts: CollectionEntry<"posts">[] = posts.toSorted(
-  (a, b) =>
-    new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
-);
+const posts = await getPublishedPosts();
+const sortedPosts: CollectionEntry<"posts">[] = sortPostsByPubDateDesc(posts);
 const latestPosts: CollectionEntry<"posts">[] = sortedPosts.slice(0, 3);
 ---
 

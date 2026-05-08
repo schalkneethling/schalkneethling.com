@@ -1,8 +1,26 @@
 ---
 import { render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
+import { existsSync } from "node:fs";
 import { getPublishedPosts } from "../../lib/posts";
 import MarkdownPostLayout from "../../layouts/MarkdownPostLayout.astro";
+
+const REPO_EDIT_BASE_URL = "https://github.com/schalkneethling/schalkneethling.com/edit/main/";
+
+function getPostSourcePath(postId: string) {
+  const markdownPath = `src/content/posts/${postId}.md`;
+  const mdxPath = `src/content/posts/${postId}.mdx`;
+
+  if (existsSync(new URL(`../../../${markdownPath}`, import.meta.url))) {
+    return markdownPath;
+  }
+
+  if (existsSync(new URL(`../../../${mdxPath}`, import.meta.url))) {
+    return mdxPath;
+  }
+
+  return markdownPath;
+}
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -18,8 +36,10 @@ interface Props {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const sourcePath = getPostSourcePath(post.id);
+const sourceEditUrl = `${REPO_EDIT_BASE_URL}${sourcePath}`;
 ---
 
-<MarkdownPostLayout frontmatter={post.data}>
+<MarkdownPostLayout frontmatter={post.data} sourceEditUrl={sourceEditUrl}>
   <Content />
 </MarkdownPostLayout>

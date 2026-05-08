@@ -2,7 +2,23 @@
 import BaseLayout from "./BaseLayout.astro";
 import Tags from "../components/Tags.astro";
 
-const { frontmatter } = Astro.props;
+interface Props {
+  frontmatter: {
+    author: string;
+    canonical?: string;
+    description: string;
+    image?: {
+      alt: string;
+      url: string;
+    };
+    pubDate: Date;
+    tags: string[];
+    title: string;
+  };
+  sourceEditUrl: string;
+}
+
+const { frontmatter, sourceEditUrl } = Astro.props as Props;
 const tags = frontmatter.tags;
 ---
 
@@ -28,6 +44,10 @@ const tags = frontmatter.tags;
     }
     <slot />
     <footer class="post-footer">
+      <p class="suggest-edit">
+        Spot something off or want to improve this article?
+        <a href={sourceEditUrl} rel="noopener noreferrer">Suggest an edit on GitHub</a>.
+      </p>
       <h2 class="visually-hidden">Tags</h2>
       <Tags tags={tags} />
     </footer>
@@ -61,5 +81,9 @@ const tags = frontmatter.tags;
     border-block-start: 1px solid var(--color-border);
     margin-block-start: var(--size-32, 2rem);
     padding-block-start: var(--size-24, 1.5rem);
+  }
+
+  .suggest-edit {
+    margin-block-end: var(--size-24, 1.5rem);
   }
 </style>

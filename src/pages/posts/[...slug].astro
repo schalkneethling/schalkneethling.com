@@ -4,6 +4,12 @@ import type { CollectionEntry } from "astro:content";
 import { getPublishedPosts } from "../../lib/posts";
 import MarkdownPostLayout from "../../layouts/MarkdownPostLayout.astro";
 
+const REPO_EDIT_BASE_URL = "https://github.com/schalkneethling/schalkneethling.com/edit/main/";
+
+function getPostSourcePath(filePath?: string) {
+  return filePath?.replace(/^src\//, "src/") ?? "";
+}
+
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
   return posts.map((post) => ({
@@ -18,8 +24,10 @@ interface Props {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const sourcePath = getPostSourcePath(post.filePath);
+const sourceEditUrl = `${REPO_EDIT_BASE_URL}${sourcePath}`;
 ---
 
-<MarkdownPostLayout frontmatter={post.data}>
+<MarkdownPostLayout frontmatter={post.data} sourceEditUrl={sourceEditUrl}>
   <Content />
 </MarkdownPostLayout>

@@ -299,7 +299,7 @@ Branded types aren't common in everyday TypeScript code. They add friction, and 
 
 **Distinguishing units.** `Milliseconds` vs `Seconds`, `Celsius` vs `Fahrenheit`, `Bytes` vs `Kilobytes`. If the Mars Climate Orbiter had branded types, the pounds-vs-newtons bug would have been a compile error. Probably...
 
-**Marking validated data.** A `SanitizedHTML` brand on a string means it's already been cleaned. A `ValidEmail` brand means the string passed validation, although this is likely too fine grained. The brand records that a process has been applied.
+**Marking validated data.** A `SanitizedHTML` brand on a string means it's already been cleaned. A `ValidEmail` brand means the string passed validation, although this is likely too fine-grained. The brand records that a process has been applied.
 
 **Spec-compliant parsers.** If you're implementing the WHATWG HTML tokenizer, for instance, Unicode code points and Unicode scalar values are both numbers, but the spec distinguishes them carefully. Branding makes that distinction compile-time checked.
 

@@ -273,4 +273,4 @@ I'd rather have ordinary CSS than alien CSS, every time. 👽
 
 ---
 
-_There's a companion tool — a fluid type playground — that lets you plug in MIN, MAX, W₁, and W₂ and watch the line, the clamp output, and a live preview all respond together. Worth playing with if any of the above still feels abstract._
+_There's a [companion tool, a fluid type playground](https://fluidtype.schalkneethling.com), that lets you plug in MIN, MAX, W₁, and W₂ and watch the line, the clamp output, and a live preview all respond together. Worth playing with if any of the above still feels abstract._

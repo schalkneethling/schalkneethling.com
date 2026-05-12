@@ -74,7 +74,7 @@ And I'd always treated it as a kind of incantation. Slope, interpolation, vibe. 
 
 It took me longer than I'd like to admit to see this, but once I did, everything clicked. The middle argument of `clamp()` is a **straight line** — the good old [slope-intercept form from high school algebra](https://www.khanacademy.org/math/algebra-basics/alg-basics-graphing-lines-and-slope/alg-basics-slope-intercept-form/a/introduction-to-slope-intercept-form):
 
-```
+```text
 y = m·x + b
 ```
 
@@ -94,7 +94,7 @@ And here's the insight that made the whole thing stop feeling like magic: **`2cq
 
 The unit `cqi` is defined as "1% of the container's inline size." So when I write `2cqi`, that's really:
 
-```
+```text
 2cqi = 2 × (container_width / 100) = 0.02 × container_width
 ```
 
@@ -123,7 +123,7 @@ This reframing changed how I thought about the tool. The knobs I actually turn a
 
 The formulas:
 
-```
+```text
 m = (MAX − MIN) / (W₂ − W₁) [in px/px]
 b = MIN − m × W₁            [in px]
 ```
@@ -132,7 +132,7 @@ b = MIN − m × W₁            [in px]
 
 Then to express the slope as `cqi` (multiplying by 100 because `cqi` is a percentage):
 
-```
+```text
 m_cqi = m × 100
 ```
 

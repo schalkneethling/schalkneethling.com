@@ -134,7 +134,7 @@ const key = await crypto.subtle.importKey(
 );
 ```
 
-We specify the raw format, convert our secret from a string into a [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) using [`TextEncoder.encode`](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder/encodeInto), set `extractable` to `false`, and limit usage to signing. If all goes well, we now have our `CryptoKey`.
+We specify the raw format, convert our secret from a string into a [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) using [`TextEncoder.encode`](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder/encode), set `extractable` to `false`, and limit usage to signing. If all goes well, we now have our `CryptoKey`.
 
 The next step is [`crypto.subtle.sign`](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/sign):
 

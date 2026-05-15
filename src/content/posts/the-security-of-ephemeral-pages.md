@@ -25,7 +25,7 @@ This was the critical issue that needed immediate attention.
 The first step to address this was to ensure the page routes include the following headers:
 
 ```toml
-Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
 Permissions-Policy = "camera=(), geolocation=(), microphone=(), payment=(), usb=()"
 Referrer-Policy = "no-referrer"
 X-Content-Type-Options = "nosniff"
@@ -235,7 +235,7 @@ As detailed earlier, the app shell now applies the following headers site-wide:
 
 ```toml
 [headers.values]
-Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
 Permissions-Policy = "camera=(), geolocation=(), microphone=(), payment=(), usb=()"
 Referrer-Policy = "no-referrer"
 X-Content-Type-Options = "nosniff"

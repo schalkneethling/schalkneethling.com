@@ -24,7 +24,7 @@
     "@astrojs/mdx": "^5.0.6",
     "@astrojs/rss": "^4.0.18",
     "@schalkneethling/masonry-gridlanes-wc": "^0.1.0",
-    "astro": "^6.3.1",
+    "astro": "^6.3.7",
     "astro-embed": "^0.13.0",
     "typescript": "^6.0.3",
     "varlock": "^1.2.0"

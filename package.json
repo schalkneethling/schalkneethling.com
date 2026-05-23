@@ -2,12 +2,20 @@
   "name": "schalkneethling.com",
   "type": "module",
   "version": "0.0.1",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "pnpm run generate:og && astro build",
+    "generate:og": "node scripts/generate-og-cards.mjs",
     "preview": "astro preview",
     "astro": "astro",
+    "typecheck": "astro check",
+    "test:a11y": "playwright test",
+    "a11y:viewer": "axe-aggregate-viewer ./full-report.json",
+    "a11y:viewer:standalone": "axe-aggregate-viewer ./full-report.json --standalone",
     "test:unit": "vitest run"
   },
   "dependencies": {
@@ -17,13 +25,14 @@
     "@schalkneethling/masonry-gridlanes-wc": "^0.1.0",
     "astro": "^6.3.1",
     "astro-embed": "^0.13.0",
-    "sharp": "^0.34.5",
     "typescript": "^6.0.3",
     "varlock": "^1.1.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
     "@playwright/test": "^1.59.1",
+    "@schalkneethling/axe-aggregate-reporter": "0.6.0",
+    "@schalkneethling/opengraph-cards-maker": "^0.1.0",
     "@varlock/1password-plugin": "^1.1.0",
     "axe-core": "^4.11.4",
     "vitest": "^4.1.5"

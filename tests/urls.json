@@ -1,34 +1,34 @@
 [
   {
     "title": "Homepage",
-    "url": "https://schalkneethling.com/"
+    "url": "/"
   },
   {
     "title": "Now",
-    "url": "https://schalkneethling.com/now"
+    "url": "/now"
   },
   {
     "title": "About",
-    "url": "https://schalkneethling.com/about"
+    "url": "/about"
   },
   {
     "title": "Contact",
-    "url": "https://schalkneethling.com/contact"
+    "url": "/contact"
   },
   {
     "title": "Blog",
-    "url": "https://schalkneethling.com/blog"
+    "url": "/blog"
   },
   {
     "title": "Projects",
-    "url": "https://schalkneethling.com/projects"
+    "url": "/projects"
   },
   {
     "title": "Build a profile page",
-    "url": "https://schalkneethling.com/posts/build-a-profile-page-html-css-part6-dialog-form-netlify"
+    "url": "/posts/build-a-profile-page-html-css-part6-dialog-form-netlify"
   },
   {
     "title": "HTML Dialog",
-    "url": "https://schalkneethling.com/posts/html-dialog-native-solution-for-accessible-modal-interactions"
+    "url": "/posts/html-dialog-native-solution-for-accessible-modal-interactions"
   }
 ]

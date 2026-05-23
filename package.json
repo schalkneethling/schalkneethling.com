@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "prebuild": "pnpm exec playwright install chromium",
+    "setup:playwright": "pnpm exec playwright install chromium",
     "build": "pnpm run generate:og && astro build",
     "generate:og": "node scripts/generate-og-cards.mjs",
     "preview": "astro preview",
@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
-    "@playwright/test": "^1.59.1",
+    "@playwright/test": "^1.60.0",
     "@schalkneethling/axe-aggregate-reporter": "0.6.0",
     "@schalkneethling/opengraph-cards-maker": "^0.1.0",
     "@varlock/1password-plugin": "^1.1.0",

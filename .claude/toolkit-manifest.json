@@ -1,0 +1,20 @@
+{
+  "commands": {},
+  "hooks": {},
+  "skills": {
+    "more-secure-dependabot-config": {
+      "hash": "7eafb6e",
+      "installedAt": "2026-05-23",
+      "linkedTo": [
+        ".claude/skills"
+      ]
+    },
+    "npm-publishing-best-practices": {
+      "hash": "7f379cf",
+      "installedAt": "2026-05-23",
+      "linkedTo": [
+        ".claude/skills"
+      ]
+    }
+  }
+}

@@ -11,7 +11,9 @@ export const test = base.extend<AxeTestFixture>({
     use: (r: () => AxeBuilder) => Promise<void>,
   ) => {
     const makeAxeBuilder = () =>
-      new AxeBuilder({ page }).withTags(["wcag22a", "wcag22aa"]);
+      new AxeBuilder({ page })
+        .options({ reporter: "v2" })
+        .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]);
     await use(makeAxeBuilder);
   },
 });

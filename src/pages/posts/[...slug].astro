@@ -26,8 +26,9 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 const sourcePath = getPostSourcePath(post.filePath);
 const sourceEditUrl = `${REPO_EDIT_BASE_URL}${sourcePath}`;
+const socialImage = `/og/posts/${post.id}.png`;
 ---
 
-<MarkdownPostLayout frontmatter={post.data} sourceEditUrl={sourceEditUrl}>
+<MarkdownPostLayout frontmatter={post.data} socialImage={socialImage} sourceEditUrl={sourceEditUrl}>
   <Content />
 </MarkdownPostLayout>

@@ -46,7 +46,7 @@ This is an Astro-based personal blog and website with the following key architec
 ### Testing & Quality
 
 - **Playwright Tests**: Accessibility-focused testing with custom axe-core integration
-- **Custom Reporter**: `tests/reporter/axe-aggregate-reporter.ts` for accessibility test results
+- **Accessibility Reporter**: `@schalkneethling/axe-aggregate-reporter` aggregates Playwright axe results
 - **Test Configuration**: Only runs on Chromium, focuses on a11y compliance
 
 ### Key Patterns

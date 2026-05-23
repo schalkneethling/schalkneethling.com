@@ -1,10 +1,12 @@
 # build output
 dist/
+public/og/
 # generated types
 .astro/
 
 # dependencies
 node_modules/
+.pnpm-store/
 
 # logs
 npm-debug.log*
@@ -22,5 +24,6 @@ pnpm-debug.log*
 
 # test artifacts
 playwright-report/
+reports/
 test-results/
 **/full-report.json

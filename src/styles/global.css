@@ -72,6 +72,12 @@ tbody code {
   color: inherit;
 }
 
+/* Improve Dracula comment token contrast in Shiki code blocks. */
+.astro-code.dracula span[style*="#6272A4"],
+.astro-code.dracula span[style*="#6272a4"] {
+  color: #9aa6d1 !important;
+}
+
 /* Ensure all table cell content is visible */
 tbody td,
 tbody td strong,

@@ -15,10 +15,11 @@ interface Props {
     tags: string[];
     title: string;
   };
+  socialImage?: string;
   sourceEditUrl: string;
 }
 
-const { frontmatter, sourceEditUrl } = Astro.props as Props;
+const { frontmatter, socialImage, sourceEditUrl } = Astro.props as Props;
 const tags = frontmatter.tags;
 ---
 
@@ -26,6 +27,7 @@ const tags = frontmatter.tags;
   customCanonical={frontmatter.canonical}
   pageDescription={frontmatter.description}
   pageTitle={frontmatter.title}
+  socialImage={socialImage}
 >
   <main class="u-container" id="main-content">
     <header class="post-header">

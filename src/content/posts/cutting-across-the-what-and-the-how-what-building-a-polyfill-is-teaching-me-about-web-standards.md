@@ -1,5 +1,5 @@
 ---
-title: "Cutting Across The What And The How: What Building A Polyfill Is Teaching Me About Web Standards"
+title: "The What And The How: What Building A Polyfill Is Teaching Me About Web Standards"
 pubDate: 2026-03-26
 description: "What happens when you try to implement two seemingly straightforward CSS features as a JavaScript polyfill? You discover that specifications are simple because they made hard decisions, and the complexity does not disappear; it just moves."
 author: "Schalk Neethling"

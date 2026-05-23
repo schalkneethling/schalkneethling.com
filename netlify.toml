@@ -1,0 +1,6 @@
+[build]
+  command = "pnpm run setup:playwright && pnpm run build"
+  publish = "dist"
+
+[build.environment]
+  PLAYWRIGHT_BROWSERS_PATH = "0"

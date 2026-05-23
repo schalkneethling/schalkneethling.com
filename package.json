@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
+    "prebuild": "pnpm exec playwright install chromium",
     "build": "pnpm run generate:og && astro build",
     "generate:og": "node scripts/generate-og-cards.mjs",
     "preview": "astro preview",

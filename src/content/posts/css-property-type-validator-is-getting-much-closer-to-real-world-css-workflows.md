@@ -6,7 +6,7 @@ author: "Schalk Neethling"
 tags: ["css", "tooling"]
 ---
 
-In my last update, I wrote about assignment-site validation for registered custom properties in the [CSS custom proerty validator](https://github.com/schalkneethling/css-property-type-validator). That was an important step, because it meant the validator could start checking whether authored values like `--brand-color: 10px` were compatible with the `@property` registration that defined them.
+In my last update, I wrote about assignment-site validation for registered custom properties in the [CSS custom property validator](https://github.com/schalkneethling/css-property-type-validator). That was an important step, because it meant the validator could start checking whether authored values like `--brand-color: 10px` were compatible with the `@property` registration that defined them.
 
 Since then, the project has grown in a few directions that make it feel much more like a real tool you can point at a CSS codebase, not just a proof of concept.
 

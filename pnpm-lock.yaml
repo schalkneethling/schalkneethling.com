@@ -40,8 +40,8 @@ importers:
         specifier: ^1.60.0
         version: 1.60.0
       '@schalkneethling/axe-aggregate-reporter':
-        specifier: 0.6.0
-        version: 0.6.0
+        specifier: 0.6.2
+        version: 0.6.2
       '@schalkneethling/opengraph-cards-maker':
         specifier: ^0.1.0
         version: 0.1.0(esbuild@0.27.7)
@@ -819,8 +819,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@schalkneethling/axe-aggregate-reporter@0.6.0':
-    resolution: {integrity: sha512-uo3RtNZoHe4I2U7vpCe+Y9oX+OXcViZT80kacDXOANPI8D8LZdI++YZHoID36baHpT38seziW6xJnYlhAeKrKw==}
+  '@schalkneethling/axe-aggregate-reporter@0.6.2':
+    resolution: {integrity: sha512-8BiTaHpkXP9L6gHzkSD7g+cZKcn+FEqOTT1OzsKvGuNgXZMbPDzByHl1QyToIEuaVK0vx8TAMp+Jw0Q72uUYYQ==}
     engines: {node: '>=24.8.0'}
     hasBin: true
 
@@ -3112,7 +3112,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.60.4':
     optional: true
 
-  '@schalkneethling/axe-aggregate-reporter@0.6.0': {}
+  '@schalkneethling/axe-aggregate-reporter@0.6.2': {}
 
   '@schalkneethling/masonry-gridlanes-wc@0.1.0':
     dependencies:

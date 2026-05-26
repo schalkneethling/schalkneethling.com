@@ -13,7 +13,7 @@ importers:
         version: 0.9.9(prettier@3.8.3)(typescript@6.0.3)
       '@astrojs/mdx':
         specifier: ^5.0.6
-        version: 5.0.6(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4))
+        version: 5.0.6(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0))
       '@astrojs/rss':
         specifier: ^4.0.18
         version: 4.0.18
@@ -22,10 +22,10 @@ importers:
         version: 0.1.0
       astro:
         specifier: ^6.3.7
-        version: 6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4)
+        version: 6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0)
       astro-embed:
         specifier: ^0.13.0
-        version: 0.13.0(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4))
+        version: 0.13.0(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0))
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -43,8 +43,8 @@ importers:
         specifier: 0.6.2
         version: 0.6.2
       '@schalkneethling/opengraph-cards-maker':
-        specifier: ^0.1.0
-        version: 0.1.0(esbuild@0.27.7)
+        specifier: ^0.1.1
+        version: 0.1.1(esbuild@0.27.7)
       '@varlock/1password-plugin':
         specifier: ^1.1.0
         version: 1.1.0(varlock@1.2.0)
@@ -53,7 +53,7 @@ importers:
         version: 4.11.4
       vitest:
         specifier: ^4.1.7
-        version: 4.1.7(vite@8.0.14(esbuild@0.27.7)(yaml@2.8.4))
+        version: 4.1.7(vite@8.0.14(esbuild@0.27.7)(yaml@2.9.0))
 
 packages:
 
@@ -827,9 +827,9 @@ packages:
   '@schalkneethling/masonry-gridlanes-wc@0.1.0':
     resolution: {integrity: sha512-E5OZF8DORpsqZ7RWNxmnh0qIF/hgjsZOW5S6FkJuoem2J1onItVbpCWHboFlklu1RauNH3WMVUgRZCDkLqebvw==}
 
-  '@schalkneethling/opengraph-cards-maker@0.1.0':
-    resolution: {integrity: sha512-s4wAjabN1bpITaZz2JcTUPZ5rlOHU1Hn5ceq0MP93vR9WIigHvWs5XUzTDBtChLSPg5sEbIsGwILXaYbUuMTlg==}
-    engines: {node: '>=24'}
+  '@schalkneethling/opengraph-cards-maker@0.1.1':
+    resolution: {integrity: sha512-mQRPEGu+srhy9NObkVmgHZ/DdeW5utIWlP/65874XFtuHKjoUHNmOCdlbSR2lLZd6iy9OqVRSH04GDq4VUKwWg==}
+    engines: {node: '24'}
     hasBin: true
 
   '@shikijs/core@4.1.0':
@@ -2447,6 +2447,11 @@ packages:
     engines: {node: '>= 14.6'}
     hasBin: true
 
+  yaml@2.9.0:
+    resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
   yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
@@ -2490,7 +2495,7 @@ snapshots:
     dependencies:
       '@astro-community/astro-embed-utils': 0.2.0
 
-  '@astro-community/astro-embed-integration@0.12.0(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4))':
+  '@astro-community/astro-embed-integration@0.12.0(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0))':
     dependencies:
       '@astro-community/astro-embed-bluesky': 0.2.1
       '@astro-community/astro-embed-gist': 0.1.0
@@ -2500,8 +2505,8 @@ snapshots:
       '@astro-community/astro-embed-vimeo': 0.3.12
       '@astro-community/astro-embed-youtube': 0.5.10
       '@types/unist': 3.0.3
-      astro: 6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4)
-      astro-auto-import: 0.5.1(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4))
+      astro: 6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0)
+      astro-auto-import: 0.5.1(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0))
       unist-util-select: 5.1.0
 
   '@astro-community/astro-embed-link-preview@0.3.1':
@@ -2598,12 +2603,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@5.0.6(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4))':
+  '@astrojs/mdx@5.0.6(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0))':
     dependencies:
       '@astrojs/markdown-remark': 7.1.2
       '@mdx-js/mdx': 3.1.1
       acorn: 8.16.0
-      astro: 6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4)
+      astro: 6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0)
       es-module-lexer: 2.1.0
       estree-util-visit: 2.0.0
       hast-util-to-html: 9.0.5
@@ -3118,11 +3123,11 @@ snapshots:
     dependencies:
       '@chenglou/pretext': 0.0.4
 
-  '@schalkneethling/opengraph-cards-maker@0.1.0(esbuild@0.27.7)':
+  '@schalkneethling/opengraph-cards-maker@0.1.1(esbuild@0.27.7)':
     dependencies:
       playwright: 1.60.0
-      vite: 8.0.14(esbuild@0.27.7)(yaml@2.8.4)
-      yaml: 2.8.4
+      vite: 8.0.14(esbuild@0.27.7)(yaml@2.9.0)
+      yaml: 2.9.0
     transitivePeerDependencies:
       - '@types/node'
       - '@vitejs/devtools'
@@ -3237,13 +3242,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.7(vite@8.0.14(esbuild@0.27.7)(yaml@2.8.4))':
+  '@vitest/mocker@4.1.7(vite@8.0.14(esbuild@0.27.7)(yaml@2.9.0))':
     dependencies:
       '@vitest/spy': 4.1.7
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.0.14(esbuild@0.27.7)(yaml@2.8.4)
+      vite: 8.0.14(esbuild@0.27.7)(yaml@2.9.0)
 
   '@vitest/pretty-format@4.1.7':
     dependencies:
@@ -3357,25 +3362,25 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro-auto-import@0.5.1(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4)):
+  astro-auto-import@0.5.1(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0)):
     dependencies:
       acorn: 8.16.0
-      astro: 6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4)
+      astro: 6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0)
 
-  astro-embed@0.13.0(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4)):
+  astro-embed@0.13.0(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0)):
     dependencies:
       '@astro-community/astro-embed-baseline-status': 0.2.2
       '@astro-community/astro-embed-bluesky': 0.2.1
       '@astro-community/astro-embed-gist': 0.1.0
-      '@astro-community/astro-embed-integration': 0.12.0(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4))
+      '@astro-community/astro-embed-integration': 0.12.0(astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0))
       '@astro-community/astro-embed-link-preview': 0.3.1
       '@astro-community/astro-embed-mastodon': 0.1.1
       '@astro-community/astro-embed-twitter': 0.5.11
       '@astro-community/astro-embed-vimeo': 0.3.12
       '@astro-community/astro-embed-youtube': 0.5.10
-      astro: 6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4)
+      astro: 6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0)
 
-  astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.8.4):
+  astro@6.3.7(lightningcss@1.32.0)(rollup@4.60.4)(yaml@2.9.0):
     dependencies:
       '@astrojs/compiler': 4.0.0
       '@astrojs/internal-helpers': 0.9.1
@@ -3427,8 +3432,8 @@ snapshots:
       unist-util-visit: 5.1.0
       unstorage: 1.17.5
       vfile: 6.0.3
-      vite: 7.3.3(lightningcss@1.32.0)(yaml@2.8.4)
-      vitefu: 1.1.3(vite@7.3.3(lightningcss@1.32.0)(yaml@2.8.4))
+      vite: 7.3.3(lightningcss@1.32.0)(yaml@2.9.0)
+      vitefu: 1.1.3(vite@7.3.3(lightningcss@1.32.0)(yaml@2.9.0))
       xxhash-wasm: 1.1.0
       yargs-parser: 22.0.0
       zod: 4.4.3
@@ -5017,7 +5022,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite@7.3.3(lightningcss@1.32.0)(yaml@2.8.4):
+  vite@7.3.3(lightningcss@1.32.0)(yaml@2.9.0):
     dependencies:
       esbuild: 0.27.7
       fdir: 6.5.0(picomatch@4.0.4)
@@ -5028,9 +5033,9 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
       lightningcss: 1.32.0
-      yaml: 2.8.4
+      yaml: 2.9.0
 
-  vite@8.0.14(esbuild@0.27.7)(yaml@2.8.4):
+  vite@8.0.14(esbuild@0.27.7)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
@@ -5040,16 +5045,16 @@ snapshots:
     optionalDependencies:
       esbuild: 0.27.7
       fsevents: 2.3.3
-      yaml: 2.8.4
+      yaml: 2.9.0
 
-  vitefu@1.1.3(vite@7.3.3(lightningcss@1.32.0)(yaml@2.8.4)):
+  vitefu@1.1.3(vite@7.3.3(lightningcss@1.32.0)(yaml@2.9.0)):
     optionalDependencies:
-      vite: 7.3.3(lightningcss@1.32.0)(yaml@2.8.4)
+      vite: 7.3.3(lightningcss@1.32.0)(yaml@2.9.0)
 
-  vitest@4.1.7(vite@8.0.14(esbuild@0.27.7)(yaml@2.8.4)):
+  vitest@4.1.7(vite@8.0.14(esbuild@0.27.7)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.7
-      '@vitest/mocker': 4.1.7(vite@8.0.14(esbuild@0.27.7)(yaml@2.8.4))
+      '@vitest/mocker': 4.1.7(vite@8.0.14(esbuild@0.27.7)(yaml@2.9.0))
       '@vitest/pretty-format': 4.1.7
       '@vitest/runner': 4.1.7
       '@vitest/snapshot': 4.1.7
@@ -5066,7 +5071,7 @@ snapshots:
       tinyexec: 1.1.2
       tinyglobby: 0.2.16
       tinyrainbow: 3.1.0
-      vite: 8.0.14(esbuild@0.27.7)(yaml@2.8.4)
+      vite: 8.0.14(esbuild@0.27.7)(yaml@2.9.0)
       why-is-node-running: 2.3.0
     transitivePeerDependencies:
       - msw
@@ -5206,6 +5211,8 @@ snapshots:
   yaml@2.7.1: {}
 
   yaml@2.8.4: {}
+
+  yaml@2.9.0: {}
 
   yargs-parser@21.1.1: {}
 

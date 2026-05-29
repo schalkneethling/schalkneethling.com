@@ -33,7 +33,7 @@
     "@axe-core/playwright": "^4.11.3",
     "@playwright/test": "^1.60.0",
     "@schalkneethling/axe-aggregate-reporter": "0.6.2",
-    "@schalkneethling/opengraph-cards-maker": "^0.1.0",
+    "@schalkneethling/opengraph-cards-maker": "^0.3.0",
     "@varlock/1password-plugin": "^1.1.0",
     "axe-core": "^4.11.4",
     "vitest": "^4.1.7"

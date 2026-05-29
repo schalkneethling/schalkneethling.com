@@ -1,0 +1,379 @@
+---
+title: "Live Page Content Updates with Supabase Realtime and Web Sockets"
+pubDate: 2026-05-28
+description: "How to use Supabase Realtime and Web Sockets to live-update page content in a single-page app."
+author: "Schalk Neethling"
+tags: ["frontend-engineering-explained"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+One of the great benefits of single-page apps are that they allow one to live-update discrete areas of an application as data changes. Open a dashboard in the morning, leave the tab pinned all day, and the app keeps humming along without the need for a full-page reload.
+
+Before [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) became widely supported, achieving anything resembling real-time communication on the web required creative workarounds built on top of HTTP's request-response model. The simplest approach was polling — firing off a request to the server at a fixed interval and handling changes if and when they arrived.
+
+This was predictably wasteful, so developers quickly moved to long polling ([often grouped under the "Comet" umbrella](https://infrequently.org/2006/03/comet-low-latency-data-for-the-browser/)), where the server would hold an open request until it actually had new data to send back. The moment the client received a response, it would immediately open another request, creating the illusion of a persistent connection. It worked, but it was fragile, resource-heavy, and a genuine pain to scale.
+
+The landscape shifted significantly with the arrival of two browser-native APIs. [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) (SSE), using the EventSource interface, gave us a standardised way for the server to push a stream of updates over a single HTTP connection — simple, automatic reconnection included, but unidirectional.
+
+For true bidirectional communication, WebSockets changed everything: a single TCP connection, upgraded from HTTP, supporting full-duplex messaging with minimal overhead. Today, WebSockets are the backbone of most real-time architectures, including [Supabase Realtime](https://supabase.com/docs/guides/realtime), which is what powers the approach described in this post.
+
+<BaselineStatus id="websockets" />
+
+> **Note**: [WebTransport API](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport_API) is expected to replace the WebSocket API for many applications, but is not yet as widely supported as WebSockets. With that said, it now (as of March 2026) being Baseline newly available, will likely start having a real impact on the landscape. From MDN Web Docs: "WebTransport is a versatile, low-level API that provides backpressure and many other features not supported by either WebSocket or WebSocketStream, such as unidirectional streams, out-of-order delivery, and unreliable data transmission via datagrams."
+
+<BaselineStatus id="webtransport" />
+
+As hinted at, for [Project Pulse](https://github.com/schalkneethling/project-pulse) I settled on leaning in to what my stack offers. The app is built in React, deployed on Netlify with PostgreSQL running on Supabase as the backend. This allowed me to compose together two Postgres extensions, a serverless function, and WebSockets to get updates sent to the client in near real-time.
+
+Why near real-time? For my purpose, there is no need for true real-time and so, the cron, runs every 30 minutes. However, this is a product choice, and you can choose to run the cron more frequently if that serves your needs better. As I also hit two external services with rate limits, I need to also be careful with how frequently I run the cron.
+
+## The shape of the pipeline
+
+Before we look at any code, here is what fires on a single tick:
+
+```
+pg_cron (*/30 * * * *)
+  → net.http_post(... bearer from vault.decrypted_secrets ...)
+    → /.netlify/functions/sync-all (service_role)
+      → upsert netlify_deploys / github_activity (atomic, ON CONFLICT)
+        → supabase_realtime publication
+          → useRealtimeSync postgres_changes event
+            → setPulseToast(true)
+              → <Toast> (popover, role="status")
+                → user clicks "Refresh data"
+                  → useProjects.refetch() → UI updates in place
+```
+
+Every thirty minutes, Postgres wakes itself up, makes an authenticated HTTP call to a Netlify Function, the function pulls fresh data from GitHub and Netlify and writes it back to Postgres, the row changes flow out over a WebSocket via Supabase Realtime, and the browser lets the user know there is an update. The user, not the app, decides when the UI updates.
+
+## Layer 1: scheduling inside the database with pg_cron
+
+The first reflex on a Netlify-hosted project is to reach for [Netlify Scheduled Functions](https://docs.netlify.com/functions/scheduled-functions/). They work, and they are a perfectly reasonable place to put a cron job. What pulled me toward [pg_cron](https://github.com/citusdata/pg_cron) instead is that the schedule lives next to the data it operates on.
+
+There is one source of truth, queryable via `select * from cron.job`, and it stays put even if the function platform changes underneath it.
+
+Enabling it is a one-liner:
+
+```sql
+create extension if not exists pg_cron;
+```
+
+We will come back to the actual `cron.schedule` call once we have somewhere to safely keep our secret. Speaking of which.
+
+## Layer 2: making HTTP calls from Postgres with pg_net
+
+`pg_cron` schedules SQL, not HTTP requests. Out of the box, a scheduled job can `update` a table, call a function, or run any other statement Postgres understands. It cannot, on its own, reach across the network to a Netlify Function. For that we need a second extension: [pg_net](https://supabase.com/docs/guides/database/extensions/pg_net), Supabase's asynchronous HTTP client for Postgres.
+
+> **Note**: I am flying a little closer to the sun here as this API is still in beta.
+
+From the docs:
+
+> It eliminates the need for servers to continuously poll for database changes and instead allows the database to proactively notify external resources about significant events.
+
+The "asynchronous" part is worth pausing on. When you call `net.http_post`, Postgres does not block the calling transaction while it waits for a response. The request is queued, a background worker dispatches it, and the response lands in a table called `net._http_response` whenever it arrives. That matters for two reasons. The first is that a slow Netlify Function cannot stall the cron job, hold a connection open, or interact badly with the rest of the database's workload. The second is that the response is durable — you can query it later to see what happened, which is invaluable when you are debugging a schedule that fires while you are not watching.
+
+The call itself reads like a HTTP request expressed in SQL:
+
+```sql
+select net.http_post(
+  url := 'https://your-site.netlify.app/.netlify/functions/sync-all',
+  headers := jsonb_build_object(
+    'Content-Type', 'application/json',
+    'Authorization', 'Bearer ' || <secret>
+  ),
+  body := '{}'::jsonb,
+  timeout_milliseconds := 60000
+);
+```
+
+A few things to notice. The `headers` argument is [a `jsonb` object](https://www.dbvis.com/thetable/json-vs-jsonb-in-postgresql-a-complete-comparison/), which is why we build it with `jsonb_build_object` rather than passing a raw string — it handles JSON serialisation for us, so there is no risk of malformed output, and it makes concatenating the bearer token with ordinary SQL straightforward. The `body` is also `jsonb`; here it is an empty object because the sync function does not need any input, but you could just as easily pass `jsonb_build_object('user_id', some_id)` if your endpoint expected a payload. The `timeout_milliseconds` argument gives the request a hard upper bound so a function cannot leave the entry sitting in the queue indefinitely.
+
+The function on the other end checks the `Authorization` header against an environment variable. If the bearer matches, it does its work and returns 200. If it does not, it returns 401 and the request is logged but ignored. There is no third party in the middle, no public callback URL that needs to tolerate the open internet, and no OAuth for what is fundamentally a server-to-server call.
+
+That just leaves one question: where does `<secret>` actually come from? You do not want it hard-coded in the cron job definition, because the schedule body is readable by anyone with `select` on `cron.job`. You do not want it in an environment variable on the database, because managed Postgres does not give you one. You want it encrypted at rest, decrypted only at the moment the job fires, and never written to a log. Which brings us to the secret.
+
+## A small detour: secrets on managed Supabase
+
+The first instinct is to stash the shared secret as a [GUC](https://www.postgresql.org/docs/current/runtime-config-custom.html) so that the cron body can read it with `current_setting('app.sync_all_secret')`:
+
+```sql
+alter database postgres set "app.sync_all_secret" = 'your-long-random-secret';
+```
+
+On managed Supabase, that fails with:
+
+```
+ERROR: 42501: permission denied to set parameter "app.sync_all_secret"
+```
+
+The `postgres` role on a managed instance does not own the cluster, so it cannot set custom parameters at the database level. The supported answer is [Supabase Vault](https://supabase.com/docs/guides/database/vault), an extension that gives you an encrypted secret store with a SQL surface:
+
+```sql
+select vault.create_secret(
+  'your-long-random-secret',
+  'sync_all_secret',
+  'Shared bearer used by the pg_cron job to call the sync-all Netlify function.'
+);
+```
+
+The cron body can now decrypt the secret inline on every tick by reading from the `vault.decrypted_secrets` view. The decrypted value never lives in `cron.job_run_details`, never lands in a log, and is never set as a session parameter that other queries can read.
+
+Putting it together, the schedule looks like this (the canonical version, with inspection and rotation queries, lives in [`supabase/009_realtime_and_cron.sql`](https://github.com/schalkneethling/project-pulse/blob/main/supabase/009_realtime_and_cron.sql) from line 76):
+
+```sql
+select cron.schedule(
+  'sync-all-activity',
+  '*/30 * * * *',
+  $$
+    select net.http_post(
+      url := 'https://<your-site>/.netlify/functions/sync-all',
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        'Authorization', 'Bearer ' || (
+          select decrypted_secret
+          from vault.decrypted_secrets
+          where name = 'sync_all_secret'
+        )
+      ),
+      body := '{}'::jsonb,
+      timeout_milliseconds := 60000
+    );
+  $$
+);
+```
+
+The Netlify side carries the exact same secret in a `SYNC_ALL_SECRET` environment variable. Two ends, one shared string, encrypted at rest on the database side.
+
+The committed migration also includes the operational glue I leaned on while wiring this up. The first question you will have, the moment the schedule goes live, is whether it is actually firing. `pg_cron` records every run in `cron.job_run_details`, so a small query tells you the last ten ticks at a glance:
+
+```sql
+select start_time, status, return_message
+from cron.job_run_details
+where jobid = (select jobid from cron.job where jobname = 'sync-all-activity')
+order by start_time desc
+limit 10;
+```
+
+The `status` column reads `succeeded` or `failed`, and `return_message` carries the Postgres-level error text if something went wrong inside the SQL body of the job. Note, this view tells you whether the *SQL* succeeded, which for our schedule means "did `net.http_post` queue the request without complaining". It does not tell you whether the Netlify Function on the other end actually returned 200. For that, we need to look at the response table that `pg_net` keeps:
+
+```sql
+select created, status_code, error_msg
+from net._http_response
+order by created desc
+limit 10;
+```
+
+This is where the asynchronous nature of `pg_net` pays off. Every request the cron job makes leaves a row here, with the HTTP status code, any error message, and a timestamp. A `401` tells you the bearer token is wrong on one side. A `500` tells you the function blew up. A row that never appears at all tells you the cron job is not firing in the first place. Between these two views, you can diagnose the entire pipeline from a SQL editor without ever leaving the database.
+
+The second operational concern is rotation. Shared secrets should not be permanent, and the workflow for rotating is simple. Update the Netlify environment variable, redeploy the function so the new value is in scope, and then update the Vault entry to match:
+
+```sql
+select vault.update_secret(
+  (select id from vault.secrets where name = 'sync_all_secret'),
+  '<new-value>'
+);
+```
+
+The cron job itself does not need to change. The next time it fires, the inline `select decrypted_secret from vault.decrypted_secrets` reads the new value, the bearer matches what the redeployed Netlify Function expects, and the pipeline carries on. No downtime, no schedule edit, no second cron job briefly running against the old secret. If you ever need to take the whole thing down, say, while you investigate something, a single `select cron.unschedule('sync-all-activity');` removes it cleanly, and re-running the `cron.schedule(...)` block puts it back.
+
+The reason I am dwelling on this is that operability is where home-grown push systems usually fall over. You build the happy path, it works, and then six months later something silently stops firing and you have nowhere to look. Here, the database is the source of truth for whether the job exists, when it last ran, what it returned, and what secret it is using.
+
+## Layer 3: the sync-all Netlify Function
+
+The function checks the bearer header, walks `user_settings`, and for each user with linked Netlify or GitHub tokens it fetches fresh activity and upserts it into the right table.
+
+There are two details worth lingering on.
+
+The first is timeouts. Each outbound `fetch` is wrapped in `AbortSignal.timeout(15_000)`. A user with a slow third-party API will not hold up everyone else, and a hung connection cannot cause the function to stall out past the platform's limit. Timeouts surface as `TimeoutError` or `AbortError` and are reported as `"timeout (retriable)"` so the next tick can quietly retry.
+
+The second is that the writes are atomic upserts:
+
+```javascript
+await supabase
+  .from("netlify_deploys")
+  .upsert(rows, { onConflict: "netlify_site_id" });
+```
+
+That `onConflict` only works because the migration adds the right unique constraints:
+
+```sql
+alter table public.netlify_deploys
+  add constraint netlify_deploys_site_id_key unique (netlify_site_id);
+
+alter table public.github_activity
+  add constraint github_activity_repo_id_key unique (github_repo_id);
+```
+
+The earlier version of this code did a `delete` followed by an `insert`. Between those two statements a connected client could see an empty result set. The upsert closes that window and removes a class of subtle bug that I would have hit eventually and spent a long evening tracking down.
+
+## Layer 4: how a row change becomes a WebSocket message
+
+It is tempting to assume Supabase Realtime is a wrapper around `LISTEN` and `NOTIFY`. It is not. Realtime taps into Postgres [logical replication](https://www.postgresql.org/docs/current/logical-replication.html), the same mechanism Postgres uses to stream changes to a replica. A separate Realtime server subscribes to that replication stream, filters the changes per client according to Row Level Security, and pushes them to the browser over a WebSocket.
+
+Setup is one line:
+
+```sql
+alter publication supabase_realtime add table public.netlify_deploys;
+alter publication supabase_realtime add table public.github_activity;
+```
+
+The reason this fits the use case better than a `pg_notify`-based design is that the events are per-row and respect RLS. The same WebSocket that one user is listening on will not see another user's row changes, because the Realtime server enforces RLS as if each subscribed client were running their own `select`. You do not have to invent a topic-naming scheme, you do not have to write a payload serialiser, and you do not have to glue a Node listener in front of `LISTEN`. The platform takes care of all that for you.
+
+It is worth pausing on what happens when a tick of the sync function upserts ten rows at once. Supabase Realtime fires ten `postgres_changes` events, one per row, and our handler calls `setPulseToast(true)` for every single one of them. The user does not see ten toasts. They see one. The reason is that `pulseToast` is a boolean, and React's `useState` setter compares the next value against the current one. Once the state has flipped to `true`, every subsequent `setPulseToast(true)` call is a no-op. The toast stays up until the user either dismisses it or clicks "Refresh data", at which point it resets to `false` and is ready to receive the next batch.
+
+If the user is reading the notification when another five rows change, those events also collapse harmlessly into the existing `true`. You do not need a debounce, you do not need a "pending changes" counter, and you do not need to deduplicate at the subscription layer. The reactive primitive does it for you.
+
+> **Note**: While writing and thinking through this, I changed my mind on this topic. Relying on the happy-accident that is the reactive primitive is not what you want in production systems. I have [filed a follow up ticket](https://github.com/schalkneethling/project-pulse/issues/48) to reconsider how this is done.
+
+## Layer 5: subscribing in the browser
+
+On the client, the subscription is a small custom hook:
+
+```javascript
+import { useEffect } from "react";
+import { supabase } from "../lib/supabase";
+
+export function useRealtimeSync(userId, onChange) {
+  useEffect(() => {
+    let channel = null;
+
+    if (userId) {
+      channel = supabase
+        .channel(`pulse-activity-${userId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "netlify_deploys",
+            filter: `user_id=eq.${userId}`,
+          },
+          (payload) => onChange?.({ source: "netlify", payload }),
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "github_activity",
+            filter: `user_id=eq.${userId}`,
+          },
+          (payload) => onChange?.({ source: "github", payload }),
+        );
+      channel.subscribe();
+    }
+
+    return () => {
+      if (channel) {
+        channel.unsubscribe();
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [userId, onChange]);
+}
+```
+
+A few things to notice. The channel name is namespaced by the user, which keeps things tidy if you ever inspect connections in the Supabase dashboard. The `filter` is enforced server-side, so a malicious client cannot subscribe to someone else's rows even if they tried. And the cleanup path is a single conditional block that both unsubscribes and removes the channel, so React's effect lifecycle never leaks a stale socket on re-render.
+
+## Layer 6: the Popover API as the natural choice for the toast
+
+When the change arrives, the app does not reload data. It tells the user data is available and lets them choose when to apply it. That respects the fact that the user might be in the middle of typing, or reading, or thinking, and a surprise refresh is terrible UX.
+
+The notification itself is a toast implemented using the [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API), which lets the platform do the heavy lifting:
+
+```jsx
+import { useEffect, useRef } from "react";
+
+const AUTO_DISMISS_MS = 10000;
+
+export function Toast({ message, actionLabel, onAction, onDismiss }) {
+  const popoverRef = useRef(null);
+
+  useEffect(() => {
+    const el = popoverRef.current;
+    if (!el) {
+      return;
+    }
+
+    el.showPopover();
+
+    const handleToggle = (event) => {
+      if (event.newState === "closed") {
+        onDismiss();
+      }
+    };
+    el.addEventListener("toggle", handleToggle);
+
+    const timer = setTimeout(() => {
+      if (el.matches(":popover-open")) {
+        el.hidePopover();
+      }
+    }, AUTO_DISMISS_MS);
+
+    return () => {
+      clearTimeout(timer);
+      el.removeEventListener("toggle", handleToggle);
+    };
+  }, [onDismiss]);
+
+  return (
+    <output
+      ref={popoverRef}
+      popover="auto"
+      aria-live="polite"
+    >
+      <span>{message}</span>
+      {actionLabel && (
+        <button
+          type="button"
+          onClick={() => {
+            onAction?.();
+            popoverRef.current?.hidePopover();
+          }}
+        >
+          {actionLabel}
+        </button>
+      )}
+    </output>
+  );
+}
+```
+
+<BaselineStatus id="popover" />
+
+One thing the current implementation gets wrong, and which I am tracking in [issue #49](https://github.com/schalkneethling/project-pulse/issues/49), is that it auto-dismisses after ten seconds. That default works for incidental confirmations like "Saved." but it is the wrong choice for an actionable notification. A user who sees the toast and decides to finish their sentence before refreshing returns to find the toast gone and their only option a full page reload. This destroys exactly the in-place state the rest of this pipeline preserves.
+
+The fix is to make the timer opt-in: callers who want auto-dismiss pass a duration, and the actionable pulse toast simply omits it. Because popovers are rendered as top-layer elements, there are no z-index shenanigans. Pressing escape to close or light dismissing the toast comes out of the box with the `popover` attribute.
+
+The `toggle` event tells me when the popover closes by any of those mechanisms, so I have exactly one code path for cleanup. The message is rendered as an [`<output>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output) element because it is the result of a computation the app just performed on behalf of the user, and the `aria-live="polite"` attribute ensures the announcement reaches assistive technology without interrupting whatever the user is already doing.
+
+> **Note**: You may not need to set `aria-live` explicitly. [Many browsers implement](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/output#accessibility) the `output` element as [an `aria-live` region](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Guides/Live_regions) by default.
+
+## Wiring it all together
+
+For all the moving parts behind it, the wire-up that turns this pipeline into a user-visible feature is two lines in `App.jsx`:
+
+```javascript
+const handleRealtimeChange = useCallback(() => setPulseToast(true), []);
+useRealtimeSync(user?.id, handleRealtimeChange);
+```
+
+That is the entire boundary between the data layer and the notification layer. Everything upstream — the cron schedule, the Vault lookup, the HTTP call, the upsert, the publication, the WebSocket — exists to make `handleRealtimeChange` fire at the right moment.
+
+## What the experience taught me
+
+The single most surprising thing about building this was how seamless this all fits together. The schedule, the HTTP call, the secret, the change-detection, the transport, and the notification all live in Postgres. We have a slight detour through our Netlify function, but then the transport is a WebSocket native to the browser. The notification is yet another set of native elements with everything we, and the user, needs already built in.
+
+That composability is the part worth taking away. If you have a long-session SPA and a Supabase-backed Postgres database, you have everything you need for server-pushed updates already. The pattern generalises far beyond syncing GitHub and Netlify activity. Any time the source of truth changes out-of-band, this same shape, schedule in the database, write to a published table, listen in the browser, nudge with a popover, gives the user an accessible way to stay in sync without ever losing their place.
+
+## Further Reading
+
+- [pg_cron](https://github.com/citusdata/pg_cron) — scheduled jobs inside Postgres
+- [pg_net on Supabase](https://supabase.com/docs/guides/database/extensions/pg_net) — async HTTP from SQL
+- [Supabase Vault](https://supabase.com/docs/guides/database/vault) — encrypted secret storage
+- [Supabase Realtime: Postgres Changes](https://supabase.com/docs/guides/realtime/postgres-changes)
+- [Postgres logical replication](https://www.postgresql.org/docs/current/logical-replication.html)
+- [Popover API on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API)
+- [`<output>` element on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output)
+- [ARIA live regions on MDN](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Live_Regions)

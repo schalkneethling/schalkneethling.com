@@ -43,8 +43,8 @@ importers:
         specifier: 0.6.2
         version: 0.6.2
       '@schalkneethling/opengraph-cards-maker':
-        specifier: ^0.1.0
-        version: 0.1.0(esbuild@0.27.7)
+        specifier: ^0.3.0
+        version: 0.3.0(esbuild@0.27.7)
       '@varlock/1password-plugin':
         specifier: ^1.1.0
         version: 1.1.0(varlock@1.2.0)
@@ -827,9 +827,9 @@ packages:
   '@schalkneethling/masonry-gridlanes-wc@0.1.0':
     resolution: {integrity: sha512-E5OZF8DORpsqZ7RWNxmnh0qIF/hgjsZOW5S6FkJuoem2J1onItVbpCWHboFlklu1RauNH3WMVUgRZCDkLqebvw==}
 
-  '@schalkneethling/opengraph-cards-maker@0.1.0':
-    resolution: {integrity: sha512-s4wAjabN1bpITaZz2JcTUPZ5rlOHU1Hn5ceq0MP93vR9WIigHvWs5XUzTDBtChLSPg5sEbIsGwILXaYbUuMTlg==}
-    engines: {node: '>=24'}
+  '@schalkneethling/opengraph-cards-maker@0.3.0':
+    resolution: {integrity: sha512-YLfXscHui/5c++xOz3qgU19S1SxLBoMxmqB8E/LBbmm8u2ASf4OxIhCww6FHex4NyWBawqOwDmAwLcGw+MBn7A==}
+    engines: {node: '24'}
     hasBin: true
 
   '@shikijs/core@4.1.0':
@@ -3118,7 +3118,7 @@ snapshots:
     dependencies:
       '@chenglou/pretext': 0.0.4
 
-  '@schalkneethling/opengraph-cards-maker@0.1.0(esbuild@0.27.7)':
+  '@schalkneethling/opengraph-cards-maker@0.3.0(esbuild@0.27.7)':
     dependencies:
       playwright: 1.60.0
       vite: 8.0.14(esbuild@0.27.7)(yaml@2.8.4)

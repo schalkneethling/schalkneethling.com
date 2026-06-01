@@ -1,0 +1,287 @@
+---
+title: "Lowering the Barrier to CSS @property Adoption"
+pubDate: 2026-06-01
+description: "CSS @property has been Baseline for almost two years, but most existing projects still do not use it. A small experiment in the CSS Property Type Validator generates a reviewable first draft of @property registrations from the custom properties you already have."
+author: "Schalk Neethling"
+tags: ["css", "tooling"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+[CSS `@property`](https://developer.mozilla.org/en-US/docs/Web/CSS/@property) has so many benefits that become more and more apparent once you spend some time with it. For example, by default, one cannot transition based on changes to the value of a custom property. This is because to the browser, it is unclear what the value of the custom property represents.
+
+Once you register a custom property, a new world opens up. Let us look at a quick example:
+
+```css
+button {
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.gradient {
+  background-image: linear-gradient(var(--angle), #b13bc4, #0000dc);
+  block-size: 5rem;
+  inline-size: 20rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gradient {
+    transition: --angle 1s linear;
+  }
+}
+
+.gradient:hover,
+.gradient:focus-visible {
+  --angle: 45deg;
+}
+```
+
+The line with our `transition` might look a little strange to some, and you may ask why not transition `background` or `background-image`? Those will not work, and right now, the above will also not work in a few subtle ways.
+
+Firstly, the initial colour for the background will be a light grey instead of the `linear-gradient`. We can solve that by providing a default fallback for the `--angle` custom property, or setting an initial value.
+
+```css
+.gradient {
+  background-image: linear-gradient(var(--angle, 0deg), #b13bc4, #0000dc);
+  block-size: 5rem;
+  inline-size: 20rem;
+}
+```
+
+However, you will notice that when you hover over the button, our gradient will instantly snap from `0deg` to `45deg`.
+
+```css
+@media (prefers-reduced-motion: no-preference) {
+  .gradient {
+    transition: --angle 1s linear;
+  }
+}
+```
+
+What we are asking the browser to do above is transition the custom property `--angle` over a one second duration linearly. As mentioned before though, the browser does not know how to animate or interpolate a value that it does not know the type of. This is where `@property` comes in:
+
+```css
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+```
+
+When you add this property registration to the code and hover over the button, you will now see that we get a rather beautiful, slow moving transition between `0deg` and our target `45deg`. This works because the browser now knows that it can safely treat the value of the `--angle` property as degrees of rotation and can therefore interpolate between the two.
+
+Another thing you may notice is that we are setting an initial value of `0deg`. This also means we no longer need the fallback we added earlier. To put it all together:
+
+```css
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+button {
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.gradient {
+  background-image: linear-gradient(var(--angle), #b13bc4, #0000dc);
+  block-size: 5rem;
+  inline-size: 20rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gradient {
+    transition: --angle 1s linear;
+  }
+}
+
+.gradient:hover,
+.gradient:focus-visible {
+  --angle: 45deg;
+}
+```
+
+We can now also go a step further and move our gradient stop colours into custom properties and type those as well. Because `initial-value` is [required according to the CSS specification](https://drafts.css-houdini.org/css-properties-values-api/#initial-value-descriptor) for any non-universal syntax, the `@property` rule itself can be the single source of truth for the starting values — no separate declaration at `:root` is required.
+
+```css
+@property --gradient-from {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #b13bc4;
+}
+
+@property --gradient-to {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #0000dc;
+}
+```
+
+Our final CSS is then the following:
+
+```css
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --gradient-from {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #b13bc4;
+}
+
+@property --gradient-to {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #0000dc;
+}
+
+button {
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.gradient {
+  background-image: linear-gradient(var(--angle), var(--gradient-from), var(--gradient-to));
+  block-size: 5rem;
+  inline-size: 20rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gradient {
+    transition: --angle 1s linear;
+  }
+}
+
+.gradient:hover,
+.gradient:focus-visible {
+  --angle: 45deg;
+}
+```
+
+That gives the browser, and developer tooling, much more information about what your custom properties are meant to be. A spacing token can be treated as a length. A brand token can be treated as a colour. Invalid values are rejected, and transitions and animations on custom properties become possible because the browser now knows how to interpolate between two values of the same type. Tools can start reasoning about whether a particular [`var()`](https://developer.mozilla.org/en-US/docs/Web/CSS/var) usage makes sense in the place where it appears.
+
+<BaselineStatus id="registered-custom-properties" />
+
+And yet, `@property` still does not feel like a default part of how most people write CSS. I do not think that is because developers do not care. I think it is because adoption has an adoption problem, especially on existing codebases.
+
+## The adoption problem
+
+Most projects that would benefit from `@property` already have custom properties. They have token files. They have component-level variables. They have themes. They have years of CSS written before typed custom properties were part of the conversation.
+
+So when do you commit to adding `@property` registrations to an existing project? How do you justify the time? How do you decide which custom properties are worth registering first? How do you avoid turning a useful platform feature into a migration project nobody has time for?
+
+All of that should sound familiar to most of us. The JavaScript ecosystem has lived with a version of this for years. Teams may want to adopt TypeScript, or even types via JSDoc, but adopting types in an existing codebase still has a cost. The question is rarely just "is this useful?" — it is also "how do we start without stopping everything else?"
+
+CSS has its own version of that now. Many of us are not yet used to thinking about types in CSS, and even when starting a new project it is easy to define custom properties as plain values and move on. Most CSS libraries and utility systems also do not ship with `@property` registrations today, so there is not yet a strong ecosystem norm to emulate.
+
+## A different first step
+
+I have been experimenting with a feature in [CSS Property Type Validator](https://github.com/schalkneethling/css-property-type-validator) that tries to make the first step smaller: generate a draft `properties.css` file from the custom properties already present in a codebase.
+
+Given CSS like this:
+
+```css
+:root {
+  --brand-color: red;
+  --space: 1px;
+}
+```
+
+the tool can infer conservative `@property` registrations and write them to a separate file:
+
+```css
+@property --brand-color {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: red;
+}
+
+@property --space {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 1px;
+}
+```
+
+The generated file is not meant to be magic, but a first reviewable step. The important part is that adoption becomes exploratory, and low-initial-effort, instead of all-or-nothing.
+
+## Why this belongs in the validator
+
+CSS Property Type Validator started as a way to validate `@property` registrations and check whether registered custom properties are used compatibly through `var()`. If `--spacing-md` is registered as a `<length>`, the validator can catch and flag when it is used in a place that expects an `<angle>`, such as in our earlier `linear-gradient` example.
+
+Generation feels like the other half of that workflow. Validation helps once you have typed custom properties. Generation helps you get there. The intended path looks something like this. First, generate a conservative first draft from existing CSS. Then review the generated `properties.css`. Link it into the project. Use validation to catch incompatible usage over time. The tool should not ask you to become a fully typed CSS project in one step. It should help you move in that direction gradually.
+
+## Trying the experiment
+
+The experimental generator is available through the CLI:
+
+```bash
+npx @schalkneethling/css-property-type-validator-cli generate "src/**/*.css"
+```
+
+By default, it writes to `properties.css` in the current working directory. You can choose a different output file:
+
+```bash
+css-property-type-validator generate "src/**/*.css" --out src/tokens/properties.css
+```
+
+You can also inspect the generated and review-needed candidates as JSON, which makes the output easy to consume programmatically or to diff in CI:
+
+```bash
+css-property-type-validator generate "src/**/*.css" --format json
+```
+
+The generator is intentionally conservative. It needs concrete authored custom property declarations:
+
+```css
+:root {
+  --brand-color: red;
+  --space: 1px;
+}
+```
+
+Alias tokens such as `--border-color: var(--brand-color)` can only be generated safely when the referenced token declarations are included in the input. If the tool cannot infer a registration with enough confidence, it asks for review.
+
+There is also a [web UI](https://typedcss-validator.schalkneethling.com) where you can paste or open CSS, switch to Generate mode, and preview the resulting `properties.css` side-by-side. That may be the easiest way to try the idea without committing to anything in a real project.
+
+## Two things worth knowing about typed values
+
+A natural follow-up question is whether [`transition-behavior: allow-discrete`](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-behavior) closes the gap for unregistered custom properties. It does not. `allow-discrete` lets properties with discrete animation behaviour, `display`, `content-visibility`, and yes, unregistered custom properties among them, participate in a transition, which matters for patterns like popovers and dialogs where `display: none` needs to coordinate with fading and movement. But `allow-discrete` does not turn discrete into continuous. The value still flips; it just flips in step with the transition timeline rather than being ignored by it. If you want a custom property to interpolate smoothly, `@property` is the only route.
+
+The second thing worth knowing is that `initial-value` is parsed strictly against the declared syntax. For `syntax: "<length>"`, an `initial-value: 0` is invalid: a bare `0` parses as a `<number>`, not a `<length>`, so the registration is ignored. You need a length unit, for example `0px`. The value must also be [computationally independent](https://drafts.css-houdini.org/css-properties-values-api/#computationally-independent), which the specification explains as follows:
+
+> For example, 5px is computationally independent, as converting it into a computed value doesn’t change it at all. Similarly, 1in is computationally independent, as converting it into a computed value relies only on the "global knowledge" that 1in is 96px, which can’t be altered or adjusted by anything in CSS. On the other hand, 3em is not computationally independent, because it relies on the value of font-size on the element (or the element’s parent). Neither is a value with a var() function, because it relies on the value of a custom property.
+
+Normal CSS lets you write `margin: 0` because the consuming property special-cases that, but `@property` parses `initial-value` against the declared syntax directly. The same applies to `<length-percentage>`, `<angle>`, `<time>`, and friends. It is a seemingly small thing, but it makes the point: typing here is real, not decorative.
+
+## What I need feedback on
+
+Typed custom properties are already useful today, and I suspect they will become more important as CSS gains more expressive authoring features. CSS [custom functions](https://developer.mozilla.org/en-US/docs/Web/CSS/@function) and mixins are on the horizon, and as the values flowing through custom properties, functions, and reusable patterns get richer, the case for constraining and reasoning about them gets stronger too. Mixin arguments in particular will benefit from typing to avoid subtle and hard-to-debug failures. For typed custom properties to become a normal part of CSS practice, we need adoption paths that meet existing projects where they are — which is what I am trying to feel out with this generator.
+
+On the output itself, I would love to hear whether the inferred `@property` registrations matched what you expected, which custom properties could not be inferred, and whether inline comments explaining why a particular type was chosen would make the result more useful to review.
+
+On the workflow, I am especially interested in whether this actually lowers the barrier to adopting `@property` in an existing project, what token patterns or theme structures or CSS library conventions the tool misses, and whether this belongs in the main CLI and Web UI or in a different surface entirely.
+
+Please share feedback on GitHub via [issue #98](https://github.com/schalkneethling/css-property-type-validator/issues/98). Even if the answer is "this is not useful for my codebase yet", that is helpful to know.
+
+My hope is that this becomes a practical on-ramp to typed custom properties: not a perfect automatic migration, but a way to make the first move easier.
+
+## Further reading
+
+- [MDN: `@property`](https://developer.mozilla.org/en-US/docs/Web/CSS/@property)
+- [MDN: Using CSS custom properties](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_cascading_variables/Using_CSS_custom_properties)
+- [MDN: Registering custom properties](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_properties_and_values_API/Registering_properties)
+- [CSS Properties and Values API Level 1 specification](https://drafts.css-houdini.org/css-properties-values-api/)
+- [`@property`: next-gen CSS variables now with universal browser support — web.dev](https://web.dev/blog/at-property-baseline)
+- [CSS Property Type Validator on GitHub](https://github.com/schalkneethling/css-property-type-validator)
+- [Feedback issue for the draft generator](https://github.com/schalkneethling/css-property-type-validator/issues/98)

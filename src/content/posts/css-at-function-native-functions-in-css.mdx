@@ -52,8 +52,8 @@ Sometimes the simplest functions are the most useful:
 Functions can define local variables, custom properties declared inside the function body. The scoping model here is worth understanding carefully, because it is more surprising than it first appears.
  
 ```css
-@function --transition-value(--duration <time>: 300ms) 
- 
+@function --transition-value(--duration <time>: 300ms) {
+  --easing: linear;
   result: var(--duration) var(--easing);
 }
  

@@ -1,0 +1,443 @@
+---
+title: "@function — Native Custom Functions in CSS"
+pubDate: 2026-06-08
+description: "CSS now has user-defined functions. No preprocessor, no JavaScript, but native @function with typed parameters, local variables, and conditional logic built right into your CSS."
+author: "Schalk Neethling"
+tags: ["css", "frontend-engineering-explained"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+One of the reasons we use functions in programming languages is to encapsulate logic and reuse it in multiple places in our code.
+
+The lack of this capability in CSS leads many engineers, especially those working on large CSS codebases, to reach for a CSS preprocessor. However, the [CSS Functions and Mixins Module Level 1](https://www.w3.org/TR/css-mixins-1/) changes this need fundamentally.
+
+The `@function` at-rule lets you define named, reusable functions directly in your stylesheets — complete with typed parameters, default values, locally-scoped variables, and even conditional branching via `@media`.
+
+<BaselineStatus id="function" />
+
+## Anatomy of a CSS Function
+
+<dl>
+  <dt>`@function`</dt>
+  <dd>The at-rule keyword that begins a custom function definition.</dd>
+  <dt>`--fluid-size`</dt>
+  <dd>The function name — must be a `<dashed-ident>` (starting with `--`), and is case-sensitive.</dd>
+  <dt>`(--min <length>, --max <length>, --w1 <length>: 20rem, --w2 <length>: 80rem)`</dt>
+  <dd>Parameters. Each is a dashed-ident optionally followed by a CSS type. If omitted, the type defaults to `*` (accepting any value). Parameters can also have default values (after the colon), making them optional at the call site. While not required, explicit types are recommended for the same reason you would type function signatures in any language.</dd>
+  <dt>`returns <length>`</dt>
+  <dd>The return type. Constrains what the `result` descriptor can resolve to. Defaults to `type(*)` if omitted. For compound types, use the `type()` function with a bar-separated union, e.g. `type(<length> | <percentage>)`.</dd>
+  <dt>`result: clamp(...);`</dt>
+  <dd>The result descriptor — the function's return value. Can reference parameters and local variables via `var()`, and can appear multiple times inside conditional rules like `@media` (last match wins).</dd>
+</dl>
+
+> **Note**: Most examples in this article use explicit types for both parameters and return values.
+
+## Example 1: Negation Helper
+
+Sometimes the simplest functions are the most useful:
+
+```css
+@function --negate(--value <length>) returns <length> {
+  result: calc(-1 * var(--value));
+}
+
+.pull-up {
+  margin-block-start: --negate(2rem);
+}
+```
+
+## Example 2: Local Variables and Scoping
+ 
+Functions can define local variables, custom properties declared inside the function body. The scoping model here is worth understanding carefully, because it is more surprising than it first appears.
+ 
+```css
+@function --transition-value(--duration <time>: 300ms) {
+  --easing: linear;
+  result: var(--duration) var(--easing);
+}
+ 
+.card {
+  transition: transform --transition-value();
+}
+ 
+.modal {
+  transition: opacity --transition-value(500ms);
+}
+```
+ 
+The `--easing` local variable defined here will not be visible to the calling element's styles. However, it is not strictly private in the way a local variable in JavaScript would be. The spec defines a [dynamic scoping model](https://www.w3.org/TR/css-mixins-1/#args) rather than a lexical one, which has three important consequences.
+ 
+> **Note**: The following examples are based on those on the [CSS Functions and Mixins Module Level 1 specification (Editor's Draft)](https://www.w3.org/TR/css-mixins-1/#args).
+ 
+First, a function can read local variables and parameters from any function higher up in the call stack. Here `--apply-shadow` sets a local `--blur` value and delegates to `--build-shadow`, which can see both `--color` (the parameter) and `--blur` (the local variable) even though neither was passed to it directly:
+ 
+```css
+@function --apply-shadow(--color <color>) {
+  --blur: 4px;
+  result: --build-shadow();
+}
+ 
+@function --build-shadow() returns <shadow> {
+  /* can access both --color and --blur from --apply-shadow */
+  result: 0 2px var(--blur) var(--color);
+}
+ 
+.card {
+  box-shadow: --apply-shadow(oklch(0 0 0 / 20%)); /* 0 2px 4px oklch(0 0 0 / 20%) */
+}
+```
+ 
+Second, custom properties defined at the call site are implicitly available inside the function and there is no need to pass them as arguments:
+ 
+```css
+@function --double-spacing() returns <length> {
+  result: calc(var(--space) * 2);
+}
+ 
+.section {
+  --space: 1rem;
+  gap: --double-spacing(); /* 2rem */
+}
+```
+ 
+Third, there is a clear priority order when names collide. Local variables shadow everything; function parameters shadow call-site custom properties; call-site custom properties are the fallback of last resort:
+ 
+```css
+@function --resolve-spacing(--gap, --padding) {
+  --padding: 2rem; /* local variable wins over the parameter */
+  result: calc(var(--margin) + var(--gap) + var(--padding));
+  /* --margin:  from call-site custom property (1rem)  */
+  /* --gap:     from function parameter (2rem)         */
+  /* --padding: from local variable (2rem)             */
+}
+ 
+.layout {
+  --margin: 1rem;
+  --gap: 0.5rem;    /* shadowed by the parameter */
+  --padding: 0.5rem; /* shadowed by the local variable */
+  inline-size: --resolve-spacing(2rem, 1rem); /* calc(1rem + 2rem + 2rem) = 5rem */
+}
+```
+ 
+This makes `@function` considerably more flexible than a strict closure model would allow, but it also means you need to be deliberate with naming. A function that reads a custom property implicitly from the call site is depending on an undeclared contract with its caller — useful, but something to document clearly.
+
+I also wonder whether some of this will simply be discouraged through linting rules, or perhaps not make it into the final specification. Time, and your feedback, will tell.
+
+## Example 3: Conditional Logic with `@media`
+
+The function body can also contain [conditional group rules](https://www.w3.org/TR/css-conditional-3/#conditional-group-rule). The function can return different values based on media conditions:
+ 
+```css
+@function --responsive-gap(--base <length>: 1rem) returns <length> {
+  result: var(--base);
+ 
+  @media (width >= 48rem) {
+    result: calc(var(--base) * 1.5);
+  }
+ 
+  @media (width >= 80rem) {
+    result: calc(var(--base) * 2);
+  }
+}
+ 
+.grid {
+  gap: --responsive-gap(0.75rem);
+}
+```
+ 
+Multiple `result` descriptors are valid. The browser evaluates all of them and the last one whose conditions are met wins. This is an important distinction from how functions work in JavaScript: there is no early return in CSS. Every `result` descriptor is always considered, which is why the unconditional base value must come *first*. If it came last, it would always win:
+ 
+```css
+/* ⚠️ Broken — the unconditional result always wins */
+@function --responsive-gap(--base <length>: 1rem) returns <length> {
+  @media (width >= 48rem) {
+    result: calc(var(--base) * 1.5);
+  }
+  result: var(--base); /* always evaluated last, always wins */
+}
+```
+ 
+This moves responsive logic *into* the function, keeping your component styles clean.
+
+## Example 4: A Fluid Typography Function
+
+Bringing it all together, here is a fluid typography function that uses `@function` to define a `clamp()` formula that scales with the viewport:
+
+> **Note**: If you read my previous [deep dive into the maths behind the `clamp()` formula](https://schalkneethling.com/posts/the-day-css-made-me-learn-algebra-and-i-liked-it/), this will look very familiar, and you can also see how powerful CSS functions can be.
+
+```css
+/* Define the function */
+@function --fluid-viewport-typescale(
+  --min <number>,
+  --max <number>,
+  --w1 <number>: 320,
+  --w2 <number>: 1280
+) {
+  --slope: calc((var(--max) - var(--min)) / (var(--w2) - var(--w1)) * 100);
+  --intercept: calc(var(--min) - (var(--slope) * var(--w1) / 100));
+  result: clamp(
+    calc(var(--min) * 1rem),
+    calc(var(--intercept) * 1rem + var(--slope) * 1vi),
+    calc(var(--max) * 1rem)
+  );
+}
+
+/* Use it */
+h1 {
+    font-size: --fluid-viewport-typescale(1.5, 3); 
+}
+
+h2 { 
+    font-size: --fluid-viewport-typescale(1.25, 2); }
+
+p  { 
+    font-size: --fluid-viewport-typescale(1, 1.25); 
+}
+```
+
+The default values for `--w1` and `--w2` mean you only need to pass the minimum and maximum sizes as needed. A definite win for clean, maintainable CSS.
+
+## How It Compares to Preprocessor Functions
+
+The key difference: preprocessor functions evaluate at **build time**, producing static output baked into the compiled stylesheet. CSS functions evaluate at **runtime**, so they can respond to the real viewport, user preferences, and custom property values at the moment of rendering. The `@media`-inside-a-function pattern shown earlier is simply impossible in any preprocessor, because the runtime context does not exist when the function runs.
+
+This is not always a negative thing. Sometimes what you need does not rely on value or rendering time. In these instances, a preprocessor could still be the right choice.
+
+### Can You Use This in Production?
+
+While `@function` and its soon-to-follow friends `@mixin` and `@apply` enhance developer ergonomics, there are definitely user experience benefits that will be unlocked as a result of this. When one considers implementing a specific design pattern, or feature, you need to consider:
+
+- Future maintenance cost
+- The impact on performance
+
+Often, these two alone can disqualify a user experience enhancement. With the ability to encapsulate logic in functions, you can avoid repeating yourself and unlock these user experience benefits. Let us take fluid typography for example. You could go with a fluid typescale similar to the following:
+
+```css
+:root {
+    --typo-size-xs: clamp(0.607rem, 0.535rem + 0.31vw, 0.781rem);
+    --typo-size-small: clamp(0.729rem, 0.643rem + 0.37vw, 0.937rem);
+    --typo-size-default: clamp(0.875rem, 0.771rem + 0.44vw, 1.125rem);
+    --typo-size-sm-md: clamp(1.05rem, 0.926rem + 0.53vw, 1.35rem);
+    --typo-size-md: clamp(1.26rem, 1.111rem + 0.64vw, 1.62rem);
+    --typo-size-lg: clamp(1.512rem, 1.333rem + 0.76vw, 1.944rem);
+    --typo-size-xl: clamp(1.815rem, 1.6rem + 0.92vw, 2.333rem);
+    --typo-size-xxl: clamp(2.177rem, 1.919rem + 1.1vw, 2.799rem);
+    --typo-size-display: clamp(2.613rem, 2.303rem + 1.32vw, 3.359rem);
+}
+
+h1 {
+  font-size: var(--typo-size-xxl);
+}
+```
+
+Now, let us imagine you also have some card containers where you need the typography to be fluid, but the base type scale is not quite going to work. Your card will become a container allowing you to use container queries, but the defined type scale uses hard-coded viewport-relative units. We would therefore need to define a separate set, for example:
+
+```css
+.Quote {
+  --min: 1.5;
+  --max: 2.25;
+  --w1: 252;
+  --w2: 432;
+  --slope-per-cqi: calc((var(--max) - var(--min)) / (var(--w2) - var(--w1)) * 100);
+  --intercept: calc(var(--min) - (var(--slope-per-cqi) * var(--w1) / 100));
+  font-size: clamp(
+    calc(var(--min) * 1rem),
+    calc(var(--intercept) * 1rem + var(--slope-per-cqi) * 1cqi),
+    calc(var(--max) * 1rem)
+  );
+}
+
+.Quote--small {
+  --min: 1.05;
+  --max: 1.35;
+  --w1: 252;
+  --w2: 432;
+  --slope-per-cqi: calc((var(--max) - var(--min)) / (var(--w2) - var(--w1)) * 100);
+  --intercept: calc(var(--min) - (var(--slope-per-cqi) * var(--w1) / 100));
+  font-size: clamp(
+    calc(var(--min) * 1rem),
+    calc(var(--intercept) * 1rem + var(--slope-per-cqi) * 1cqi),
+    calc(var(--max) * 1rem)
+  );
+}
+
+.Quote--large {
+  --min: 2.177;
+  --max: 2.799;
+  --w1: 252;
+  --w2: 432;
+  --slope-per-cqi: calc((var(--max) - var(--min)) / (var(--w2) - var(--w1)) * 100);
+  --intercept: calc(var(--min) - (var(--slope-per-cqi) * var(--w1) / 100));
+  font-size: clamp(
+    calc(var(--min) * 1rem),
+    calc(var(--intercept) * 1rem + var(--slope-per-cqi) * 1cqi),
+    calc(var(--max) * 1rem)
+  );
+}
+```
+
+And now we are starting to see the problem I hinted at earlier. The code is quickly getting out of hand and hard to maintain. Everything is also hard coded so, should you need to change either of the typescales this needs to happen in multiple places, and impacts every instance where the custom properties are used. It is not easy to override one or more of the inputs without copying yet more repetitive code.
+
+With the `@function` approach, we can encapsulate everything we need as follows:
+
+```css
+@function --fluid-viewport-typescale(
+  --min <number>,
+  --max <number>,
+  --w1 <number>: 320,
+  --w2 <number>: 1280
+) {
+  --slope: calc((var(--max) - var(--min)) / (var(--w2) - var(--w1)) * 100);
+  --intercept: calc(var(--min) - (var(--slope) * var(--w1) / 100));
+  result: clamp(
+    calc(var(--min) * 1rem),
+    calc(var(--intercept) * 1rem + var(--slope) * 1vi),
+    calc(var(--max) * 1rem)
+  );
+}
+
+@function --fluid-container-typescale(
+  --min <number>,
+  --max <number>,
+  --w1 <number>: 320,
+  --w2 <number>: 480
+) {
+  --slope: calc((var(--max) - var(--min)) / (var(--w2) - var(--w1)) * 100);
+  --intercept: calc(var(--min) - (var(--slope) * var(--w1) / 100));
+  result: clamp(
+    calc(var(--min) * 1rem),
+    calc(var(--intercept) * 1rem + var(--slope) * 1cqi),
+    calc(var(--max) * 1rem)
+  );
+}
+```
+
+Our root typescale now becomes:
+
+```css
+:root {
+    --typo-size-xs: --fluid-viewport-typescale(0.607, 0.781);
+    --typo-size-small: --fluid-viewport-typescale(0.729, 0.937);
+    --typo-size-default: --fluid-viewport-typescale(0.875, 1.125);
+    --typo-size-sm-md: --fluid-viewport-typescale(1.05, 1.35);
+    --typo-size-md: --fluid-viewport-typescale(1.26, 1.62);
+    --typo-size-lg: --fluid-viewport-typescale(1.512, 1.944);
+    --typo-size-xl: --fluid-viewport-typescale(1.815, 2.333);
+    --typo-size-xxl: --fluid-viewport-typescale(2.177, 2.799);
+    --typo-size-display: --fluid-viewport-typescale(2.613, 3.359);
+}
+
+h1 {
+  font-size: var(--typo-size-xxl);
+}
+```
+
+And our `Quote` styling becomes:
+
+```css
+.Quote {
+  font-size: --fluid-container-typescale(1.5, 2.25);
+}
+
+.Quote--small {
+  font-size: --fluid-container-typescale(1.05, 1.35);
+}
+
+.Quote--large {
+  font-size: --fluid-container-typescale(2.177, 2.799);
+}
+```
+
+Circling back to the question at the top of this section: Can I use this in production? The short answer is the one you might not want to hear: it depends.
+One way I am considering using it is for the exact use case above, fluid typography. You can also approach this in one of two ways, which will often be dictated by the design specification:
+
+1. Use it as a progressive enhancement.
+2. Ship the static fallback as the baseline and let `@function` take over in supporting browsers via the cascade.
+
+What do I mean by the latter? Consider the following:
+
+```css
+h1 {
+  font-size: clamp(1rem, 4vw, 2rem);
+  font-size: --fluid-viewport-typescale(1, 2);
+}
+```
+
+In supporting browsers you get a dynamically calculated slope and intercept between the `min` and `max` values. For everyone else you accept the imperfect baseline and pocket the win for yourself and your users in terms of code maintenance and performance. However, looking at the code I had to pause for a hot minute. Both the fallback and the enhanced `@function` version are computed on every viewport resize, even in supporting browsers. When we are talking about an entire type scale, what is the performance impact of executing essentially the same calculation twice in browsers that support `@function`?
+
+Thankfully, however, we are safe due to the CSS Object Model and how the [CSS value processing pipeline](https://www.w3.org/TR/css-cascade-4/#value-stages). The former is a lesson I learned while [implementing the polyfill for media element pseudo classes](https://schalkneethling.com/posts/the-process-of-shipping-the-css-media-pseudo-classes-polyfill/). Here is what is happening in non-supporting and supporting browsers:
+
+<BaselineStatus id="function" />
+
+### Firefox and Safari
+
+```css
+h1 {
+  font-size: clamp(1rem, 4vw, 2rem);
+  font-size: --fluid-viewport-typescale(1, 2);
+}
+```
+
+The above CSS is parsed to build up the CSSOM. During this process, the browser parses the declaration's value against the grammar for font-size, fails to match, and discards the entire declaration. 
+
+```css
+h1 {
+  font-size: clamp(1rem, 4vw, 2rem);
+}
+```
+
+We now enter the value processing pipeline with only the `clamp` variant. The value is collected during step one, and at step four of the pipeline, the relative units are converted to absolute units and the `clamp` function is evaluated to a single value. When the viewport changes, the browser needs to recalculate the value, so it reruns step four. But critically, _only_ for `clamp`.
+
+### Chromium-based browsers
+
+```css
+h1 {
+  font-size: clamp(1rem, 4vw, 2rem);
+  font-size: --fluid-viewport-typescale(1, 2);
+}
+```
+
+Here, parsing, tokenization, and grammar checking all work as expected. When the browser then needs to decide which value to use for the `font-size`, as there can only be one, it drops `clamp` and uses the `--fluid-viewport-typescale` function value instead. To be clear, `clamp` is not removed, it is simply not picked as the value and therefore never evaluated and used. Therefore, all of this is settled before any layout work is done. No double work.
+
+You can verify this directly by poking at the `CSSStyleDeclaration` using JavaScript:
+
+```js
+// Query what the browser actually kept
+const rule = document.styleSheets[0].cssRules[0];
+rule.style.getPropertyValue('font-size');
+
+// Supporting browser → "--fluid-viewport-typescale(1.5, 3)"
+// Non-supporting browser → "clamp(1.5rem, 4vw, 3rem)"
+```
+
+### Try it yourself
+
+Here is a [standalone test case](https://cssom.schalkneethling.com) you can open in any browser. It defines a stylesheet with duplicate declarations for the same properties. One using `@function`, one using a static fallback, and reads back what the CSSOM actually retained. It includes a control test (two valid `color` declarations) to confirm standard cascade behaviour alongside the `@function` test.
+
+Open it in Chrome (which supports `@function`) and you will see the function call wins and the fallback is gone. Open it in Firefox or Safari (which do not support `@function` yet) and you will see the opposite. The function call was stripped at parse time and only the fallback survived. In both cases, exactly one declaration per property exists in the CSSOM.
+
+### What about `@supports`?
+
+When it comes to `@supports` and `@function`, it is a bit of a chicken and egg situation. Traditional `@supports` tests **property: value** pairs. The newer `@supports at-rule(@function)` syntax from the [CSS Conditional Rules Level 5](https://drafts.csswg.org/css-conditional-5/) spec addresses this, but `@function` already has wider browser support than `@supports at-rule()` — the former landed in Chromium 139, the latter in Chromium 148, and neither Firefox nor Safari supports either feature yet. Gating on `@supports at-rule(@function)` therefore offers no additional cross-browser safety net over the cascade pattern, and means maintaining two complete branches for no practical gain.
+
+<BaselineStatus id="supports-at-rule" />
+
+I am really happy that this is starting to land in browsers and I look forward to experimenting more with `@function` and with `@mixin` and `@apply` once those are defined and start to land in browsers. What are some cases you see yourself using `@function` today or when there is wider browser support? Let me know.
+
+### Typo App
+
+If you have read this far, I have a little thank you gift for you. While we are on the topic of typography, I built a little webapp inspired by all the other type scale generators out there. This one has one little feature you might appreciate after having read this post. The app can do all the usual things you  would expect from a type scale generator, but it also allows you to opt in to responsive typography, _and_ adding a the fluid typography function we discussed here. All the CSS is then presented, ready to copy and paste into your project. I hope you find it useful. Should you run into any problems, please let me know by raising an issue on the [GitHub repository](https://github.com/schalkneethling/typo).
+
+[Create your type scale](https://typo.schalkneethling.com)
+
+## Sources & Further Reading
+
+- [W3C — CSS Functions and Mixins Module Level 1](https://www.w3.org/TR/css-mixins-1/)
+- [CSS Working Group Editor's Draft — CSS Custom Functions and Mixins](https://drafts.csswg.org/css-mixins/)
+- [MDN — @function at-rule reference](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@function)
+- [MDN — CSS custom functions and mixins guide](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Custom_functions_and_mixins)
+- [MDN — type() CSS function](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/type)
+- [Can I Use — CSS @function](https://caniuse.com/mdn-css_at-rules_function)
+- [CSSWG GitHub — Original proposal for Custom CSS Functions & Mixins (#9350)](https://github.com/w3c/csswg-drafts/issues/9350)
+- [Una Kravets — 5 Useful CSS functions using the new @function rule](https://una.im/5-css-functions/)

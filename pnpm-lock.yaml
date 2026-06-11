@@ -49,8 +49,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(varlock@1.4.0)
       axe-core:
-        specifier: ^4.11.4
-        version: 4.11.4
+        specifier: ^4.12.0
+        version: 4.12.0
       vitest:
         specifier: ^4.1.8
         version: 4.1.8(vite@8.0.14(esbuild@0.27.7)(yaml@2.8.4))
@@ -1041,6 +1041,10 @@ packages:
 
   axe-core@4.11.4:
     resolution: {integrity: sha512-KunSNx+TVpkAw/6ULfhnx+HWRecjqZGTOyquAoWHYLRSdK1tB5Ihce1ZW+UY3fj33bYAFWPu7W/GRSmmrCGuxA==}
+    engines: {node: '>=4'}
+
+  axe-core@4.12.0:
+    resolution: {integrity: sha512-FTavr/7Ba0IptwGOPxnQvdyW2tAsdLBMTBXz7rKH6xJ2skpyxpBxyHkDdBs4lf69yRqYpkqCdfhnwS8YULGOmg==}
     engines: {node: '>=4'}
 
   axobject-query@4.1.0:
@@ -3481,6 +3485,8 @@ snapshots:
       - yaml
 
   axe-core@4.11.4: {}
+
+  axe-core@4.12.0: {}
 
   axobject-query@4.1.0: {}
 

@@ -30,8 +30,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       varlock:
-        specifier: ^1.4.0
-        version: 1.4.0
+        specifier: ^1.5.1
+        version: 1.5.1
     devDependencies:
       '@axe-core/playwright':
         specifier: ^4.11.3
@@ -47,7 +47,7 @@ importers:
         version: 0.3.0(esbuild@0.27.7)
       '@varlock/1password-plugin':
         specifier: ^1.1.0
-        version: 1.1.0(varlock@1.4.0)
+        version: 1.1.0(varlock@1.5.1)
       axe-core:
         specifier: ^4.12.0
         version: 4.12.0
@@ -2182,8 +2182,8 @@ packages:
       uploadthing:
         optional: true
 
-  varlock@1.4.0:
-    resolution: {integrity: sha512-dVQyJlcZjTVnBiCs4/AyyH1pxPU+cqXSTauWcWFeKng6NrjX3y84klK1g2oiBHkfESOtzpkx/oYP7oJCGU4NuA==}
+  varlock@1.5.1:
+    resolution: {integrity: sha512-mJZGABXguQn4JHUm0ZkJpjffYZnmIe5oMyjPaMxsyYBsI1lsuvj8s2R4aq2bCLRz0glanjW7pYmIUSdyiqU2eQ==}
     engines: {bun: '>=1.3.3', node: '>=22'}
     hasBin: true
 
@@ -3274,9 +3274,9 @@ snapshots:
 
   '@ungap/structured-clone@1.3.1': {}
 
-  '@varlock/1password-plugin@1.1.0(varlock@1.4.0)':
+  '@varlock/1password-plugin@1.1.0(varlock@1.5.1)':
     dependencies:
-      varlock: 1.4.0
+      varlock: 1.5.1
 
   '@vitest/expect@4.1.8':
     dependencies:
@@ -5054,7 +5054,7 @@ snapshots:
       ofetch: 1.5.1
       ufo: 1.6.4
 
-  varlock@1.4.0: {}
+  varlock@1.5.1: {}
 
   vfile-location@5.0.3:
     dependencies:

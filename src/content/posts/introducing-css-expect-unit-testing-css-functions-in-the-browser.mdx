@@ -1,0 +1,241 @@
+---
+title: "css-expect: browser-backed unit tests for CSS custom functions"
+pubDate: 2026-06-12
+description: "css-expect enables you to write unit tests for your CSS @functions using the browser engine itself as the source of truth."
+author: "Schalk Neethling"
+tags: ["css", "testing", "frontend-engineering-explained"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+If you have been following my recent writing on [`@function` in CSS](https://schalkneethling.com/posts/css-at-function-native-functions-in-css/), you will know why I am excited about native CSS custom functions.
+
+They let us write reusable, parameterized logic directly in CSS. No Sass function, no build-time transform, no JavaScript parsing. Just CSS, evaluated by the browser.
+
+That immediately raises a question: if we can now write logic in CSS, how do we test that logic?
+
+## A familiar problem from a different angle
+
+Back when I was writing a great deal of Sass, particularly during my time on the MDN Web Docs design system at Mozilla, I leaned heavily on a library called [Sass True](https://www.oddbird.net/true/). It provided a structured way to write expectations against Sass functions and mixins, and it was invaluable for ensuring that complex design token logic worked as expected and did not regress as the codebase grew.
+
+The experience of having that safety net stayed with me. So when `@function` began landing in Chromium and the broader CSS Functions and Mixins specification began taking shape, I found myself looking for a similar tool for CSS. Turns out I may have stumbled upon a gap in our CSS toolset, so it was time to determine what is possible.
+
+`css-expect` is a first beta of a small browser-backed assertion library for CSS custom functions. It takes inspiration from the ergonomics of Sass True, but it does not parse, transform, compile, or emulate your CSS. Your CSS is loaded into a real browser, and expectations are checked against values computed by that browser.
+
+## CSS stays CSS
+
+Imagine a file called `functions.css`:
+
+```css
+@function --apply-shadow(--color <color>) {
+  --blur: 4px;
+  result: --build-shadow();
+}
+
+@function --build-shadow() {
+  result: 0 2px var(--blur) var(--color);
+}
+
+@function --double(--value <length>) returns <length> {
+  result: calc(var(--value) * 2);
+}
+
+@function --space-plus-gap(--value <length>) returns <length> {
+  result: calc(var(--value) + var(--gap));
+}
+```
+
+There are a few useful things happening here:
+
+- `--double()` returns a length.
+- `--apply-shadow()` calls another custom function.
+- `--build-shadow()` can access `--color` and `--blur` from the calling function context.
+- `--space-plus-gap()` uses a custom property from the call site.
+
+The test does not rewrite that CSS. It loads the file and asks the browser for the result.
+
+## Running expectations from a JS file
+
+You can start with a plain Node script:
+
+```js
+import { createCssExpect } from "@schalkneethling/css-expect";
+
+const css = await createCssExpect({
+  browser: "chromium",
+  files: ["./functions.css"],
+  unsupported: "skip",
+});
+
+try {
+  const support = await css.features();
+
+  if (!support.functionRules) {
+    console.log("Browser does not support CSS custom functions. Skipping expectations.");
+  } else {
+    console.log(`Browser supports CSS custom functions: ${support.functionRules}`);
+
+    await css.function("--double", ["4px"]).as("inline-size").equals("8px");
+
+    await css
+      .function("--apply-shadow", ["rgb(12, 90, 180)"])
+      .as("box-shadow")
+      .matches(matchesExpectedShadow);
+
+    await css
+      .function("--space-plus-gap", ["6px"])
+      .with({ "--gap": "2px" })
+      .as("margin-inline-start")
+      .equals("8px");
+
+    console.log("CSS function expectations passed.");
+  }
+} finally {
+  await css.close();
+}
+
+function matchesExpectedShadow(actual) {
+  // Check the stable parts of the computed box-shadow; browsers may include
+  // extra normalized values such as spread radius or reorder whitespace.
+  return actual.includes("rgb(12, 90, 180)") && actual.includes("0px 2px 4px");
+}
+```
+
+The `.as("inline-size")` and `.as("box-shadow")` calls matter. CSS custom functions are evaluated at computed-value time, and computed values only make sense in the grammar of a real CSS property. `css-expect` creates a test element, applies a generated rule using your function call, and reads the resulting value with `getComputedStyle()`.
+
+In other words, the browser is the source of truth.
+
+## Using css-expect inside Vitest
+
+A standalone script is useful for illustrating the idea, but most projects already have a test runner. `css-expect` is designed to fit into that workflow rather than trying to shoehorn yet another tool into it.
+
+Here is the same kind of test inside Vitest:
+
+```ts
+import { describe, expect, test } from "vitest";
+import { createCssExpect } from "@schalkneethling/css-expect";
+
+describe("functions.css", () => {
+  test("evaluates custom CSS functions in the browser", async () => {
+    const css = await createCssExpect({
+      browser: "chromium",
+      files: ["./functions.css"],
+      unsupported: "skip",
+    });
+
+    try {
+      if (!(await css.hasFunctions())) {
+        return;
+      }
+
+      await expect(
+        css.function("--double", ["4px"]).as("inline-size").equals("8px"),
+      ).resolves.toMatchObject({
+        actual: "8px",
+        passed: true,
+      });
+
+      await expect(
+        css
+          .function("--apply-shadow", ["rgb(12, 90, 180)"])
+          .as("box-shadow")
+          .matches(matchesExpectedShadow),
+      ).resolves.toMatchObject({
+        passed: true,
+      });
+
+      await expect(
+        css
+          .function("--space-plus-gap", ["6px"])
+          .with({ "--gap": "2px" })
+          .as("margin-inline-start")
+          .equals("8px"),
+      ).resolves.toMatchObject({
+        actual: "8px",
+        passed: true,
+      });
+    } finally {
+      await css.close();
+    }
+  });
+});
+
+function matchesExpectedShadow(actual: string) {
+  // Check the stable parts of the computed box-shadow; browsers may include
+  // extra normalized values such as spread radius or reorder whitespace.
+  return actual.includes("rgb(12, 90, 180)") && actual.includes("0px 2px 4px");
+}
+```
+
+That is the way I expect most users to use `css-expect`: keep your CSS in CSS files, keep your assertions in your existing test suite, and let the library handle the browser-backed evaluation.
+
+## Testing CSS context
+
+Because the CSS is running in a browser, you can also test function behavior that depends on the CSS context.
+
+For example:
+
+```css
+@function --space-plus-gap(--value <length>) returns <length> {
+  result: calc(var(--value) + var(--gap));
+}
+```
+
+And then:
+
+```ts
+await css
+  .function("--space-plus-gap", ["6px"])
+  .with({ "--gap": "2px" })
+  .as("margin-inline-start")
+  .equals("8px");
+```
+
+The `.with()` call sets custom properties at the call site. That means you can test the same function against different token values, cascade contexts, and eventually richer browser environments.
+
+## What happens under the hood
+
+The core flow is intentionally simple:
+
+1. `css-expect` launches a browser with Playwright.
+2. It loads your CSS file into a real document.
+3. For each expectation, it generates a temporary CSS rule that calls your function.
+4. It attaches a test element to the page.
+5. It reads the computed value from the browser.
+6. It compares that value with your expectation.
+
+## Browser support and skipping
+
+Native CSS custom functions are still experimental, and Chromium is the practical target for this beta.
+
+<BaselineStatus id="function" />
+
+For that reason, `css-expect` includes feature detection. You can ask for support directly:
+
+```ts
+const supportsFunctions = await css.hasFunctions();
+```
+
+You can also use `unsupported: "skip"` so unsupported function expectations return a skipped result instead of failing outright. There is already a follow-up issue to make this smoother in Vitest and other test runners: [Add helper for skipping unsupported CSS function tests](https://github.com/schalkneethling/css-expect/issues/9).
+
+## What is next
+
+This is an early beta, and the API will continue to evolve with the platform.
+
+A few follow-up areas are already tracked:
+
+- [Add first-class viewport resize API](https://github.com/schalkneethling/css-expect/issues/7)
+- [Expose Playwright media and environment emulation APIs](https://github.com/schalkneethling/css-expect/issues/8)
+
+The environment work is especially interesting because CSS functions can include conditional logic. Testing behavior across viewport sizes, color schemes, contrast preferences, and other media features is exactly the kind of thing that becomes possible when the browser is part of the test.
+
+## Try it
+
+If you are experimenting with `@function`, I would love for you to [try CSS-expect](https://github.com/schalkneethling/css-expect) it, break it, question the API, and open issues with feedback. This is the moment to shape the testing ergonomics around native CSS logic before patterns become settled by accident.
+
+## Further reading
+
+- [CSS Custom Functions and Mixins Module Level 1](https://drafts.csswg.org/css-mixins-1/)
+- [CSS custom functions (`@function`) on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@function)
+- [Sass True](https://www.oddbird.net/true/)
+- [Playwright documentation](https://playwright.dev/docs/intro)

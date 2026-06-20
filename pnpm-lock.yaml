@@ -46,8 +46,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0(esbuild@0.27.7)
       '@varlock/1password-plugin':
-        specifier: ^1.1.0
-        version: 1.1.0(varlock@1.6.1)
+        specifier: ^1.2.0
+        version: 1.2.0(varlock@1.6.1)
       axe-core:
         specifier: ^4.12.1
         version: 4.12.1
@@ -915,11 +915,11 @@ packages:
   '@ungap/structured-clone@1.3.1':
     resolution: {integrity: sha512-mUFwbeTqrVgDQxFveS+df2yfap6iuP20NAKAsBt5jDEoOTDew+zwLAOilHCeQJOVSvmgCX4ogqIrA0mnyr08yQ==}
 
-  '@varlock/1password-plugin@1.1.0':
-    resolution: {integrity: sha512-78olHIxWqRy4CAsVHdu4KHkKuqTmuG9w3IrpDZy+9ZjQvKkbA9I5zk9xvnxWTYxCfe0a4CcyiS0yd4WIlWmydA==}
+  '@varlock/1password-plugin@1.2.0':
+    resolution: {integrity: sha512-uRSiVW67/AXbmTfpIyTWF/hot/MVE6+uzt8i6SOyALXHj7bHFeMqJiHjRjbiKGXDD9s7y8WIZkkQRYDCaUCILw==}
     engines: {node: '>=22'}
     peerDependencies:
-      varlock: ^1.1.0
+      varlock: ^1.6.0
 
   '@vitest/expect@4.1.8':
     resolution: {integrity: sha512-h3nDO677RDLEGlBxyQ5CW8RlMThSKSRLUePLOx09gNIWRL40edgA1GCZSZgf1W55MFAG6/Sw14KeaAnqv0NKdQ==}
@@ -3240,7 +3240,7 @@ snapshots:
 
   '@ungap/structured-clone@1.3.1': {}
 
-  '@varlock/1password-plugin@1.1.0(varlock@1.6.1)':
+  '@varlock/1password-plugin@1.2.0(varlock@1.6.1)':
     dependencies:
       varlock: 1.6.1
 

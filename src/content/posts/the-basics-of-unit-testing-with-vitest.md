@@ -169,6 +169,8 @@ it("throws IllegalMoveError when cell is already occupied", () => {
 });
 ```
 
+> **Note**: You might be wondering: should `applyMove` also reject moves where the token does not match the current player's turn? The function does not check this, and that is a deliberate design choice. The legality of a move belongs to a separate concern — typically a `legalMoves` function or an `isLegalMove` helper — and `applyMove`'s responsibility is simply: given a move that the caller has already determined to be legal, apply it. Conflating the two would blur the function's contract and make every call site responsible for understanding the full legality model. The test suite reflects this: we test the `applyMove` contract, not the contract a complete tic-tac-toe engine would require, should the design decision be to move this validation into `applyMove`.
+
 ### Ensuring That the Function Stays Pure
 
 A note on the purity of the function. The two conditionals which throw are not reflected in the signature, so the function will not always return a value as advertised. That is really a totality concern rather than a purity one, though the strictest definition of purity tends to fold the two together by treating exceptions as a hidden output channel. Pragmatically, the function is deterministic, does not mutate its inputs, and reads no external state. Calling it pure here is fair.

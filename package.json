@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
-    "@playwright/test": "^1.61.0",
+    "@playwright/test": "^1.61.1",
     "@schalkneethling/axe-aggregate-reporter": "0.6.2",
     "@schalkneethling/opengraph-cards-maker": "^0.3.0",
     "@varlock/1password-plugin": "^1.2.0",

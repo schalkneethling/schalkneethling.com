@@ -27,7 +27,7 @@
     "astro": "^7.0.0",
     "astro-embed": "^0.13.0",
     "typescript": "^6.0.3",
-    "varlock": "^1.6.1"
+    "varlock": "^1.9.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",

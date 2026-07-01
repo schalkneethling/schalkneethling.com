@@ -77,7 +77,7 @@ The pattern itself is compact:
 
 ```js
 const text = "Prices: $9.99, €12,50, £8, ¥1200, ₹450, ₽300";
-[...text.matchAll(/\p{Sc}\s*[\d.,]+/gu)].map((match) => match[0]);
+[...text.matchAll(/\p{Sc}\s*\p{Nd}+(?:[.,]\p{Nd}+)*/gu)].map((match) => match[0]);
 // → ["$9.99", "€12,50", "£8", "¥1200", "₹450", "₽300"]
 ```
 
@@ -129,7 +129,7 @@ Four matches, each one a complete user-perceived emoji. The thumbs-up, the famil
 
 ### A few practical notes about `v`
 
-The `v` flag and the `u` flag are mutually exclusive on a single pattern. Trying to use both throws a `SyntaxError`. Because `v` is a strict superset of `u` in capability, there is rarely a reason to prefer `u` for new code once `v` enjoys wide enough browser support.
+The `v` flag and the `u` flag are mutually exclusive on a single pattern. Trying to use both throws a `SyntaxError`. `v` adds real capability on top of `u` — the set operations described below — but it is not a strict superset: `v` imposes stricter syntax rules inside character classes, so some patterns that are valid under `u` (an unescaped `[`, `]`, or `&` inside a class, for instance) throw under `v` and need to be rewritten. Even so, there is rarely a reason to prefer `u` for new code once `v` enjoys wide enough browser support.
 
 The `v` flag also enables set operations inside character classes, which is a significant capability in its own right. You can intersect property escapes (`[\p{Letter}&&\p{Script=Greek}]` for "letters that are also Greek"), subtract them (`[\p{Letter}--\p{ASCII}]` for "letters that are not ASCII"), and nest character classes inside other character classes. This is the syntactic upgrade that gives the flag its formal name, `unicodeSets`. The [V8 team's article on the `v` flag](https://v8.dev/features/regexp-v-flag) is a wonderful tour of the full capability if you want to go deeper.
 

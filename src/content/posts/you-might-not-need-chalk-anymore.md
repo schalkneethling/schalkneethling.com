@@ -76,8 +76,7 @@ That said, many modern terminal emulators disable or ignore blink entirely, and 
 
 ## Environment-aware by default
 
-One of the nicer details is that `styleText` respects the `NO_COLOR`, `NODE_DISABLE_COLORS`, and `FORCE_COLOR` environment variables out of the box. If a user or CI environment opts out of colour, your output gracefully falls back to plain text without any conditional logic on your part. You can also pass a `stream` option to validate against a specific output stream such as `process.stderr`.
-
+In Node.js v20.18.0+ and v22.8.0+, `styleText` respects the `NO_COLOR`, `NODE_DISABLE_COLORS`, and `FORCE_COLOR` environment variables. If a user or CI environment opts out of colour, your output gracefully falls back to plain text without any conditional logic on your part. You can also pass a `stream` option to validate against a specific output stream such as `process.stderr`.
 ## The official codemod
 
 The Node.js project has published an [official codemod to help with migration](https://nodejs.org/en/blog/migrations/chalk-to-styletext): `@nodejs/chalk-to-util-styletext`. It handles basic colours, bright colours, background colours, text modifiers, and style chaining via the array syntax. It will also remove `chalk` from your `package.json` for you.

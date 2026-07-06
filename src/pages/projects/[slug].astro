@@ -2,57 +2,135 @@
 import { getCollection } from "astro:content";
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getProjectStaticPaths } from "../../lib/projectPages";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
 
-  return projects.map((project) => ({
-    params: { slug: project.id },
-    props: { project },
-  }));
+  return getProjectStaticPaths(projects);
 }
 
 const { project } = Astro.props;
 const pageTitle = project.data.title;
 const pageDescription = project.data.description;
 const technologies = project.data.technologies ?? [];
+const whatAndWhy = project.data.whatAndWhy ?? project.data.description;
+const goalSummary =
+  project.data.goalSummary ??
+  "A fuller project goal summary is coming as this page is expanded from the repository docs.";
+const currentState =
+  project.data.currentState ??
+  "This project has a place in the curated list. The deeper status notes will be filled in as the starter project pages are completed.";
+const nextSteps = project.data.nextSteps ?? [
+  "Write the project-specific goal summary.",
+  "Connect the page to the repository documentation workflow.",
+];
+const contributionGuidance =
+  project.data.contributionGuidance ??
+  "Follow the repository for now. Contribution notes will become more specific as the project page is completed.";
+const projectLinks = [
+  {
+    href: project.data.repoUrl,
+    label: "Repository",
+  },
+  ...(project.data.liveUrl
+    ? [
+        {
+          href: project.data.liveUrl,
+          label: "Live project",
+        },
+      ]
+    : []),
+  ...(project.data.goalDocUrl
+    ? [
+        {
+          href: project.data.goalDocUrl,
+          label: "GOAL.md",
+        },
+      ]
+    : []),
+  ...(project.data.roadmapDocUrl
+    ? [
+        {
+          href: project.data.roadmapDocUrl,
+          label: "ROADMAP.md",
+        },
+      ]
+    : []),
+];
 ---
 
 <BaseLayout pageTitle={pageTitle} pageDescription={pageDescription}>
-  <main class="u-container" id="main-content">
+  <main class="u-container project-page" id="main-content">
     <p class="back-link"><a href="/projects">Back to What I want to exist</a></p>
-    <header class="project-header">
+    <header class="project-hero">
+      <p class="project-kicker">Project</p>
       <h1>{pageTitle}</h1>
-      <p class="project-description">{pageDescription}</p>
+      <p class="project-description">{whatAndWhy}</p>
+
+      <dl class="project-facts" aria-label="Project facts">
+        {
+          project.data.language && (
+            <>
+              <dt>Primary language</dt>
+              <dd>{project.data.language}</dd>
+            </>
+          )
+        }
+        <dt>Kind</dt>
+        <dd>{project.data.category === "demo" ? "Little demo" : "Open source project"}</dd>
+      </dl>
     </header>
 
-    {
-      technologies.length > 0 && (
-        <section aria-labelledby="technologies">
-          <h2 id="technologies">Technologies</h2>
+    <section class="project-section project-section--lead" aria-labelledby="goal">
+      <h2 id="goal">Goal</h2>
+      <p>{goalSummary}</p>
+    </section>
+
+    <div class="project-split">
+      <section class="project-section" aria-labelledby="current-state">
+        <h2 id="current-state">Where it is</h2>
+        <p>{currentState}</p>
+      </section>
+
+      <section class="project-section" aria-labelledby="next-steps">
+        <h2 id="next-steps">What comes next</h2>
+        <ul class="next-step-list">
+          {nextSteps.map((nextStep) => <li>{nextStep}</li>)}
+        </ul>
+      </section>
+    </div>
+
+    <section class="project-section" aria-labelledby="technologies">
+      <h2 id="technologies">Technologies used</h2>
+      {
+        technologies.length > 0 ? (
           <ul class="technology-list">
             {technologies.map((technology) => <li>{technology}</li>)}
           </ul>
-        </section>
-      )
-    }
+        ) : (
+          <p>Technology notes will be added as this project page is expanded.</p>
+        )
+      }
+    </section>
 
-    <section aria-labelledby="project-links">
+    <section class="project-section" aria-labelledby="contributing">
+      <h2 id="contributing">How people can get involved</h2>
+      <p>{contributionGuidance}</p>
+    </section>
+
+    <section class="project-section project-section--links" aria-labelledby="project-links">
       <h2 id="project-links">Project links</h2>
-      <ul>
-        <li>
-          <a href={project.data.repoUrl} rel="noopener noreferrer">
-            View the repository
-          </a>
-        </li>
+      <ul class="project-link-list">
         {
-          project.data.liveUrl && (
+          projectLinks.map((link) => (
             <li>
-              <a href={project.data.liveUrl} rel="noopener noreferrer">
-                Visit the live project
+              <a href={link.href} rel="noopener noreferrer">
+                {link.label}
+                <span aria-hidden="true">&rarr;</span>
               </a>
             </li>
-          )
+          ))
         }
       </ul>
     </section>
@@ -60,18 +138,89 @@ const technologies = project.data.technologies ?? [];
 </BaseLayout>
 
 <style>
+  .project-page {
+    --project-rule: var(--size-1) solid var(--color-border);
+  }
+
   .back-link {
     margin-block-end: var(--size-24);
   }
 
-  .project-header {
-    border-block-end: var(--size-1) solid var(--color-border);
-    margin-block-end: var(--size-32);
-    padding-block-end: var(--size-24);
+  .project-hero {
+    border-block-end: var(--project-rule);
+    display: grid;
+    gap: var(--size-24);
+    grid-template-columns: 1fr;
+    margin-block-end: var(--spacing-section-default);
+    padding-block-end: var(--size-32);
+  }
+
+  .project-kicker {
+    color: var(--color-accent);
+    font-size: var(--typography-sm-font-size);
+    font-weight: 700;
+    letter-spacing: 0;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .project-hero h1 {
+    margin-block: 0;
   }
 
   .project-description {
-    font-size: var(--typography-size-medium);
+    font-size: var(--typography-size-small-medium);
+    margin-block: 0;
+    max-inline-size: 64ch;
+  }
+
+  .project-facts {
+    border-inline-start: var(--size-4) solid var(--color-accent);
+    display: grid;
+    gap: var(--size-4) var(--size-16);
+    grid-template-columns: max-content 1fr;
+    margin: 0;
+    padding-inline-start: var(--size-16);
+  }
+
+  .project-facts dt {
+    color: var(--color-text-muted);
+    font-size: var(--typography-sm-font-size);
+  }
+
+  .project-facts dd {
+    margin: 0;
+  }
+
+  .project-section {
+    border-block-start: var(--project-rule);
+    padding-block-start: var(--size-24);
+  }
+
+  .project-section + .project-section,
+  .project-split + .project-section,
+  .project-section + .project-split {
+    margin-block-start: var(--spacing-section-default);
+  }
+
+  .project-section h2 {
+    margin-block-start: 0;
+  }
+
+  .project-section--lead {
+    border-block-start: 0;
+    padding-block-start: 0;
+  }
+
+  .project-split {
+    display: grid;
+    gap: var(--size-32);
+    grid-template-columns: 1fr;
+    margin-block-start: var(--spacing-section-default);
+  }
+
+  .next-step-list {
+    padding-inline-start: var(--size-24);
   }
 
   .technology-list {
@@ -86,5 +235,50 @@ const technologies = project.data.technologies ?? [];
     border: var(--size-1) solid var(--color-border);
     border-radius: var(--border-radius-default);
     padding: var(--size-4) var(--size-8);
+  }
+
+  .project-link-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--size-16);
+    list-style: none;
+    padding: 0;
+  }
+
+  .project-link-list a {
+    align-items: center;
+    border: var(--size-1) solid var(--color-border);
+    border-radius: var(--border-radius-default);
+    display: inline-flex;
+    gap: var(--size-8);
+    padding: var(--size-8) var(--size-12);
+    text-decoration: none;
+  }
+
+  .project-link-list a:hover,
+  .project-link-list a:focus-visible {
+    border-color: var(--color-accent);
+  }
+
+  @media (min-width: 48rem) {
+    .project-hero {
+      grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+    }
+
+    .project-kicker,
+    .project-hero h1,
+    .project-description {
+      grid-column: 1;
+    }
+
+    .project-facts {
+      align-self: end;
+      grid-column: 2;
+      grid-row: 2 / span 2;
+    }
+
+    .project-split {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
   }
 </style>

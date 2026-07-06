@@ -30,9 +30,16 @@ const projectsCollection = defineCollection({
     liveUrl: z.string().url().optional(),
     order: z.number().int().positive(),
     repoUrl: z.string().url(),
+    contributionGuidance: z.string().optional(),
+    currentState: z.string().optional(),
+    goalDocUrl: z.string().url().optional(),
+    goalSummary: z.string().optional(),
+    nextSteps: z.array(z.string()).optional(),
+    roadmapDocUrl: z.string().url().optional(),
     stars: z.number().int().nonnegative().optional(),
     technologies: z.array(z.string()).optional(),
     title: z.string(),
+    whatAndWhy: z.string().optional(),
   }),
 });
 

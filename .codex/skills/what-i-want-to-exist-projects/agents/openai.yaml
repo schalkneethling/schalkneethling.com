@@ -1,0 +1,4 @@
+interface:
+  display_name: "What I Want To Exist Projects"
+  short_description: "Maintain curated project pages"
+  default_prompt: "Use $what-i-want-to-exist-projects to add or update a project page."

@@ -43,7 +43,10 @@ const { heading, headingId, intro, minColumnWidth = 280, projects } =
   }
 
   masonry-grid-lanes {
+    display: block;
+    inline-size: 100%;
     margin-block-start: var(--size-24);
+    position: relative;
   }
 
   masonry-grid-lanes:not(:defined) {

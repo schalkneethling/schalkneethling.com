@@ -1,0 +1,53 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+import ProjectCard from "./ProjectCard.astro";
+
+interface Props {
+  heading: string;
+  headingId: string;
+  intro?: string;
+  minColumnWidth?: number;
+  projects: CollectionEntry<"projects">[];
+}
+
+const { heading, headingId, intro, minColumnWidth = 280, projects } =
+  Astro.props;
+---
+
+<section aria-labelledby={headingId}>
+  <h2 id={headingId} class="gradient-text">{heading}</h2>
+  {intro && <p>{intro}</p>}
+  <masonry-grid-lanes min-column-width={minColumnWidth} gap="24">
+    {
+      projects.map((project) => (
+        <ProjectCard
+          name={project.data.title}
+          description={project.data.description}
+          url={`/projects/${project.id}`}
+          language={project.data.language ?? null}
+          stars={project.data.stars ?? 0}
+          imageUrl={project.data.imageUrl ?? ""}
+          featured={project.data.category === "main"}
+          linkLabel="View project"
+        />
+      ))
+    }
+  </masonry-grid-lanes>
+</section>
+
+<style>
+  section {
+    margin-block-start: var(--spacing-section-large);
+  }
+
+  masonry-grid-lanes {
+    margin-block-start: var(--size-24);
+  }
+
+  masonry-grid-lanes:not(:defined) {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+</style>

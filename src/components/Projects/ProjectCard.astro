@@ -7,9 +7,10 @@ interface Props {
   stars: number;
   imageUrl: string;
   featured?: boolean;
+  linkLabel?: string;
 }
 
-const { name, description, url, language, stars, imageUrl, featured } =
+const { name, description, url, language, stars, imageUrl, featured, linkLabel } =
   Astro.props;
 ---
 
@@ -46,7 +47,7 @@ const { name, description, url, language, stars, imageUrl, featured } =
       </span>
     </footer>
     <a href={url} class="project-card-link">
-      View on GitHub <span aria-hidden="true">&rarr;</span>
+      {linkLabel ?? "View on GitHub"} <span aria-hidden="true">&rarr;</span>
     </a>
   </div>
 </article>

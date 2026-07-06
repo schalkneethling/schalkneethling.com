@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content";
 
 import ProjectCard from "./ProjectCard.astro";
+import { getProjectPath } from "../../lib/projectPages";
 
 interface Props {
   heading: string;
@@ -24,7 +25,7 @@ const { heading, headingId, intro, minColumnWidth = 280, projects } =
         <ProjectCard
           name={project.data.title}
           description={project.data.description}
-          url={`/projects/${project.id}`}
+          url={getProjectPath(project.id)}
           language={project.data.language ?? null}
           stars={project.data.stars ?? 0}
           imageUrl={project.data.imageUrl ?? ""}

@@ -1,0 +1,22 @@
+{
+  "id": "css-tree-ast-viewer",
+  "title": "css-tree-ast-viewer",
+  "repoUrl": "https://github.com/schalkneethling/css-tree-ast-viewer",
+  "refreshedAt": "2026-07-06T17:36:18.744Z",
+  "docs": {
+    "goal": {
+      "filename": "GOAL.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/css-tree-ast-viewer/master/GOAL.md",
+      "status": "missing",
+      "statusCode": 404,
+      "content": ""
+    },
+    "roadmap": {
+      "filename": "ROADMAP.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/css-tree-ast-viewer/master/ROADMAP.md",
+      "status": "missing",
+      "statusCode": 404,
+      "content": ""
+    }
+  }
+}

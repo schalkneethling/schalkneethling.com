@@ -11,6 +11,7 @@
     "setup:playwright": "pnpm exec playwright install chromium",
     "build": "pnpm run generate:og && astro build",
     "generate:og": "node scripts/generate-og-cards.mjs",
+    "refresh:project-docs": "node scripts/refresh-project-doc-cache.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check",

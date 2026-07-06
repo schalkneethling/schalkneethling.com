@@ -1,0 +1,22 @@
+{
+  "id": "css-expect",
+  "title": "css-expect",
+  "repoUrl": "https://github.com/schalkneethling/css-expect",
+  "refreshedAt": "2026-07-06T17:36:18.744Z",
+  "docs": {
+    "goal": {
+      "filename": "GOAL.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/css-expect/main/GOAL.md",
+      "status": "fetched",
+      "statusCode": 200,
+      "content": "# Project Goal\n\n## North Star\n\ncss-expect should make it practical to write small, trustworthy tests for native CSS custom functions, and eventually native CSS mixins, by asking a real browser for the computed result instead of emulating CSS in JavaScript.\n\n## Who This Is For\n\n- CSS library authors and design-system maintainers experimenting with native CSS custom functions.\n- Frontend engineers who want unit-test-style feedback for browser-evaluated CSS values.\n- Standards-aware tool builders who need diagnostics around emerging CSS features without introducing a parser, compiler, transpiler, or polyfill.\n\n## Core Goals\n\n- Provide a compact ESM API that can be used from Vitest, Vite+, Playwright-aware test suites, and other async JavaScript or TypeScript runners.\n- Evaluate CSS custom functions through real CSS properties and `getComputedStyle()`, so the selected browser engine remains the source of truth.\n- Support inline CSS and ordered CSS files so tests can cover both isolated snippets and reusable CSS modules.\n- Return clear expectation results and failure diagnostics, including generated CSS, browser details, feature support, expected values, and actual computed values.\n- Expose focused feature-support helpers for CSS functions, mixins, `@apply`, and available CSSOM metadata.\n\n## Success Looks Like\n\n- A user can install the package, load CSS, and assert a custom function result in a few lines of test code.\n- Tests fail because the browser computed a different value, not because css-expect guessed or reimplemented CSS semantics incorrectly.\n- Unsupported browser features produce actionable skip or failure diagnostics, depending on the configured policy.\n- The public API stays small, documented, typed, and stable enough for early adopters to use in real test suites.\n- Package checks, type checks, browser-backed tests, examples, and publishing checks pass before release.\n\n## Non-Goals\n\n- Not a CSS parser, compiler, transpiler, optimizer, polyfill, or way to make unsupported CSS features work in browsers that do not implement them.\n- Focused on testing CSS logic: custom function results now, and mixin return values when the platform supports them.\n- Not a replacement for Vitest, Playwright Test, or another test runner, and not a home for broad runner or framework-specific APIs.\n- Not a broad DOM assertion library, complete CSS feature-detection framework, or full suite of CSS assertions and expectations.\n- Avoids normalizing computed styles in ways that hide meaningful browser differences.\n- Defers large framework integrations until the core browser-backed expectation model is proven useful.\n\n## Principles and Constraints\n\n- The browser is authoritative. Prefer computed style and native CSSOM evidence over local interpretation.\n- Keep assertions property-aware. CSS custom functions are evaluated in a property grammar, so expectations should require callers to name the property under test.\n- Be explicit about experimental platform support. Chrome/Chromium is the currently validated target, while Firefox and WebKit options exist for future browser support.\n- Keep diagnostics useful for debugging test failures and emerging CSS feature support.\n- Keep the package install and publish path conservative: ESM output, generated types, ignored npm lifecycle scripts, pinned release checks, and trusted publishing.\n- Prefer a small dependency surface. Playwright is the runtime browser automation dependency; new dependencies should earn their place.\n\n## Current Focus\n\n- Validate the custom-function API against current Chromium support.\n- Preserve good behavior when browser support is missing by supporting both fail-fast and skip policies.\n- Keep examples and README usage aligned with the shipped API.\n- Prepare the package for a safe first public release.\n"
+    },
+    "roadmap": {
+      "filename": "ROADMAP.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/css-expect/master/ROADMAP.md",
+      "status": "missing",
+      "statusCode": 404,
+      "content": ""
+    }
+  }
+}

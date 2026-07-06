@@ -1,0 +1,22 @@
+{
+  "id": "css-media-pseudo-polyfill",
+  "title": "css-media-pseudo-polyfill",
+  "repoUrl": "https://github.com/schalkneethling/css-media-pseudo-polyfill",
+  "refreshedAt": "2026-07-06T17:36:18.744Z",
+  "docs": {
+    "goal": {
+      "filename": "GOAL.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/css-media-pseudo-polyfill/master/GOAL.md",
+      "status": "missing",
+      "statusCode": 404,
+      "content": ""
+    },
+    "roadmap": {
+      "filename": "ROADMAP.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/css-media-pseudo-polyfill/master/ROADMAP.md",
+      "status": "missing",
+      "statusCode": 404,
+      "content": ""
+    }
+  }
+}

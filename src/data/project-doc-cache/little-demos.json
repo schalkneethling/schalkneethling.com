@@ -1,0 +1,22 @@
+{
+  "id": "little-demos",
+  "title": "little-demos",
+  "repoUrl": "https://github.com/schalkneethling/little-demos",
+  "refreshedAt": "2026-07-06T17:36:18.744Z",
+  "docs": {
+    "goal": {
+      "filename": "GOAL.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/little-demos/master/GOAL.md",
+      "status": "missing",
+      "statusCode": 404,
+      "content": ""
+    },
+    "roadmap": {
+      "filename": "ROADMAP.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/little-demos/master/ROADMAP.md",
+      "status": "missing",
+      "statusCode": 404,
+      "content": ""
+    }
+  }
+}

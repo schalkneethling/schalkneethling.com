@@ -69,7 +69,7 @@ test("project detail pages render project artifacts and links", async ({
     page.getByRole("img", { name: "css-property-type-validator project card" }),
   ).toBeVisible();
   await expect(
-    page.getByLabel("Project facts").getByText("TypeScript"),
+    page.getByLabel("Technologies used").getByText("TypeScript"),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { exact: true, name: "Repository" }),

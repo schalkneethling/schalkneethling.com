@@ -13,9 +13,8 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 const pageTitle = project.data.title;
 const pageDescription = project.data.description;
+const projectNumber = project.data.order.toString().padStart(2, "0");
 const technologies = project.data.technologies ?? [];
-const projectKind =
-  project.data.category === "demo" ? "Little demo" : "Open source project";
 const whatAndWhy = project.data.whatAndWhy ?? project.data.description;
 const goalSummary =
   project.data.goalSummary ??
@@ -27,9 +26,6 @@ const nextSteps = project.data.nextSteps ?? [
   "Write the project-specific goal summary.",
   "Connect the page to the repository documentation workflow.",
 ];
-const contributionGuidance =
-  project.data.contributionGuidance ??
-  "Follow the repository for now. Contribution notes will become more specific as the project page is completed.";
 const projectLinks = [
   {
     href: project.data.repoUrl,
@@ -63,13 +59,34 @@ const projectLinks = [
 ---
 
 <BaseLayout pageTitle={pageTitle} pageDescription={pageDescription}>
-  <main class="u-container project-page" id="main-content">
-    <p class="back-link"><a href="/projects">Back to What I want to exist</a></p>
-    <header class="project-hero">
-      <div class="project-hero-copy">
-        <p class="project-kicker">Project dossier</p>
-        <h1>{pageTitle}</h1>
-        <p class="project-description">{whatAndWhy}</p>
+  <main class="project-page" id="main-content">
+    <div class="project-shell">
+      <p class="back-link"><a href="/projects">Back to What I want to exist</a></p>
+
+      <header class="project-hero">
+        <div class="project-hero-copy">
+          <p class="project-kicker">
+            <span>Existence file</span>
+            <span aria-hidden="true">{projectNumber}</span>
+          </p>
+          <h1>{pageTitle}</h1>
+          <p class="project-description">{whatAndWhy}</p>
+        </div>
+
+        <aside class="project-hero-rail" aria-label="Project summary">
+          {
+            project.data.imageUrl && (
+              <figure class="project-artifact">
+                <img
+                  src={project.data.imageUrl}
+                  alt={`${pageTitle} project card`}
+                  loading="eager"
+                />
+                <figcaption>{pageTitle} artifact</figcaption>
+              </figure>
+            )
+          }
+        </aside>
 
         <ul class="project-action-list" aria-label="Project links">
           {
@@ -83,129 +100,120 @@ const projectLinks = [
             ))
           }
         </ul>
-      </div>
+      </header>
 
-      <aside class="project-hero-rail" aria-label="Project summary">
-        {
-          project.data.imageUrl && (
-            <figure class="project-artifact">
-              <img
-                src={project.data.imageUrl}
-                alt={`${pageTitle} project card`}
-                loading="eager"
-              />
-              <figcaption>Project artifact</figcaption>
-            </figure>
-          )
-        }
-
-        <dl class="project-facts" aria-label="Project facts">
+      <section class="project-goal" aria-labelledby="goal">
+        <div>
+          <h2 id="goal">Goal</h2>
+          <p class="project-goal-summary">{goalSummary}</p>
           {
-            project.data.language && (
-              <>
-                <dt>Primary language</dt>
-                <dd>{project.data.language}</dd>
-              </>
+            technologies.length > 0 && (
+              <ul class="technology-list" aria-label="Technologies used">
+                {technologies.map((technology) => <li>{technology}</li>)}
+              </ul>
             )
           }
-          <dt>Kind</dt>
-          <dd>{projectKind}</dd>
-        </dl>
-      </aside>
-    </header>
-
-    <section class="project-goal" aria-labelledby="goal">
-      <p class="section-kicker">What it is trying to make true</p>
-      <h2 id="goal">Goal</h2>
-      <p>{goalSummary}</p>
-    </section>
-
-    <div class="project-status-grid">
-      <section class="project-section project-section--status" aria-labelledby="current-state">
-        <p class="section-kicker">Now</p>
-        <h2 id="current-state">Where it is</h2>
-        <p>{currentState}</p>
+        </div>
       </section>
 
-      <section class="project-section project-section--next" aria-labelledby="next-steps">
-        <p class="section-kicker">Next</p>
-        <h2 id="next-steps">What comes next</h2>
-        <ul class="next-step-list">
-          {nextSteps.map((nextStep) => <li>{nextStep}</li>)}
-        </ul>
-      </section>
-    </div>
+      <div class="project-status-grid">
+        <section class="project-section project-section--status" aria-labelledby="current-state">
+          <p class="section-kicker">Now</p>
+          <h2 id="current-state">Where it is</h2>
+          <p>{currentState}</p>
+        </section>
 
-    <div class="project-detail-grid">
-      <section class="project-section project-section--tools" aria-labelledby="technologies">
-        <p class="section-kicker">Materials</p>
-        <h2 id="technologies">Technologies used</h2>
-        {
-          technologies.length > 0 ? (
-            <ul class="technology-list">
-              {technologies.map((technology) => <li>{technology}</li>)}
-            </ul>
-          ) : (
-            <p>Technology notes will be added as this project page is expanded.</p>
-          )
-        }
-      </section>
-
-      <section class="project-section project-section--contributing" aria-labelledby="contributing">
-        <p class="section-kicker">Invitation</p>
-        <h2 id="contributing">How people can get involved</h2>
-        <p>{contributionGuidance}</p>
-        <a class="contribution-link" href={project.data.repoUrl} rel="noopener noreferrer">
-          Visit the repository
-          <span aria-hidden="true">&rarr;</span>
-        </a>
-      </section>
+        <section class="project-section project-section--next" aria-labelledby="next-steps">
+          <p class="section-kicker">Next</p>
+          <h2 id="next-steps">What comes next</h2>
+          <ul class="next-step-list">
+            {nextSteps.map((nextStep) => <li>{nextStep}</li>)}
+          </ul>
+        </section>
+      </div>
     </div>
   </main>
 </BaseLayout>
 
 <style>
   .project-page {
-    --project-rule: var(--size-1) solid var(--color-border);
-    --project-rail-size: 24rem;
+    --project-blue: light-dark(#0342a4, #82a1d5);
+    --project-ink: light-dark(#161616, #f8f6ff);
+    --project-line: light-dark(#cacfe0, #43495e);
+    --project-magenta: light-dark(#b04198, #f090d2);
+    --project-panel: light-dark(#ffffff, #202024);
+    --project-paper: light-dark(#f8fbff, #161619);
+    --project-rule: 1px solid var(--project-line);
+    --project-rail-size: 26rem;
+    background: var(--project-paper);
+    color: var(--project-ink);
+    margin-block-end: var(--size-80);
+    overflow: hidden;
+  }
+
+  .project-shell {
+    inline-size: min(72rem, calc(100% - var(--size-32)));
+    margin-inline: auto;
+    padding-block: var(--size-24) var(--size-80);
   }
 
   .back-link {
-    margin-block-end: var(--size-32);
+    font-family: var(--minimalist-typography-code-family);
+    font-size: var(--typography-sm-font-size);
+    margin-block: 0 var(--size-24);
+    text-transform: lowercase;
+  }
+
+  .back-link a {
+    align-items: center;
+    background: var(--project-panel);
+    border: var(--project-rule);
+    border-radius: var(--border-radius-default);
+    display: inline-flex;
+    min-block-size: 2.5rem;
+    padding: var(--size-6) var(--size-12);
+    text-decoration: none;
   }
 
   .project-hero {
     align-items: start;
-    border-block-end: var(--size-4) solid var(--color-accent);
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--project-blue) 14%, transparent),
+        transparent 42%
+      ),
+      linear-gradient(
+        315deg,
+        color-mix(in srgb, var(--project-magenta) 16%, transparent),
+        transparent 48%
+      ),
+      var(--project-panel);
+    border: 2px solid var(--project-ink);
+    border-radius: var(--border-radius-default);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--project-blue) 26%, transparent),
+      calc(var(--size-8) * -1) calc(var(--size-8) * -1) 0
+        color-mix(in srgb, var(--project-magenta) 24%, transparent);
     display: grid;
     gap: var(--size-32);
     grid-template-columns: 1fr;
     margin-block-end: var(--size-48);
-    padding-block-end: var(--size-40);
+    overflow: hidden;
+    padding: var(--size-24);
     position: relative;
-  }
-
-  .project-hero::before {
-    background:
-      linear-gradient(
-        90deg,
-        var(--color-link) 0 50%,
-        var(--color-accent) 50% 100%
-      );
-    block-size: var(--size-4);
-    content: "";
-    inline-size: min(16rem, 100%);
-    inset-block-end: calc(var(--size-4) * -1);
-    inset-inline-start: 0;
-    position: absolute;
+    z-index: 0;
   }
 
   .project-hero-copy {
     min-inline-size: 0;
+    padding-block-start: var(--size-8);
   }
 
-  .project-kicker {
-    color: var(--color-accent);
+  .project-kicker,
+  .section-kicker {
+    color: var(--project-magenta);
+    font-family: var(--minimalist-typography-code-family);
     font-size: var(--typography-sm-font-size);
     font-weight: 700;
     letter-spacing: 0;
@@ -213,70 +221,97 @@ const projectLinks = [
     text-transform: uppercase;
   }
 
+  .project-kicker {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--size-8);
+    margin-block-end: var(--size-12);
+  }
+
+  .project-kicker span:last-child {
+    background: transparent;
+    border: 1px solid var(--project-ink);
+    border-radius: var(--border-radius-default);
+    color: var(--project-ink);
+    padding: 2px var(--size-8);
+  }
+
   .project-hero h1 {
-    line-height: 0.95;
+    color: var(--project-ink);
+    font-size: var(--typography-size-xxl);
+    line-height: 0.9;
     margin-block: 0;
-    max-inline-size: 11ch;
+    max-inline-size: 12ch;
+    text-wrap: balance;
   }
 
   .project-description {
     font-size: var(--typography-size-small-medium);
-    line-height: 1.7;
+    line-height: 1.6;
     margin-block: var(--size-24) 0;
-    max-inline-size: 48ch;
+    max-inline-size: 47ch;
   }
 
   .project-action-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--size-12);
+    display: grid;
+    gap: var(--size-16);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     list-style: none;
     margin-block: var(--size-32) 0;
     padding: 0;
   }
 
-  .project-action-list a,
-  .contribution-link {
+  .project-action-list a {
     align-items: center;
-    border: var(--size-1) solid var(--color-border);
+    background: var(--project-panel);
+    border: 2px solid var(--project-ink);
     border-radius: var(--border-radius-default);
+    color: var(--project-blue);
     display: inline-flex;
+    font-size: var(--typography-sm-font-size);
+    font-weight: 700;
     gap: var(--size-8);
-    min-block-size: 2.75rem;
-    padding: var(--size-8) var(--size-12);
+    inline-size: 100%;
+    justify-content: center;
+    line-height: 1;
+    min-block-size: 2.5rem;
+    padding: var(--size-8);
     text-decoration: none;
+    transition:
+      background-color 160ms ease,
+      box-shadow 160ms ease,
+      color 160ms ease,
+      transform 160ms ease;
   }
 
   .project-action-list li:first-child a {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    color: var(--color-background);
+    background: var(--project-magenta);
+    color: light-dark(#ffffff, #161616);
   }
 
   .project-action-list a:hover,
-  .project-action-list a:focus-visible,
-  .contribution-link:hover,
-  .contribution-link:focus-visible {
-    border-color: var(--color-accent);
-    transform: translateY(-1px);
+  .project-action-list a:focus-visible {
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--project-blue) 42%, transparent);
+    color: var(--project-magenta);
+    transform: translate(-2px, -2px);
   }
 
   .project-action-list li:first-child a:hover,
   .project-action-list li:first-child a:focus-visible {
-    background: var(--color-accent-hover);
-    border-color: var(--color-accent-hover);
+    background: var(--project-ink);
+    color: var(--project-paper);
   }
 
-  .project-action-list span,
-  .contribution-link span {
+  .project-action-list span {
+    align-items: center;
+    display: inline-flex;
     transition: transform 160ms ease;
   }
 
   .project-action-list a:hover span,
-  .project-action-list a:focus-visible span,
-  .contribution-link:hover span,
-  .contribution-link:focus-visible span {
-    transform: translateX(var(--size-2));
+  .project-action-list a:focus-visible span {
+    transform: translateX(2px);
   }
 
   .project-hero-rail {
@@ -286,12 +321,13 @@ const projectLinks = [
   }
 
   .project-artifact {
-    background: var(--color-surface);
-    border: var(--size-1) solid var(--color-border);
-    border-block-start: var(--size-4) solid var(--color-accent);
+    background: var(--project-ink);
+    border: 2px solid var(--project-ink);
     border-radius: var(--border-radius-default);
+    box-shadow: var(--size-8) var(--size-8) 0 var(--project-blue);
     margin: 0;
     overflow: hidden;
+    transform: rotate(-1.25deg);
   }
 
   .project-artifact img {
@@ -302,87 +338,70 @@ const projectLinks = [
   }
 
   .project-artifact figcaption {
-    background: var(--color-surface);
-    color: var(--color-text);
+    background: var(--project-ink);
+    color: var(--project-paper);
+    font-family: var(--minimalist-typography-code-family);
     font-size: var(--typography-sm-font-size);
     padding: var(--size-8) var(--size-12);
   }
 
-  .project-facts {
-    background:
-      linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
-      linear-gradient(90deg, var(--color-link), var(--color-accent)) border-box;
-    border: var(--size-1) solid transparent;
-    border-radius: var(--border-radius-default);
-    display: grid;
-    gap: var(--size-12);
-    grid-template-columns: 1fr;
-    margin: 0;
-    padding: var(--size-16);
-  }
-
-  .project-facts dt {
-    color: var(--color-text-muted);
-    font-size: var(--typography-sm-font-size);
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  .project-facts dd {
-    margin: calc(var(--size-8) * -1) 0 0;
-  }
-
   .section-kicker {
-    color: var(--color-accent);
-    font-size: var(--typography-sm-font-size);
-    font-weight: 700;
-    letter-spacing: 0;
     margin-block: 0 var(--size-8);
-    text-transform: uppercase;
   }
 
   .project-goal {
-    border-block-end: var(--project-rule);
+    align-items: stretch;
+    background: var(--project-panel);
+    border: 2px solid var(--project-ink);
+    border-radius: var(--border-radius-default);
+    display: grid;
+    gap: var(--size-24);
+    grid-template-columns: 1fr;
     margin-block-end: var(--size-48);
-    padding-block-end: var(--size-48);
+    padding: var(--size-24);
   }
 
   .project-goal h2,
   .project-section h2 {
+    color: var(--project-ink);
     margin-block: 0 var(--size-16);
   }
 
-  .project-goal p:last-child {
+  .project-goal-summary {
     font-family: var(--minimalist-typography-heading-family);
     font-size: var(--typography-size-small-medium);
-    line-height: 1.5;
+    line-height: 1.55;
     margin-block: 0;
-    max-inline-size: 50ch;
+    max-inline-size: 58ch;
   }
 
-  .project-status-grid,
-  .project-detail-grid {
+  .project-status-grid {
     display: grid;
-    gap: var(--size-32);
+    gap: var(--size-24);
     grid-template-columns: 1fr;
   }
 
-  .project-detail-grid {
-    border-block-start: var(--project-rule);
-    margin-block-start: var(--size-48);
-    padding-block-start: var(--size-48);
-  }
-
   .project-section {
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--project-blue) 9%, transparent),
+        transparent 54%
+      ),
+      var(--project-panel);
+    border: var(--project-rule);
+    border-block-start: var(--size-6) solid var(--project-blue);
+    border-radius: var(--border-radius-default);
     min-inline-size: 0;
+    padding: var(--size-24);
   }
 
   .project-section--next {
-    border-inline-start: var(--size-4) solid var(--color-accent);
-    padding-inline-start: var(--size-24);
+    border-block-start-color: var(--project-magenta);
   }
 
   .next-step-list {
+    list-style: disc;
     margin: 0;
     padding-inline-start: var(--size-24);
   }
@@ -396,46 +415,84 @@ const projectLinks = [
     flex-wrap: wrap;
     gap: var(--size-8);
     list-style: none;
-    margin: 0;
+    margin: var(--size-24) 0 0;
     padding: 0;
   }
 
   .technology-list li {
-    background: var(--color-surface);
-    border: var(--size-1) solid var(--color-border);
+    background: var(--project-ink);
+    border: 1px solid var(--project-ink);
     border-radius: var(--border-radius-default);
+    color: var(--project-paper);
+    font-family: var(--minimalist-typography-code-family);
+    font-size: var(--typography-sm-font-size);
     padding: var(--size-6) var(--size-12);
   }
 
-  .contribution-link {
-    margin-block-start: var(--size-16);
-  }
-
   @media (min-width: 48rem) {
+    .project-shell {
+      inline-size: min(74rem, calc(100% - var(--size-64)));
+      padding-block-start: var(--size-32);
+    }
+
     .project-hero {
-      grid-template-columns: minmax(0, 1fr) minmax(18rem, var(--project-rail-size));
+      gap: var(--size-48);
+      grid-template-columns: minmax(0, 1fr) minmax(20rem, var(--project-rail-size));
+      padding: var(--size-48);
+    }
+
+    .project-hero-copy {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .project-action-list {
+      display: flex;
+      flex-wrap: wrap;
+      grid-column: 1 / -1;
+      grid-row: 2;
+      margin-block-start: 0;
+      padding-block-start: var(--size-24);
+      border-block-start: var(--project-rule);
+    }
+
+    .project-action-list a {
+      font-size: var(--typography-default-font-size);
+      inline-size: auto;
+      justify-content: start;
+      min-block-size: 2.75rem;
+      padding: var(--size-8) var(--size-12);
+    }
+
+    .project-hero h1 {
+      font-size: var(--typography-size-display);
     }
 
     .project-hero-rail {
+      grid-column: 2;
+      grid-row: 1;
       position: sticky;
       top: var(--size-24);
     }
 
-    .project-facts {
-      grid-template-columns: max-content 1fr;
-      gap: var(--size-8) var(--size-16);
-    }
-
-    .project-facts dd {
-      margin-block-start: 0;
+    .project-goal {
+      padding: var(--size-32);
     }
 
     .project-status-grid {
-      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      align-items: start;
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
     }
 
-    .project-detail-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    .project-section--next {
+      margin-block-start: var(--size-48);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-action-list a,
+    .project-action-list span {
+      transition: none;
     }
   }
 </style>

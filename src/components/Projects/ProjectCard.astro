@@ -111,14 +111,21 @@ const { name, description, url, language, stars, imageUrl, featured, linkLabel }
     color: var(--color-text-muted);
     display: flex;
     font-size: var(--typography-sm-font-size);
-    gap: var(--size-16);
+    flex-wrap: wrap;
+    gap: var(--size-8) var(--size-16);
     margin-block-end: var(--size-16);
   }
 
-  .project-card-language {
+  .project-card-language,
+  .project-card-stars {
     align-items: center;
-    display: flex;
-    gap: var(--size-4);
+    display: inline-flex;
+    gap: var(--size-6);
+    line-height: 1;
+  }
+
+  .project-card-language {
+    color: var(--color-text-muted);
   }
 
   .language-dot {
@@ -134,27 +141,39 @@ const { name, description, url, language, stars, imageUrl, featured, linkLabel }
   }
 
   .project-card-link {
+    align-items: center;
+    border: var(--size-1) solid var(--color-border);
+    border-radius: var(--border-radius-default);
     color: var(--color-link);
+    display: inline-flex;
     font-size: var(--typography-default-font-size);
+    font-weight: 700;
+    gap: var(--size-6);
+    padding-block: var(--size-4);
+    padding-inline: var(--size-12);
     position: relative;
     text-decoration: none;
     width: fit-content;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
   }
 
-  .project-card-link::after {
-    background-color: var(--color-accent);
-    block-size: var(--size-2);
-    content: "";
-    inline-size: 0;
-    inset-block-end: 0;
-    inset-inline-start: 0;
-    position: absolute;
-    transition: inline-size 0.2s ease;
+  .project-card-link span {
+    transition: transform 0.2s ease;
   }
 
-  .project-card-link:hover::after,
-  .project-card-link:focus::after {
-    inline-size: 100%;
+  .project-card-link:hover,
+  .project-card-link:focus {
+    background-color: var(--color-surface);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .project-card-link:hover span,
+  .project-card-link:focus span {
+    transform: translateX(var(--size-2));
   }
 
   .project-card-link:focus-visible {

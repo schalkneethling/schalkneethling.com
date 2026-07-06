@@ -33,25 +33,31 @@ const projectLinks = [
     href: project.data.repoUrl,
     label: "Repository",
   },
-  project.data.liveUrl
-    ? {
-        href: project.data.liveUrl,
-        label: "Live project",
-      }
-    : null,
-  project.data.goalDocUrl
-    ? {
-        href: project.data.goalDocUrl,
-        label: "GOAL.md",
-      }
-    : null,
-  project.data.roadmapDocUrl
-    ? {
-        href: project.data.roadmapDocUrl,
-        label: "ROADMAP.md",
-      }
-    : null,
-].filter(Boolean);
+  ...(project.data.liveUrl
+    ? [
+        {
+          href: project.data.liveUrl,
+          label: "Live project",
+        },
+      ]
+    : []),
+  ...(project.data.goalDocUrl
+    ? [
+        {
+          href: project.data.goalDocUrl,
+          label: "GOAL.md",
+        },
+      ]
+    : []),
+  ...(project.data.roadmapDocUrl
+    ? [
+        {
+          href: project.data.roadmapDocUrl,
+          label: "ROADMAP.md",
+        },
+      ]
+    : []),
+];
 ---
 
 <BaseLayout pageTitle={pageTitle} pageDescription={pageDescription}>
@@ -118,14 +124,12 @@ const projectLinks = [
       <ul class="project-link-list">
         {
           projectLinks.map((link) => (
-            link && (
-              <li>
-                <a href={link.href} rel="noopener noreferrer">
-                  {link.label}
-                  <span aria-hidden="true">&rarr;</span>
-                </a>
-              </li>
-            )
+            <li>
+              <a href={link.href} rel="noopener noreferrer">
+                {link.label}
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+            </li>
           ))
         }
       </ul>

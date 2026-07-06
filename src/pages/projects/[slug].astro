@@ -1,0 +1,90 @@
+---
+import { getCollection } from "astro:content";
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const pageTitle = project.data.title;
+const pageDescription = project.data.description;
+const technologies = project.data.technologies ?? [];
+---
+
+<BaseLayout pageTitle={pageTitle} pageDescription={pageDescription}>
+  <main class="u-container" id="main-content">
+    <p class="back-link"><a href="/projects">Back to What I want to exist</a></p>
+    <header class="project-header">
+      <h1>{pageTitle}</h1>
+      <p class="project-description">{pageDescription}</p>
+    </header>
+
+    {
+      technologies.length > 0 && (
+        <section aria-labelledby="technologies">
+          <h2 id="technologies">Technologies</h2>
+          <ul class="technology-list">
+            {technologies.map((technology) => <li>{technology}</li>)}
+          </ul>
+        </section>
+      )
+    }
+
+    <section aria-labelledby="project-links">
+      <h2 id="project-links">Project links</h2>
+      <ul>
+        <li>
+          <a href={project.data.repoUrl} rel="noopener noreferrer">
+            View the repository
+          </a>
+        </li>
+        {
+          project.data.liveUrl && (
+            <li>
+              <a href={project.data.liveUrl} rel="noopener noreferrer">
+                Visit the live project
+              </a>
+            </li>
+          )
+        }
+      </ul>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .back-link {
+    margin-block-end: var(--size-24);
+  }
+
+  .project-header {
+    border-block-end: var(--size-1) solid var(--color-border);
+    margin-block-end: var(--size-32);
+    padding-block-end: var(--size-24);
+  }
+
+  .project-description {
+    font-size: var(--typography-size-medium);
+  }
+
+  .technology-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--size-8);
+    list-style: none;
+    padding: 0;
+  }
+
+  .technology-list li {
+    border: var(--size-1) solid var(--color-border);
+    border-radius: var(--border-radius-default);
+    padding: var(--size-4) var(--size-8);
+  }
+</style>

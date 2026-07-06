@@ -15,7 +15,10 @@ for (const url of urls as TestUrl[]) {
     page,
     makeAxeBuilder,
   }, testInfo: TestInfo) => {
-    await page.goto(url.url, { waitUntil: "load" });
+    const response = await page.goto(url.url, { waitUntil: "load" });
+
+    expect(response?.ok()).toBe(true);
+
     await page.waitForLoadState("networkidle");
 
     const axeBuilder = makeAxeBuilder();

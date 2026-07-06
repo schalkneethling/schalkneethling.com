@@ -24,6 +24,10 @@
     "url": "/projects"
   },
   {
+    "title": "CSS Community Reset project",
+    "url": "/projects/css-community-reset"
+  },
+  {
     "title": "Build a profile page",
     "url": "/posts/build-a-profile-page-html-css-part6-dialog-form-netlify"
   },

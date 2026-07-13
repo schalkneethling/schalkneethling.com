@@ -1,0 +1,22 @@
+{
+  "id": "web-platform-pulse",
+  "title": "web-platform-pulse",
+  "repoUrl": "https://github.com/schalkneethling/web-platform-pulse",
+  "refreshedAt": "2026-07-06T17:36:18.744Z",
+  "docs": {
+    "goal": {
+      "filename": "GOAL.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/web-platform-pulse/master/GOAL.md",
+      "status": "missing",
+      "statusCode": 404,
+      "content": ""
+    },
+    "roadmap": {
+      "filename": "ROADMAP.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/web-platform-pulse/master/ROADMAP.md",
+      "status": "missing",
+      "statusCode": 404,
+      "content": ""
+    }
+  }
+}

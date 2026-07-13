@@ -9,6 +9,16 @@ interface Props {
 const { posts } = Astro.props;
 ---
 
-<ul>
+<ul class="post-list">
   {posts.map((post) => <BlogPost post={post} />)}
 </ul>
+
+<style>
+  .post-list {
+    display: grid;
+    gap: var(--size-32);
+    list-style: none;
+    margin-block: var(--size-16) 0;
+    padding-inline-start: 0;
+  }
+</style>

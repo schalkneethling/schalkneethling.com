@@ -4,10 +4,6 @@
     "url": "/"
   },
   {
-    "title": "Now",
-    "url": "/now"
-  },
-  {
     "title": "About",
     "url": "/about"
   },
@@ -22,6 +18,10 @@
   {
     "title": "Projects",
     "url": "/projects"
+  },
+  {
+    "title": "CSS Community Reset project",
+    "url": "/projects/css-community-reset"
   },
   {
     "title": "Build a profile page",

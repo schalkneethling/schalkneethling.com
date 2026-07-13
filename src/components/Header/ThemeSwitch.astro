@@ -1,0 +1,178 @@
+---
+import { Monitor, Moon, Sun } from "@lucide/astro";
+---
+
+<div class="theme-switch">
+  <span id="theme-switch-label" class="theme-switch-label">Colour theme</span>
+  <div class="theme-switch-control" role="radiogroup" aria-labelledby="theme-switch-label">
+    <label class="theme-switch-option" title="Use system theme">
+      <input type="radio" name="theme" value="system" data-theme-option />
+      <span class="theme-switch-icon" aria-hidden="true">
+        <Monitor size={14} stroke-width={2.25} />
+      </span>
+      <span class="theme-switch-option-label">System</span>
+    </label>
+    <label class="theme-switch-option" title="Use light theme">
+      <input type="radio" name="theme" value="light" data-theme-option />
+      <span class="theme-switch-icon" aria-hidden="true">
+        <Sun size={14} stroke-width={2.25} />
+      </span>
+      <span class="theme-switch-option-label">Light</span>
+    </label>
+    <label class="theme-switch-option" title="Use dark theme">
+      <input type="radio" name="theme" value="dark" data-theme-option />
+      <span class="theme-switch-icon" aria-hidden="true">
+        <Moon size={14} stroke-width={2.25} />
+      </span>
+      <span class="theme-switch-option-label">Dark</span>
+    </label>
+  </div>
+</div>
+
+<style>
+  .theme-switch {
+    align-items: center;
+    display: inline-flex;
+  }
+
+  .theme-switch-label {
+    block-size: 1px;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    inline-size: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  .theme-switch-control {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--size-4);
+    background-color: var(--color-surface);
+    border: var(--size-1) solid var(--color-border);
+    border-radius: var(--border-border-radius-circlular);
+    padding: var(--size-4);
+  }
+
+  .theme-switch-option {
+    align-items: center;
+    block-size: 2rem;
+    border-radius: var(--border-border-radius-circlular);
+    box-sizing: border-box;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    inline-size: 2rem;
+    position: relative;
+  }
+
+  .theme-switch-option input {
+    appearance: none;
+    block-size: 100%;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    position: absolute;
+    inline-size: 100%;
+  }
+
+  .theme-switch-option:has(input:checked) {
+    background-color: var(--color-accent);
+    color: var(--color-background);
+  }
+
+  .theme-switch-icon {
+    display: grid;
+    place-items: center;
+  }
+
+  .theme-switch-icon :global(svg) {
+    display: block;
+  }
+
+  .theme-switch-option:has(input:focus-visible) {
+    outline: var(--size-2) solid var(--color-accent);
+    outline-offset: var(--size-4);
+  }
+
+  .theme-switch-option-label {
+    block-size: 1px;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    inline-size: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const storageKey = "theme";
+    const root = document.documentElement;
+    const options = document.querySelectorAll("[data-theme-option]");
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+    if (options.length === 0) {
+      return;
+    }
+
+    const getStoredTheme = () => {
+      try {
+        return localStorage.getItem(storageKey);
+      } catch {
+        return null;
+      }
+    };
+
+    const setStoredTheme = (theme) => {
+      try {
+        if (theme === "system") {
+          localStorage.removeItem(storageKey);
+        } else {
+          localStorage.setItem(storageKey, theme);
+        }
+      } catch {
+        /* Ignore storage failures; the switch still updates this page. */
+      }
+    };
+
+    const setTheme = (theme, shouldPersist = true) => {
+      const isDark = theme === "dark" || (theme === "system" && media.matches);
+      root.classList.toggle("dark", isDark);
+      options.forEach((option) => {
+        option.checked = option.value === theme;
+      });
+
+      if (shouldPersist) {
+        setStoredTheme(theme);
+      }
+    };
+
+    const storedTheme = getStoredTheme();
+    const initialTheme = storedTheme === "light" || storedTheme === "dark" ? storedTheme : "system";
+    setTheme(initialTheme, false);
+
+    options.forEach((option) => {
+      option.addEventListener("change", () => {
+        if (option.checked) {
+          setTheme(option.value);
+        }
+      });
+    });
+
+    const handleSystemThemeChange = () => {
+      if (getStoredTheme() === null) {
+        setTheme("system", false);
+      }
+    };
+
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", handleSystemThemeChange);
+    } else {
+      media.addListener(handleSystemThemeChange);
+    }
+  })();
+</script>

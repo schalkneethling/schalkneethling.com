@@ -10,27 +10,41 @@ type TestUrl = {
   url: string;
 };
 
+const themeModes = [
+  { label: "winter day", storageValue: "light" },
+  { label: "winter evening", storageValue: "dark" },
+] as const;
+
 for (const url of urls as TestUrl[]) {
-  test(`${url.title} should be accessible`, async ({
-    page,
-    makeAxeBuilder,
-  }, testInfo: TestInfo) => {
-    await page.goto(url.url, { waitUntil: "load" });
-    await page.waitForLoadState("networkidle");
+  for (const themeMode of themeModes) {
+    test(`${url.title} should be accessible in ${themeMode.label}`, async ({
+      page,
+      makeAxeBuilder,
+    }, testInfo: TestInfo) => {
+      await page.addInitScript((theme) => {
+        localStorage.setItem("theme", theme);
+      }, themeMode.storageValue);
 
-    const axeBuilder = makeAxeBuilder();
-    const results = await axeBuilder.analyze();
+      const response = await page.goto(url.url, { waitUntil: "load" });
 
-    const file = testInfo.outputPath("axe.json");
-    await fs.writeFile(
-      file,
-      JSON.stringify(formatFullReport(results), null, 2),
-    );
-    await testInfo.attach("axe.json", {
-      path: file,
-      contentType: "application/json",
+      expect(response?.ok()).toBe(true);
+
+      await page.waitForLoadState("networkidle");
+
+      const axeBuilder = makeAxeBuilder();
+      const results = await axeBuilder.analyze();
+
+      const file = testInfo.outputPath("axe.json");
+      await fs.writeFile(
+        file,
+        JSON.stringify(formatFullReport(results), null, 2),
+      );
+      await testInfo.attach("axe.json", {
+        path: file,
+        contentType: "application/json",
+      });
+
+      expect(results.violations).toEqual([]);
     });
-
-    expect(results.violations).toEqual([]);
-  });
+  }
 }

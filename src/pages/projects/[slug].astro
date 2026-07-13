@@ -1,0 +1,469 @@
+---
+import { getCollection } from "astro:content";
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getProjectStaticPaths } from "../../lib/projectPages";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+
+  return getProjectStaticPaths(projects);
+}
+
+const { project } = Astro.props;
+const pageTitle = project.data.title;
+const pageDescription = project.data.description;
+const technologies = project.data.technologies ?? [];
+const whatAndWhy = project.data.whatAndWhy ?? project.data.description;
+const goalSummary =
+  project.data.goalSummary ??
+  "A fuller project goal summary is coming as this page is expanded from the repository docs.";
+const currentState =
+  project.data.currentState ??
+  "This project has a place in the curated list. The deeper status notes will be filled in as the starter project pages are completed.";
+const nextSteps = project.data.nextSteps ?? [
+  "Write the project-specific goal summary.",
+  "Connect the page to the repository documentation workflow.",
+];
+const projectLinks = [
+  {
+    href: project.data.repoUrl,
+    label: "Repository",
+  },
+  ...(project.data.liveUrl
+    ? [
+        {
+          href: project.data.liveUrl,
+          label: "Live project",
+        },
+      ]
+    : []),
+  ...(project.data.goalDocUrl
+    ? [
+        {
+          href: project.data.goalDocUrl,
+          label: "GOAL.md",
+        },
+      ]
+    : []),
+  ...(project.data.roadmapDocUrl
+    ? [
+        {
+          href: project.data.roadmapDocUrl,
+          label: "ROADMAP.md",
+        },
+      ]
+    : []),
+];
+---
+
+<BaseLayout pageTitle={pageTitle} pageDescription={pageDescription}>
+  <main class="project-page" id="main-content">
+    <div class="project-shell">
+      <p class="back-link"><a href="/projects">Back to What I want to exist</a></p>
+
+      <header class="project-hero">
+        <div class="project-hero-copy">
+          <h1>{pageTitle}</h1>
+          <p class="project-description">{whatAndWhy}</p>
+        </div>
+
+        <aside class="project-hero-rail" aria-label="Project summary">
+          {
+            project.data.imageUrl && (
+              <figure class="project-artifact">
+                <img
+                  src={project.data.imageUrl}
+                  alt={`${pageTitle} project card`}
+                  loading="eager"
+                />
+                <figcaption>{pageTitle} artifact</figcaption>
+              </figure>
+            )
+          }
+        </aside>
+
+        <ul class="project-action-list" aria-label="Project links">
+          {
+            projectLinks.map((link) => (
+              <li>
+                <a href={link.href} target="_blank" rel="noopener noreferrer">
+                  {link.label}
+                  <span aria-hidden="true">&rarr;</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </header>
+
+      <section class="project-goal" aria-labelledby="goal">
+        <div>
+          <h2 id="goal">Goal</h2>
+          <p class="project-goal-summary">{goalSummary}</p>
+          {
+            technologies.length > 0 && (
+              <ul class="technology-list" aria-label="Technologies used">
+                {technologies.map((technology) => <li>{technology}</li>)}
+              </ul>
+            )
+          }
+        </div>
+      </section>
+
+<div class="project-status-grid">
+<section class="project-section project-section--status" aria-labelledby="current-state">
+<h2 id="current-state">Where it is</h2>
+<p>{currentState}</p>
+</section>
+
+<section class="project-section project-section--next" aria-labelledby="next-steps">
+<h2 id="next-steps">What comes next</h2>
+<ul class="next-step-list">
+            {nextSteps.map((nextStep) => <li>{nextStep}</li>)}
+          </ul>
+        </section>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .project-page {
+    --project-blue: light-dark(#014f86, #a9d6e5);
+    --project-frost: light-dark(#2a6f97, #89c2d9);
+    --project-ink: light-dark(#012a4a, #eaf7fc);
+    --project-line: light-dark(#89c2d9, #2a6f97);
+    --project-strong-line: light-dark(#012a4a, #89c2d9);
+    --project-panel: light-dark(#ffffff, #013a63);
+    --project-paper: light-dark(#f7fbfe, #012a4a);
+    --project-paper-end: light-dark(#eaf7fc, #013a63);
+    --project-filled-action: light-dark(#2a6f97, #89c2d9);
+    --project-filled-action-text: light-dark(#ffffff, #012a4a);
+    --project-rule: 1px solid var(--project-line);
+    --project-rail-size: 26rem;
+    background: linear-gradient(
+      180deg,
+      var(--project-paper) 0%,
+      var(--project-paper-end) 100%
+    );
+    color: var(--project-ink);
+    margin-block-end: var(--size-80);
+    overflow: hidden;
+  }
+
+  .project-shell {
+    inline-size: min(72rem, calc(100% - var(--size-32)));
+    margin-inline: auto;
+    padding-block: var(--size-24) var(--size-80);
+  }
+
+  .back-link {
+    font-family: var(--minimalist-typography-code-family);
+    font-size: var(--typography-sm-font-size);
+    margin-block: 0 var(--size-24);
+    text-transform: lowercase;
+  }
+
+  .back-link a {
+    align-items: center;
+    background: var(--project-panel);
+    border: var(--project-rule);
+    border-radius: var(--border-radius-default);
+    display: inline-flex;
+    min-block-size: 2.5rem;
+    padding: var(--size-6) var(--size-12);
+    text-decoration: none;
+  }
+
+  .project-hero {
+    align-items: start;
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--project-blue) 14%, transparent),
+        transparent 42%
+      ),
+      linear-gradient(
+        315deg,
+        color-mix(in srgb, var(--project-frost) 18%, transparent),
+        transparent 48%
+      ),
+      var(--project-panel);
+    border: 2px solid var(--project-strong-line);
+    border-radius: var(--border-radius-default);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--project-blue) 26%, transparent),
+      calc(var(--size-8) * -1) calc(var(--size-8) * -1) 0
+        color-mix(in srgb, var(--project-frost) 24%, transparent);
+    display: grid;
+    gap: var(--size-32);
+    grid-template-columns: 1fr;
+    margin-block-end: var(--size-48);
+    overflow: hidden;
+    padding: var(--size-24);
+    position: relative;
+    z-index: 0;
+  }
+
+  .project-hero-copy {
+    min-inline-size: 0;
+    padding-block-start: var(--size-8);
+  }
+
+  .project-hero h1 {
+    color: var(--project-ink);
+    font-size: var(--typography-size-xxl);
+    line-height: 0.9;
+    margin-block: 0;
+    max-inline-size: 12ch;
+    text-wrap: balance;
+  }
+
+  .project-description {
+    font-size: var(--typography-size-small-medium);
+    line-height: 1.6;
+    margin-block: var(--size-24) 0;
+    max-inline-size: 47ch;
+  }
+
+  .project-action-list {
+    display: grid;
+    gap: var(--size-16);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    list-style: none;
+    margin-block: var(--size-32) 0;
+    padding: 0;
+  }
+
+  .project-action-list a {
+    align-items: center;
+    background-color: var(--project-panel);
+    border: 2px solid var(--project-strong-line);
+    border-radius: var(--border-radius-default);
+    color: var(--project-blue);
+    display: inline-flex;
+    font-size: var(--typography-sm-font-size);
+    font-weight: 700;
+    gap: var(--size-8);
+    inline-size: 100%;
+    justify-content: center;
+    line-height: 1;
+    min-block-size: 2.5rem;
+    padding: var(--size-8);
+    text-decoration: none;
+    transition:
+      background-color 160ms ease,
+      box-shadow 160ms ease,
+      color 160ms ease,
+      transform 160ms ease;
+  }
+
+  .project-action-list li:first-child a {
+    background-color: var(--project-filled-action);
+    color: var(--project-filled-action-text);
+  }
+
+  .project-action-list a:hover,
+  .project-action-list a:focus-visible {
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--project-blue) 42%, transparent);
+    color: var(--project-frost);
+    transform: translate(-2px, -2px);
+  }
+
+  .project-action-list li:first-child a:hover,
+  .project-action-list li:first-child a:focus-visible {
+    background-color: var(--project-ink);
+    color: var(--project-paper);
+  }
+
+  .project-action-list span {
+    align-items: center;
+    display: inline-flex;
+    transition: transform 160ms ease;
+  }
+
+  .project-action-list a:hover span,
+  .project-action-list a:focus-visible span {
+    transform: translateX(2px);
+  }
+
+  .project-hero-rail {
+    display: grid;
+    gap: var(--size-24);
+    inline-size: 100%;
+  }
+
+  .project-artifact {
+    background: var(--project-strong-line);
+    border: 2px solid var(--project-strong-line);
+    border-radius: var(--border-radius-default);
+    box-shadow: var(--size-8) var(--size-8) 0 var(--project-blue);
+    margin: 0;
+    overflow: hidden;
+    transform: rotate(-1.25deg);
+  }
+
+  .project-artifact img {
+    aspect-ratio: 1200 / 630;
+    display: block;
+    inline-size: 100%;
+    object-fit: cover;
+  }
+
+  .project-artifact figcaption {
+    background: var(--project-strong-line);
+    color: var(--project-paper);
+    font-family: var(--minimalist-typography-code-family);
+    font-size: var(--typography-sm-font-size);
+    padding: var(--size-8) var(--size-12);
+  }
+
+  .project-goal {
+    align-items: stretch;
+    background: var(--project-panel);
+    border: 2px solid var(--project-strong-line);
+    border-radius: var(--border-radius-default);
+    display: grid;
+    gap: var(--size-24);
+    grid-template-columns: 1fr;
+    margin-block-end: var(--size-48);
+    padding: var(--size-24);
+  }
+
+  .project-goal h2,
+  .project-section h2 {
+    color: var(--project-ink);
+    margin-block: 0 var(--size-16);
+  }
+
+  .project-goal-summary {
+    font-family: var(--minimalist-typography-heading-family);
+    font-size: var(--typography-size-small-medium);
+    line-height: 1.55;
+    margin-block: 0;
+    max-inline-size: 58ch;
+  }
+
+  .project-status-grid {
+    border-block-start: var(--project-rule);
+    display: grid;
+    gap: var(--size-32);
+    grid-template-columns: 1fr;
+    padding-block-start: var(--size-32);
+  }
+
+  .project-section {
+    min-inline-size: 0;
+  }
+
+  .project-section + .project-section {
+    border-block-start: var(--project-rule);
+    padding-block-start: var(--size-32);
+  }
+
+  .project-section p {
+    line-height: 1.65;
+    margin: 0;
+    max-inline-size: 58ch;
+  }
+
+  .next-step-list {
+    list-style: disc;
+    margin: 0;
+    padding-inline-start: var(--size-24);
+  }
+
+  .next-step-list li + li {
+    margin-block-start: var(--size-12);
+  }
+
+  .technology-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--size-8);
+    list-style: none;
+    margin: var(--size-24) 0 0;
+    padding: 0;
+  }
+
+  .technology-list li {
+    background: var(--project-ink);
+    border: 1px solid var(--project-ink);
+    border-radius: var(--border-radius-default);
+    color: var(--project-paper);
+    font-family: var(--minimalist-typography-code-family);
+    font-size: var(--typography-sm-font-size);
+    padding: var(--size-6) var(--size-12);
+  }
+
+  @media (min-width: 48rem) {
+    .project-shell {
+      inline-size: min(74rem, calc(100% - var(--size-64)));
+      padding-block-start: var(--size-32);
+    }
+
+    .project-hero {
+      gap: var(--size-48);
+      grid-template-columns: minmax(0, 1fr) minmax(20rem, var(--project-rail-size));
+      padding: var(--size-48);
+    }
+
+    .project-hero-copy {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+  .project-action-list {
+    display: flex;
+    flex-wrap: wrap;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-block-start: 0;
+    padding-block-start: var(--size-24);
+  }
+
+    .project-action-list a {
+      font-size: var(--typography-default-font-size);
+      inline-size: auto;
+      justify-content: start;
+      min-block-size: 2.75rem;
+      padding: var(--size-8) var(--size-12);
+    }
+
+    .project-hero h1 {
+      font-size: var(--typography-size-display);
+    }
+
+    .project-hero-rail {
+      grid-column: 2;
+      grid-row: 1;
+      position: sticky;
+      top: var(--size-24);
+    }
+
+    .project-goal {
+      padding: var(--size-32);
+    }
+
+    .project-status-grid {
+      align-items: start;
+      gap: var(--size-48);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .project-section + .project-section {
+      border-block-start: 0;
+      border-inline-start: var(--project-rule);
+      padding-block-start: 0;
+      padding-inline-start: var(--size-48);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-action-list a,
+    .project-action-list span {
+      transition: none;
+    }
+  }
+</style>

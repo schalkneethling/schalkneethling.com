@@ -1,0 +1,684 @@
+---
+title: "Throwing Confetti with CSS Random"
+pubDate: 2026-07-13
+description: "Throwing some confetti while exploring the CSS random() function through its specification and its current implementations, finding both the beauty and the pitfalls along the way."
+author: "Schalk Neethling"
+tags: ["css", "frontend-engineering-explained"]
+---
+
+import { BaselineStatus } from "astro-embed";
+
+The entire web platform is bursting at the seams with new features and enhancements landing across HTML, CSS, JavaScript, and Web APIs. Just today (July 6, 2026), I read that a new method, [the HTTP `QUERY` method](https://datatracker.ietf.org/doc/rfc10008/), is being proposed for inclusion in the very core of HTTP. The `QUERY` method aims to address the problem where people "abuse" `POST` requests to avoid massive query parameters attached to `GET` requests. The last such addition was `PATCH` in 2010, but if we are honest, the last such core addition was in the 1990s.
+
+Something new that is coming to CSS is [the `random()` function](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/random). I had heard and briefly read about it some time ago, but a [recent post by Kilian Valkhof](https://polypane.app/blog/experimenting-with-the-new-pure-css-random-function/) on [the Polypane blog](https://polypane.app/) reinvigorated my interest, and I decided to explore it myself.
+
+<BaselineStatus id="random-function" />
+
+One thing to know before we start. The `random()` function is still moving. The CSS Working Group reworked the way random values are shared between elements and properties while the first implementation was already shipping, so the keywords in the [current specification](https://drafts.csswg.org/css-values-5/#random-caching) are the ones both Safari and Chromium implement, while the examples on MDN still describe the earlier model, built around a keyword named `element-shared` that Safari discards outright. The code in this post follows the specification and the two engines that ship it. If you read the MDN page alongside it and the two seem to contradict each other, that is why.
+
+> **Note**: To follow along, you will need Safari 26.2 or later, or a Chromium browser at version 148 or later with the Experimental Web Platform Features flag enabled at `chrome://flags/#enable-experimental-web-platform-features`. Firefox has no support as of July 13, 2026. Everything in this post was tested in Safari 26.5, Safari Technology Preview 247, and Chrome Canary 152. Where the two engines behave the same, which is most of the time, I will simply say "supporting browsers". Where they diverge, and they do diverge in three places worth knowing about, I will name them.
+
+The finished thing lives at [css-confetti.schalkneethling.com](https://css-confetti.schalkneethling.com). Open it in one of the browsers above and leave it running alongside this post, because several of the claims below are ones you can check for yourself rather than take on trust.
+
+## The HTML
+
+For our confetti effect, we will need several empty elements to hold the confetti pieces. Neither `<div>` nor `<span>` carries any meaning of its own, so either would work, but a confetti piece is not part of a run of text, and `<div>` is the generic flow container rather than the phrasing one. The field itself is hidden from assistive technology because it is decoration, and there is nothing in it worth announcing.
+
+```html
+<body>
+  <div class="confetti-field" aria-hidden="true">
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <!-- keep this pattern for around 50 pieces -->
+  </div>
+</body>
+```
+
+## The Base CSS
+
+The first thing we want to do is position our confetti field. We will stretch our field to fill the viewport by setting our `inset` property to `0`.
+
+```css
+.confetti-field {
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+```
+
+Because we are using `absolute` positioning, if the scrollable area is taller than the viewport, the confetti field will continue to stretch to follow the scrollable area. Depending on your requirements, you may want to use `fixed` positioning instead. For our purpose here, absolute positioning will work just fine.
+
+Next, we set the base style and custom properties for our confetti pieces.
+
+```css
+.confetti-piece {
+  --piece-alpha: 0.72;
+  --piece-hue: 210deg;
+  --piece-radius: 0.12rem;
+  --piece-ratio: 1;
+  --piece-rotation: 0deg;
+  --piece-size: 0.62rem;
+  --piece-static-y: 50%;
+  --piece-x: 50%;
+
+  background: oklch(72% 0.2 var(--piece-hue) / var(--piece-alpha));
+  block-size: var(--piece-size);
+  border-radius: var(--piece-radius);
+  inline-size: calc(var(--piece-size) * var(--piece-ratio));
+  inset-block-start: var(--piece-static-y);
+  inset-inline-start: var(--piece-x);
+  opacity: var(--piece-alpha);
+  position: absolute;
+  transform: rotate(var(--piece-rotation));
+  transform-origin: center;
+}
+```
+
+The first thing you will notice is that almost everything is driven by custom properties. This is key and represents all the areas where we can introduce randomness. At the moment, we will have what appears to be a single, small light blue square at the center of our page. This actually represents all our confetti pieces stacked on top of each other. Now it is time to add some variety and start spreading our pieces around.
+
+We are not yet introducing any randomness, but we will use the `nth-child` selector to apply different styles to different groups of pieces.
+
+```css
+.confetti-piece:nth-child(8n + 1) {
+  --piece-hue: 16deg;
+  --piece-ratio: 0.48;
+  --piece-rotation: -18deg;
+  --piece-static-y: 14%;
+  --piece-x: 7%;
+}
+```
+
+Let us step back a moment to understand how we are using the `nth-child` selector here. What we are saying is:
+
+Apply the above values to the set of custom properties for each piece starting from the piece at position one and then each eighth piece thereafter. The above rule will therefore apply these values to the pieces at indices 1, 9, 17, 25, and so on.
+
+```css
+.confetti-piece:nth-child(8n + 2) {
+  --piece-hue: 54deg;
+  --piece-ratio: 1.36;
+  --piece-rotation: 22deg;
+  --piece-static-y: 68%;
+  --piece-x: 18%;
+}
+```
+
+For our next set, we do the same but start at the second position: 2, 10, 18, 26, and so on. When you refresh the page now, you will still see the light blue square in the middle, but you will also see the two other "groups" of pieces styled by the `nth-child` selector. The different color comes from rotating the hue value in our earlier `oklch` color function. Other than position, you will also notice a size difference due to the differing `--piece-ratio` custom properties. We then continue this pattern using the following CSS:
+
+```css
+/* matches every 8th element starting from the third
+   so, 3, 11, 19, 27, ... */
+.confetti-piece:nth-child(8n + 3) {
+  --piece-hue: 132deg;
+  --piece-ratio: 0.72;
+  --piece-rotation: -54deg;
+  --piece-static-y: 34%;
+  --piece-x: 31%;
+}
+
+/* matches every 8th element starting from the fourth
+   so, 4, 12, 20, 28, ... */
+.confetti-piece:nth-child(8n + 4) {
+  --piece-hue: 188deg;
+  --piece-ratio: 1.52;
+  --piece-rotation: 68deg;
+  --piece-static-y: 82%;
+  --piece-x: 43%;
+}
+
+/* matches every 8th element starting from the fifth
+   so, 5, 13, 21, 29, ... */
+.confetti-piece:nth-child(8n + 5) {
+  --piece-hue: 224deg;
+  --piece-ratio: 0.58;
+  --piece-rotation: 118deg;
+  --piece-static-y: 23%;
+  --piece-x: 58%;
+}
+
+/* matches every 8th element starting from the sixth
+   so, 6, 14, 22, 30, ... */
+.confetti-piece:nth-child(8n + 6) {
+  --piece-hue: 284deg;
+  --piece-ratio: 1.18;
+  --piece-rotation: -86deg;
+  --piece-static-y: 73%;
+  --piece-x: 71%;
+}
+
+/* matches every 8th element starting from the seventh
+   so, 7, 15, 23, 31, ... */
+.confetti-piece:nth-child(8n + 7) {
+  --piece-hue: 326deg;
+  --piece-ratio: 0.86;
+  --piece-rotation: 42deg;
+  --piece-static-y: 45%;
+  --piece-x: 84%;
+}
+
+/* matches every 8th element starting from the eighth
+   so, 8, 16, 24, 32, ... */
+.confetti-piece:nth-child(8n) {
+  --piece-hue: 356deg;
+  --piece-ratio: 1.42;
+  --piece-rotation: -132deg;
+  --piece-static-y: 9%;
+  --piece-x: 94%;
+}
+
+/* matches every 5th element starting from the fifth
+   so, 5, 10, 15, 20, ... */
+.confetti-piece:nth-child(5n) {
+  --piece-alpha: 0.54;
+  --piece-radius: 999rem;
+  --piece-size: 0.48rem;
+}
+
+/* matches every 5th element starting from the second
+   so, 2, 7, 12, 17, ... */
+.confetti-piece:nth-child(5n + 2) {
+  --piece-alpha: 0.82;
+  --piece-radius: 0.04rem;
+  --piece-size: 0.82rem;
+}
+
+/* matches every 5th element starting from the fourth
+   so, 4, 9, 14, 19, ... */
+.confetti-piece:nth-child(5n + 4) {
+  --piece-alpha: 0.64;
+  --piece-radius: 0.18rem;
+  --piece-size: 0.7rem;
+}
+```
+
+Refresh your page now, and things are starting to look interesting. But wait, why are we doing all of this `nth-child` shenanigans? That is a fair question, and the answer is progressive enhancement. What we just built will serve as our fallback when the `random()` function is not supported by the browser. I will also provide a cleaned-up version at the end if you want to remove the `nth-child` shenanigans. 😁
+
+## Let's Get Random
+
+Now it is time to add real randomness to our confetti pieces. Before we look at the code, let us unpack the function itself a little.
+
+### The Upper and Lower Bounds
+
+At its most basic, the `random()` function requires two arguments. The first is our lower bound, and the second is our upper bound. They must both be of the same data type, such as `<number>`, `<dimension>`, or `<percentage>`, but they do not have to use the same unit. So, you can mix `rem` and `px`, but not `px` and `deg`, as the latter are two different data types.
+
+```css
+.item {
+  background-color: lightblue;
+  block-size: 4rem;
+  inline-size: 4rem;
+  inset-block-start: random(1rem, 20rem);
+  inset-inline-start: random(1rem, 10rem);
+  position: absolute;
+}
+```
+
+Let us now say you have the following HTML:
+
+```html
+<div class="item"></div>
+<div class="item"></div>
+<div class="item"></div>
+<div class="item"></div>
+<div class="item"></div>
+```
+
+Every `.item` ends up somewhere different. Add the following JavaScript and reload the page to see the values the browser settled on:
+
+```js
+document.querySelectorAll(".item").forEach((item) => {
+  console.log(
+    item,
+    `Block start: ${getComputedStyle(item).insetBlockStart}, Inline start: ${getComputedStyle(item).insetInlineStart}`,
+  );
+});
+```
+
+The page will output the element itself and the computed random `inset` values assigned to each. Something like:
+
+```text
+<div class="item"></div> "Block start: 31.292351px, Inline start: 122.328926px"
+<div class="item"></div> "Block start: 255.360519px, Inline start: 122.881622px"
+<div class="item"></div> "Block start: 175.578201px, Inline start: 74.830811px"
+```
+
+### What the Browser Actually Does
+
+It is tempting to read the code above as a loop. Match an element, roll the dice, paint, move on to the next element, roll again. That is close to the outcome, but not to the mechanism, and the difference becomes important the moment two values need to relate to one another.
+
+The `random()` function does not roll a new number each time the browser requests it. If it did, the confetti would leap to new positions on every style recalculation, such as a viewport resize. The specification is explicit about why this cannot be allowed: CSS is a declarative language; functions have no particular moment at which they are evaluated; and the browser is free to evaluate them in any order and as often as it likes, on the understanding that each evaluation returns the same answer. Random values are, by nature, at odds with that.
+
+The resolution is that every `random()` in a stylesheet is associated with a [random cache name](https://drafts.csswg.org/css-values-5/#random-cache-name), and that name is what determines the number the function receives. Two functions with the same name must receive the same random base value. Two functions with different names must receive base values generated independently of one another.
+
+The name, which I hinted at above, is [defined as a tuple](https://drafts.csswg.org/css-values-5/#random-cache-name) of four parts: an optional identifier of your own, written as a `<dashed-ident>`, an optional value derived from the property the function appears in together with its position within that value, an optional identifier for the element the style is being applied to, and an identifier for the document the styles came from. Only the document is always present. Each of the other three may be null, and every part that is null is a distinction the browser stops drawing. Leave the element out of the name, and every element receives the same value. Leave the property out, and every property on a given element receives the same value.
+
+Leave the first argument out, as in the example above, and the specification treats it as though you had written `element-scoped property-index-scoped`, so both the element and the property become part of the name. The `random()` in `inset-block-start` on the first `.item` therefore carries a different name from the one in `inset-inline-start` on the same element, and from the one in `inset-block-start` on the second `.item`. Six different names, six unrelated numbers, which is what the console shows.
+
+The document is the one part you cannot leave out, and that is why the confetti rearranges itself on every reload. A reload creates a new document, so every name in the stylesheet becomes a new name, and every base value is rolled afresh.
+
+It is worth being precise about that third part, because it is the one most likely to be misread. The element identifier has nothing to do with the selector. A selector decides which elements a declaration applies to, and its involvement ends there. What the name records is an identifier for the element object itself, and the presence of the `element-scoped` keyword is the only thing that puts it there.
+
+Take the `.item` rule from earlier, give both offsets the same name, and move one of them into a rule with a completely different selector:
+
+```css
+.item {
+  background-color: lightblue;
+  block-size: 4rem;
+  inline-size: 4rem;
+  inset-block-start: random(--offset element-scoped, 1rem, 20rem);
+  position: absolute;
+}
+
+/* a completely different selector, reaching the same elements */
+div[class="item"] {
+  inset-inline-start: random(--offset element-scoped, 1rem, 20rem);
+}
+```
+
+Both functions build the tuple (`--offset`, null, this element, this document). Same name, same base value, so every `.item` sits the same distance from the top of the field as it does from the start edge, and each one at its own distance:
+
+```js
+document.querySelectorAll(".item").forEach((item) => {
+  const style = getComputedStyle(item);
+  console.log(style.insetBlockStart === style.insetInlineStart); // true
+});
+```
+
+Two selectors, two rules, two properties, one value. Now take the name away, leaving the first argument out altogether, and the default puts the property and its index back into the tuple. The names diverge, and the two offsets part company again. Nothing about the selectors changed.
+
+> **Note**: The specification also defines the keywords `property-scoped` and `property-index-scoped`, which put those components into the name explicitly, and an omitted first argument is defined as shorthand for `element-scoped property-index-scoped`. As of July 13, 2026, Safari implements the behavior but not the keywords: `CSS.supports("top", "random(--k property-scoped, 1px, 2px)")` returns `false`, while the same test with `element-scoped` returns `true`. Chrome returns `true` for all three. Leave the argument out, and you get the default in either browser; write it out, and Safari discards the declaration.
+
+This reduces the whole model to one sentence worth remembering as you read the rest of the post. The name is built from what you write inside the parentheses, plus the object being styled, plus the document, and from nothing else. No selector, no specificity, no position in the cascade, no document order.
+
+> **Note**: The specification requires the element identifier to have the same lifetime and equivalence semantics as a JavaScript reference to the `Element`. A piece, therefore, keeps its values for as long as that element object lives. Moving it to a new parent, or removing it and inserting it again, changes nothing, and inserting a new piece alongside it will not disturb its neighbors the way an `nth-child` rule would. Clone the piece, on the other hand, and the copy is a new object, so it arrives with a fresh set of values of its own.
+
+### Controlling the Name
+
+The first argument to `random()` specifies where the name is set and accepts a `<dashed-ident>` alongside one or more keywords.
+
+The `element-scoped` keyword puts the element into the name, so the value varies from element to element. The `<dashed-ident>` supplies a name of your own, which two functions can then share:
+
+```css
+.item {
+  block-size: random(--item-size element-scoped, 2rem, 6rem);
+  inline-size: random(--item-size element-scoped, 2rem, 6rem);
+}
+```
+
+Both functions resolve to the same name, so both receive the same base value, and every `.item` is a square. The element is still part of the name, so each square is a different size, but that has nothing to do with `.item` being the selector. Remove `element-scoped`, and the element drops out of the name: the squares remain squares, but each is now the same size because they all share a single base value.
+
+Two functions with the same name share a base value, not a result. The base is a number between zero and one; the bounds play no part in the name at all. Two functions sharing a name but declaring different bounds therefore produce correlated results rather than identical ones. A base value of `0.25` turns `random(--drift element-scoped, 0deg, 360deg)` into `90deg` and `random(--drift element-scoped, 2s, 6s)` into `3s`. That is one way to make a piece that falls slowly also rotate less, and an equally effective way to accidentally tie together two values that were meant to be independent.
+
+There is a third argument worth knowing about, though it does not appear in the confetti demo code. `fixed <number>` supplies the base value directly and bypasses the name entirely, so `random(fixed 0.5, 0deg, 360deg)` is always `180deg`. The obvious question is why you would not simply write `180deg`, and the answer is that the keyword is not really aimed at developers. It exists so that a browser can defer a random value it cannot yet resolve. A declaration such as `inline-size: random(2rem, 50%)` needs the containing block before it can be simplified, but the base value has to be settled before inheritance, so the specification requires the base to be written into the computed value, giving something along the lines of `random(fixed 0.1234, 2rem, 50%)`. [The specification says as much itself](https://drafts.csswg.org/css-values-5/#valdef-random-fixed), calling the keyword a fix for corner cases in inheritance that would otherwise stop elements from sharing values when an author expects them to.
+
+You can still borrow it, and testing is the one place it earns its keep. Replacing a random value with a literal in a test means testing a stylesheet nobody will ever load. Replacing the key with `fixed 0.5` leaves the declaration running through the same machinery, the same bounds, and the same step, while producing the same computed value on every run, which is what a visual regression snapshot needs. Note that `fixed 1` will not pin a value to its upper bound: base values live in the half-open range from zero up to but excluding one, and the specification clamps `1` to the largest representable value below it.
+
+### random() Inside a Custom Property
+
+Every visual property of a confetti piece is driven by a custom property, which makes one behavior worth understanding before the randomness is introduced.
+
+An unregistered custom property does not evaluate a `random()` and store the number. It stores the text of the function. When `var()` substitutes that text into a property, the function is evaluated *there*, and picks up the name of the property it landed in. A custom property read once is unaffected by this. A custom property read twice is evaluated twice, under two different names, and produces two different values.
+
+Two of the custom properties in the base styles are read twice. `--piece-size` feeds both `block-size` and the `inline-size` calculation. `--piece-alpha` feeds both the alpha channel of the `oklch()` color and the `opacity` property. Written without an explicit name (`<dashed-ident>`), the two sizes would stop agreeing, and the color would stop matching the opacity:
+
+```css
+.confetti-piece {
+  /* read twice, evaluated twice, two different numbers */
+  --piece-size: random(element-scoped, 0.35rem, 1rem, 0.05rem);
+}
+```
+
+Giving each function an explicit name removes the problem, because the name no longer depends on the property the value is substituted into:
+
+```css
+.confetti-piece {
+  --piece-size: random(--piece-size element-scoped, 0.35rem, 1rem, 0.05rem);
+}
+```
+
+The same reasoning applies to `--piece-rotation`, which is read at the start of the animation and again when calculating where the piece should end up, and which has to produce the same angle in both places for a piece to spin away from where it started rather than jumping.
+
+The specification offers a second way out: to register the property with [`@property`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@property) using a syntax other than the universal `*`. A registered property evaluates the function within the property itself, so the resolved value is what gets substituted, and it is also the prescribed answer for the case where a random value is declared on an ancestor and needs to be shared by a whole subtree, since an unregistered custom property inherits the function rather than the number, and every descendant that reads it produces its own value.
+
+That is the theory, and Chromium implements it. Safari does not:
+
+> **Note**: You can watch this happen. The demo has a button that registers the custom properties with `@property` at runtime. Press it in Safari, and the confetti stops dead: every piece collapses onto the initial values of the now-registered properties. Press it in Chrome, and the confetti keeps falling, exactly as it should. That is the state of things as of July 13, 2026.
+
+```css
+@property --piece-size {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 999px;
+}
+
+.confetti-piece {
+  --piece-size: random(0.35rem, 1rem, 0.05rem);
+}
+```
+
+Read `--piece-size` back in Safari, and it returns `999px`, the initial value. No base value maps `random(0.35rem, 1rem)` onto that, so the declaration was not merely unrandomized; it was discarded, and the property fell back to its initial value. A registered property holds a percentage or a length perfectly well; it is the `random()` that it rejects. Registering every custom property in the confetti field, which is where I started, produces a field of identical pieces at their initial values, which looks convincingly like the function is failing to randomize anything and is, in fact, the function never running. The same page in Chrome Canary keeps throwing confetti.
+
+So naming the key is not one of the two options today. It is the portable one. That is a shame, because registration is the more robust answer in principle, and the one to reach for once WebKit catches up.
+
+A reasonable habit, then: when a `random()` lives inside a custom property, give it a name. The name costs nothing when the property is read once, and it removes the trap entirely when a later change reads it twice.
+
+### Protecting the Fallback
+
+The `nth-child` rules are the fallback for browsers without `random()`, and a custom property declaration is exactly what could quietly destroy that fallback.
+
+A `random()` written directly in a property is validated when the stylesheet is parsed. If the browser does not understand it, the declaration is discarded, and the property falls back through the cascade, which is the ordinary and safe way for CSS to fail. Custom properties do not get that protection. A declaration like `--piece-x: random(--piece-x element-scoped, 0%, 100%, 1%)` is accepted as text by every browser, and the failure is deferred until `var(--piece-x)` is substituted into `inset-inline-start`, at which point the value is invalid at computed value time and the property resolves to its initial value rather than to the `nth-child` value beneath it. The same broken syntax, two very different consequences. Every piece would gather in one corner.
+
+<BaselineStatus id="supports" />
+
+Placing the randomness inside [`@supports`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@supports) keeps the two paths apart:
+
+```css
+@supports (width: random(--k element-scoped, 1px, 2px)) {
+  .confetti-piece {
+    --piece-alpha: random(--piece-alpha element-scoped, 0.48, 0.92, 0.04);
+    --piece-hue: random(--piece-hue element-scoped, 0deg, 360deg);
+    --piece-radius: random(--piece-radius element-scoped, 0.04rem, 0.32rem, 0.02rem);
+    --piece-ratio: random(--piece-ratio element-scoped, 0.45, 1.65, 0.05);
+    --piece-rotation: random(--piece-rotation element-scoped, -1turn, 1turn);
+    --piece-size: random(--piece-size element-scoped, 0.35rem, 1rem, 0.05rem);
+    --piece-static-y: random(--piece-static-y element-scoped, 4%, 92%, 1%);
+    --piece-x: random(--piece-x element-scoped, 0%, 100%, 1%);
+  }
+}
+```
+
+Note that the query tests the exact syntax the code depends on, `element-scoped` and all, rather than the bare `random(1px, 2px)`. The keyword arrived later than the function itself, and a browser that supports one without the other would pass the looser test and then fail on the declarations. A feature query is most useful when it asks about the syntax being used rather than the feature it belongs to.
+
+The fourth argument on several of these is the step: `random(--piece-x element-scoped, 0%, 100%, 1%)` returns whole percentages rather than values like `43.229178%`, which keeps the computed values readable while inspecting them.
+
+### Wait, Is random() Doing Anything?
+
+Refresh the page, and the field does look different. It also looks wrong. The pieces still march through the same eight hues, they still line up along the same eight columns, and the whole point of the exercise appears to have gone missing. Some randomness is clearly getting through, so the function is running. Most of it is not.
+
+The cascade is the culprit, and not in the way one might first assume. It is tempting to reach for source order, since the `@supports` block sits at the end of the stylesheet. Source order never gets a say here, because specificity is decided first, and the two selectors are not equally specific:
+
+```css
+/* (0, 2, 0) — a class and a pseudo-class */
+.confetti-piece:nth-child(8n + 1) {
+  --piece-hue: 16deg;
+}
+
+/* (0, 1, 0) — a class, and a feature query contributes nothing */
+@supports (width: random(--k element-scoped, 1px, 2px)) {
+  .confetti-piece {
+    --piece-hue: random(--piece-hue element-scoped, 0deg, 360deg);
+  }
+}
+```
+
+An `@supports` rule is a conditional group rule. It decides whether its contents apply at all, and then steps out of the way. It adds nothing to the specificity of the selectors inside it. So `.confetti-piece:nth-child(8n + 1)` wins on specificity, the fallback overwrites the enhancement, and every custom property the `nth-child` rules touch keeps its hardcoded value. The only randomness that survives is on the properties the fallback never sets, `--piece-drift`, `--piece-y`, `--piece-delay`, and `--piece-duration`, which is precisely enough randomness to make the field look plausible at a glance and disguise the problem.
+
+There are two ways out of this.
+
+#### The first way: guard the fallback too
+
+If the fallback rules do not apply in supporting browsers, they cannot win anything:
+
+```css
+@supports not (width: random(--k element-scoped, 1px, 2px)) {
+  .confetti-piece:nth-child(8n + 1) {
+    /* ... */
+  }
+  /* and the other ten rules */
+}
+```
+
+This works, and it is easy to reason about. It also leaves you maintaining the same feature query in two places, in opposite senses, and the day one of them is edited and the other is not, the two branches will either both apply or neither will. The condition is long; it will grow longer if the syntax shifts again, and nothing in the code will remind you that its twin exists. That is a maintenance liability, and it is worth avoiding for a fallback whose entire job is to be quietly correct.
+
+#### The better way: put the fallback in a cascade layer
+
+<BaselineStatus id="cascade-layers" />
+
+```css
+@layer fallback {
+  .confetti-piece {
+    --piece-alpha: 0.72;
+    --piece-hue: 210deg;
+    --piece-radius: 0.12rem;
+    --piece-ratio: 1;
+    --piece-rotation: 0deg;
+    --piece-size: 0.62rem;
+    --piece-static-y: 50%;
+    --piece-x: 50%;
+
+    background: oklch(72% 0.2 var(--piece-hue) / var(--piece-alpha));
+    block-size: var(--piece-size);
+    border-radius: var(--piece-radius);
+    filter: saturate(0.84);
+    inline-size: calc(var(--piece-size) * var(--piece-ratio));
+    inset-block-start: var(--piece-static-y);
+    inset-inline-start: var(--piece-x);
+    opacity: var(--piece-alpha);
+    position: absolute;
+    transform: rotate(var(--piece-rotation));
+    transform-origin: center;
+  }
+
+  .confetti-piece:nth-child(8n + 1) {
+    --piece-hue: 16deg;
+    /* ... */
+  }
+  /* and the other ten rules */
+}
+
+@supports (width: random(--k element-scoped, 1px, 2px)) {
+  .confetti-piece {
+    filter: none;
+    --piece-hue: random(--piece-hue element-scoped, 0deg, 360deg);
+    /* ... */
+  }
+}
+```
+
+Note what went into the layer. Not only the `nth-child` rules, but the base `.confetti-piece` rule with them, and this is not optional. Cascade layers are consulted before specificity, and unlayered styles beat layered ones. Leave the base rule outside the layer, and it beats every `nth-child` rule inside it, regardless of the fact that `:nth-child()` is the more specific selector. Every piece would take `--piece-x: 50%` from the defaults, and the fallback would never produce anything at all. Moving the `nth-child` rules into a layer resolves their collision with the enhancement and quietly creates a new one with the defaults, unless the defaults already apply.
+
+The line to draw, then, is not around the rules that were in the way. It is around everything that is not the enhancement. The base styles and the `nth-child` refinements together determine how the page looks without `random()`; that whole thing is the fallback, and it belongs in the layer.
+
+Two things recommend this arrangement. The first is that the code now says what it means. A layer named `fallback` announces its own role, where a bare block of `nth-child` rules announces nothing at all.
+
+The second is that it works, and for a reason that sits above specificity rather than fighting it. The declarations inside `@layer fallback` belong to a layer; the declarations inside the `@supports` block do not belong to any layer, because a feature query is not a layer. Unlayered beats layered, so the enhancement wins outright, and it no longer matters that `:nth-child()` is the more specific selector, nor where either rule sits in the file. The `@supports` block is free to use whatever selector it likes.
+
+> **Note**: A cascade layer decides which of two competing declarations wins. It does not decide whether a declaration applies. Move a property into `@layer fallback` that the enhanced rules never declare, and there is nothing for the layer priority to beat, so the declaration applies everywhere, in every browser. That is exactly what would happen to the muted `filter` above, quietly desaturating the enhanced pieces as well, were it not for the `filter: none` in the `@supports` block giving it something to lose to. A layer is not a condition. A feature query is.
+
+One trade-off worth stating plainly. The fallback now depends on `@layer`, so a browser that supports neither `random()` nor `@layer` would drop the fallback rules and show a single stack of identical pieces. In practice, this is not a concern, since cascade layers have been Baseline since 2022 and any browser old enough to lack them is old enough to have other problems, but it is the kind of dependency worth noticing rather than discovering.
+
+Fifty pieces, fifty positions, sizes, hues, and rotations, and not a single `nth-child` selector doing the work.
+
+## Making It Rain Confetti
+
+To turn the field into confetti, each piece needs to fall, drift sideways, spin as it goes, and do all of that on its own schedule. Every one of those is another random value, and the animation is where the values we already have start working together.
+
+Four new custom properties join the ones from the previous section:
+
+```css
+@supports (width: random(--k element-scoped, 1px, 2px)) {
+  .confetti-piece {
+    --piece-delay: random(--piece-delay element-scoped, -9s, 0s, 0.25s);
+    --piece-drift: random(--piece-drift element-scoped, -18rem, 18rem, 0.5rem);
+    --piece-duration: random(--piece-duration element-scoped, 4s, 10s, 0.25s);
+    --piece-spin: random(--piece-spin element-scoped, -1turn, 1turn);
+    --piece-y: random(--piece-y element-scoped, -18svh, 16svh, 1svh);
+
+    --piece-end-spin: calc(var(--piece-rotation) + var(--piece-spin));
+    --piece-end-y: calc(130svh + var(--piece-y));
+
+    animation-delay: var(--piece-delay);
+    animation-duration: var(--piece-duration);
+    animation-iteration-count: infinite;
+    animation-name: confetti-fall;
+    animation-timing-function: linear;
+    inset-block-start: -20svh;
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, var(--piece-y), 0) rotate(var(--piece-rotation));
+  }
+
+  12%,
+  84% {
+    opacity: var(--piece-alpha);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--piece-drift), var(--piece-end-y), 0)
+      rotate(var(--piece-end-spin));
+  }
+}
+```
+
+> **Note**: The five animation longhands could be written as a single shorthand, `animation: confetti-fall var(--piece-duration) linear var(--piece-delay) infinite`, where the first time is the duration and the second is the delay. I have kept them apart here because each one is doing something worth pointing at, and a shorthand hides that. It is also worth knowing that the shorthand resets every animation longhand; it does not return to its initial value, which is exactly why `animation: none` in the reduced-motion block further down is enough to switch the whole thing off.
+
+### The Negative Delay
+
+The single most important value here is `--piece-delay`, and the important thing about it is that it is negative.
+
+An animation with a negative delay does not wait. It starts immediately, already partway through its cycle, as though it had begun some time in the past. A piece with a delay of `-6s` and a duration of `8s` appears three-quarters of the way through its fall, the instant the page loads. Give every piece its own negative delay, and the field arrives mid-flight, pieces at every stage of their journey, with no synchronized wave of fifty squares dropping in unison from the top of the screen.
+
+This is the trick that would otherwise need JavaScript. The usual approach is a loop that sets a stagger on each element, or a scheduler that releases pieces over time. Here it is one declaration, and the browser does the arithmetic.
+
+The range matters. The delays run to `-9s` and the durations to `10s`, so a piece can start at almost any point in its cycle. If the most negative delay were much shorter than the longest duration, the pieces with long durations would still cluster near the beginning of their fall, and the field would look top-heavy for the first few seconds.
+
+### Falling, Drifting, and Spinning
+
+The rest of the movement comes from the two `transform` declarations in the keyframes.
+
+Vertical travel is the simple part. The pieces sit at `inset-block-start: -20svh`, above the top of the field. Each one starts at `--piece-y`, a random offset between `-18svh` and `16svh`, which spreads them out vertically rather than lining them up along a single edge. They end at `--piece-end-y`, which is `130svh` plus that same offset, comfortably past the bottom. The piece travels the whole height of the viewport and then some, and `overflow: clip` on the field hides the arrivals and departures.
+
+Horizontal travel is `--piece-drift`, a random value between `-18rem` and `18rem`. Some pieces sail left, some right, some barely move at all. A real piece of confetti does not fall straight down, and neither do these.
+
+The spin is the interesting one, and it is where the naming from earlier does its work:
+
+```css
+--piece-end-spin: calc(var(--piece-rotation) + var(--piece-spin));
+```
+
+`--piece-rotation` is the angle the piece starts at, and it appears in two places: at the `0%` keyframe and inside this calculation. If those two evaluations produced different angles, the piece would jump the instant the animation began, snapping from one rotation to another. They do not, because `--piece-rotation` carries an explicit name, so both substitutions resolve to the same random cache name and therefore to the same base value. The piece begins where it begins, and the end angle is that same starting angle plus `--piece-spin`, a full turn in either direction. Every piece rotates by its own amount, in its own direction, starting from its own angle.
+
+The opacity ramp is the same story with `--piece-alpha`. The piece fades in over the first twelfth of its fall and fades out over the last sixth, and the value it fades to is the same alpha used in the `oklch()` color, because that property is named too. Were it not, the piece would fade to one alpha and be painted at another.
+
+### Respecting Reduced Motion
+
+Continuous motion of many objects at once is a documented trigger for people with vestibular disorders and can cause dizziness, nausea, and migraine. A field of fifty pieces falling without pause is close to a worst case. This is not a nicety to bolt on afterward.
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece {
+    animation: none;
+    inset-block-start: var(--piece-static-y);
+    transform: rotate(var(--piece-rotation));
+  }
+}
+```
+
+The animation is switched off entirely, and each piece drops back to a resting position at `--piece-static-y`, a random height between `4%` and `92%`, still rotated to its own random angle. The result is neither a degraded nor a slower animation. It is a still field of scattered, tilted, differently sized, differently colored pieces, which is a clean and stable fallback.
+
+That is what `--piece-static-y` has been for all along. It carries a random value that the animated path never touches, waiting for the branch that needs it.
+
+## The Cleaned-Up Version
+
+I promised earlier to show what this looks like without the `nth-child` shenanigans, so here it is. Drop the fallback layer, and with it the feature query that existed to keep the two paths apart, and the whole thing collapses into one rule, one set of keyframes, and one media query:
+
+```css
+.confetti-field {
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+.confetti-piece {
+  --piece-alpha: random(--piece-alpha element-scoped, 0.48, 0.92, 0.04);
+  --piece-delay: random(--piece-delay element-scoped, -9s, 0s, 0.25s);
+  --piece-drift: random(--piece-drift element-scoped, -18rem, 18rem, 0.5rem);
+  --piece-duration: random(--piece-duration element-scoped, 4s, 10s, 0.25s);
+  --piece-hue: random(--piece-hue element-scoped, 0deg, 360deg);
+  --piece-radius: random(--piece-radius element-scoped, 0.04rem, 0.32rem, 0.02rem);
+  --piece-ratio: random(--piece-ratio element-scoped, 0.45, 1.65, 0.05);
+  --piece-rotation: random(--piece-rotation element-scoped, -1turn, 1turn);
+  --piece-size: random(--piece-size element-scoped, 0.35rem, 1rem, 0.05rem);
+  --piece-spin: random(--piece-spin element-scoped, -1turn, 1turn);
+  --piece-static-y: random(--piece-static-y element-scoped, 4%, 92%, 1%);
+  --piece-x: random(--piece-x element-scoped, 0%, 100%, 1%);
+  --piece-y: random(--piece-y element-scoped, -18svh, 16svh, 1svh);
+
+  --piece-end-spin: calc(var(--piece-rotation) + var(--piece-spin));
+  --piece-end-y: calc(130svh + var(--piece-y));
+
+  animation-delay: var(--piece-delay);
+  animation-duration: var(--piece-duration);
+  animation-iteration-count: infinite;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  background: oklch(72% 0.2 var(--piece-hue) / var(--piece-alpha));
+  block-size: var(--piece-size);
+  border-radius: var(--piece-radius);
+  inline-size: calc(var(--piece-size) * var(--piece-ratio));
+  inset-block-start: -20svh;
+  inset-inline-start: var(--piece-x);
+  position: absolute;
+  transform-origin: center;
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, var(--piece-y), 0) rotate(var(--piece-rotation));
+  }
+
+  12%,
+  84% {
+    opacity: var(--piece-alpha);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--piece-drift), var(--piece-end-y), 0)
+      rotate(var(--piece-end-spin));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece {
+    animation: none;
+    inset-block-start: var(--piece-static-y);
+    transform: rotate(var(--piece-rotation));
+  }
+}
+```
+
+Thirteen random values, one declaration each. This is the version worth keeping, and the version to write once support is broad enough not to need the other one.
+
+Be clear about what it costs today, though. Without the fallback, there is nothing behind the randomness, so in a browser without `random()`, every custom property here becomes invalid at computed value time, every piece lands on its initial values, and the field turns into a single small square in the corner. That is a fine trade for a demo and a poor one for a page anybody relies on, which is the whole reason the longer version exists.
+
+## Wrapping Up
+
+The finished field consists of 50 empty elements, 1 class, and no JavaScript. Every piece has its own position, size, aspect ratio, hue, opacity, corner radius, starting angle, spin, drift, fall duration, and place in the cycle. Turn off support for `random()` and the same fifty elements arrange themselves through a set of `nth-child` rules instead, muted slightly so that the fallback reads as deliberate. Ask for reduced motion and the field settles into a still, scattered arrangement that is worth looking at on its own terms.
+
+If one idea is worth carrying away from all of this, it is the random cache name. `random()` is not a dice roll that happens when the browser paints. It is a lookup, keyed by a name built from what you write inside the parentheses, the element being styled, and the document. Two properties that agree share a name. Two elements that differ do not. Get the name right, and the rest follows.
+
+The traps are worth restating because they are the ones I actually fell into. A `random()` inside an unregistered custom property is evaluated once per substitution, not once per declaration, so a property read twice yields two different values unless you give it an explicit name. A `random()` inside a custom property also fails at computed value time rather than parse time, which means it will not fall back gracefully and needs a feature query around it. And that feature query has to test the exact syntax you depend on, because partial implementations are precisely where progressive enhancement fails quietly.
+
+Which brings us to the state of the feature. `random()` is new enough that the specification moved while the first implementation was shipping, and new enough that the two engines that have it do not agree on all of it. Safari rejects `property-scoped` and `property-index-scoped`, and discards `random()` inside a registered custom property, both of which Chromium handles. MDN still documents a keyword that neither browser has.
+
+So this is not ready for production, and with the specification and the implementations both still in flux, experimenting with it can be a little tricky. It is also a powerful addition to the platform and well worth exploring now. If you run into inconsistencies or outright bugs, this is the moment to report them. The sooner they are flagged, the better the odds that when `random()` does land everywhere, it lands as something we can reach for with confidence.
+
+## Further Reading
+
+- [The `random()` function on MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/random), bearing in mind the divergences noted above
+- [Random value functions in CSS Values and Units Level 5](https://drafts.csswg.org/css-values-5/#random), the specification itself
+- [The random cache name](https://drafts.csswg.org/css-values-5/#random-cache-name), which is the part worth reading twice
+- [The `fixed` keyword](https://drafts.csswg.org/css-values-5/#valdef-random-fixed) and why it exists
+- [Rolling the Dice with CSS `random()`](https://webkit.org/blog/17285/rolling-the-dice-with-css-random/) on the WebKit blog, the implementer's own introduction, written before the rename and therefore still using `element-shared`
+- [Experimenting with the new pure CSS `random()` function](https://polypane.app/blog/experimenting-with-the-new-pure-css-random-function/) by Kilian Valkhof, which set me off down this road
+- [The confetti demo](https://css-confetti.schalkneethling.com), if you have not already opened it, with the [source on GitHub](https://github.com/schalkneethling/css-confetti)

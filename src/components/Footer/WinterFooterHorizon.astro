@@ -1,0 +1,119 @@
+<div class="winter-horizon" data-winter-horizon aria-hidden="true">
+  <template data-winter-horizon-template>
+    <picture class="winter-scene winter-scene--day">
+      <source srcset="/images/footer/winter-day.avif" type="image/avif" />
+      <source srcset="/images/footer/winter-day.webp" type="image/webp" />
+      <img
+        src="/images/footer/winter-day.png"
+        alt=""
+        width="1536"
+        height="1024"
+        decoding="async"
+      />
+    </picture>
+
+    <picture class="winter-scene winter-scene--night">
+      <source srcset="/images/footer/winter-night.avif" type="image/avif" />
+      <source srcset="/images/footer/winter-night.webp" type="image/webp" />
+      <img
+        src="/images/footer/winter-night.png"
+        alt=""
+        width="1536"
+        height="1024"
+        decoding="async"
+      />
+    </picture>
+  </template>
+</div>
+
+<style>
+  .winter-horizon {
+    aspect-ratio: 3 / 2;
+    inline-size: 100%;
+    pointer-events: none;
+  }
+
+  .winter-scene {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+  }
+
+  .winter-scene img {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+    object-fit: contain;
+  }
+
+  .winter-scene--night {
+    display: none;
+  }
+
+  :global(html.dark) .winter-scene--day {
+    display: none;
+  }
+
+  :global(html.dark) .winter-scene--night {
+    display: block;
+  }
+
+  @media (min-width: 48rem) {
+    .winter-horizon {
+      --winter-horizon-height: clamp(32rem, 58vw, 74rem);
+      aspect-ratio: auto;
+      block-size: var(--winter-horizon-height);
+      overflow: hidden;
+    }
+
+    .winter-scene {
+      block-size: auto;
+      margin-block-start: calc(var(--winter-horizon-height) - 66.6667vw);
+    }
+
+    .winter-scene img {
+      block-size: auto;
+    }
+  }
+</style>
+
+<script>
+  const renderWinterHorizon = async (host: HTMLElement) => {
+    if (host.dataset.loaded === "true") return;
+
+    const template = host.querySelector<HTMLTemplateElement>(
+      "[data-winter-horizon-template]",
+    );
+    if (!template) return;
+
+    if (!host.querySelector(".winter-scene")) {
+      host.append(template.content.cloneNode(true));
+    }
+
+    const images = host.querySelectorAll<HTMLImageElement>(".winter-scene img");
+    await Promise.all(
+      Array.from(images, (image) =>
+        image.complete ? Promise.resolve() : image.decode().catch(() => undefined),
+      ),
+    );
+    host.dataset.loaded = "true";
+  };
+
+  document.querySelectorAll<HTMLElement>("[data-winter-horizon]").forEach((host) => {
+    if (!("IntersectionObserver" in window)) {
+      void renderWinterHorizon(host);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        await renderWinterHorizon(host);
+        observer.disconnect();
+      },
+      { rootMargin: "240px 0px" },
+    );
+
+    observer.observe(host);
+  });
+</script>

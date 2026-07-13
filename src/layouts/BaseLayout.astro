@@ -29,6 +29,25 @@ const socialImageUrl = socialImage
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
+    <script is:inline>
+      (() => {
+        const getStoredTheme = () => {
+          try {
+            return localStorage.getItem("theme");
+          } catch {
+            return null;
+          }
+        };
+        const storedTheme = getStoredTheme();
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const isDark = storedTheme === "dark" ||
+          (storedTheme !== "light" && prefersDark);
+
+        document.documentElement.classList.toggle("dark", isDark);
+      })();
+    </script>
     <meta name="generator" content={Astro.generator} />
 
     <title>{pageTitle} - Schalk Neethling - Open Web Engineer</title>
@@ -41,9 +60,10 @@ const socialImageUrl = socialImage
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <link rel="mask-icon" href="safari-pinned-tab.svg" color="#b04198" />
-    <meta name="msapplication-TileColor" content="#ffc40d" />
-    <meta name="theme-color" content="#ffffff" />
+    <link rel="mask-icon" href="safari-pinned-tab.svg" color="#014f86" />
+    <meta name="msapplication-TileColor" content="#012a4a" />
+    <meta name="theme-color" content="#f7fbfe" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#012a4a" media="(prefers-color-scheme: dark)" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@schalkneethling.com" />

@@ -1,0 +1,22 @@
+{
+  "id": "ossreleasefeed-v2",
+  "title": "ossreleasefeed-v2",
+  "repoUrl": "https://github.com/schalkneethling/ossreleasefeed-v2",
+  "refreshedAt": "2026-07-06T17:36:18.744Z",
+  "docs": {
+    "goal": {
+      "filename": "GOAL.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/ossreleasefeed-v2/master/GOAL.md",
+      "status": "missing",
+      "statusCode": 404,
+      "content": ""
+    },
+    "roadmap": {
+      "filename": "ROADMAP.md",
+      "sourceUrl": "https://raw.githubusercontent.com/schalkneethling/ossreleasefeed-v2/master/ROADMAP.md",
+      "status": "missing",
+      "statusCode": 404,
+      "content": ""
+    }
+  }
+}

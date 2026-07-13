@@ -1,0 +1,73 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+import ProjectCard from "./ProjectCard.astro";
+import { getProjectPath } from "../../lib/projectPages";
+
+interface Props {
+  heading: string;
+  headingId: string;
+  intro?: string;
+  minColumnWidth?: number;
+  projects: CollectionEntry<"projects">[];
+}
+
+const { heading, headingId, intro, minColumnWidth = 280, projects } =
+  Astro.props;
+
+const getCardUrl = (project: CollectionEntry<"projects">) => {
+  if (project.data.category === "demo") {
+    return project.data.liveUrl ?? project.data.repoUrl;
+  }
+
+  return getProjectPath(project.id);
+};
+
+const getCardLinkLabel = (project: CollectionEntry<"projects">) => {
+  if (project.data.category !== "demo") {
+    return "View project";
+  }
+
+  return project.data.liveUrl ? "Open demo" : "View repository";
+};
+---
+
+<section aria-labelledby={headingId}>
+  <h2 id={headingId} class="gradient-text">{heading}</h2>
+  {intro && <p>{intro}</p>}
+  <masonry-grid-lanes min-column-width={minColumnWidth} gap="24">
+    {
+      projects.map((project) => (
+        <ProjectCard
+          name={project.data.title}
+          description={project.data.description}
+          url={getCardUrl(project)}
+          language={project.data.language ?? null}
+          stars={project.data.stars ?? 0}
+          imageUrl={project.data.imageUrl ?? ""}
+          featured={project.data.category === "main"}
+          linkLabel={getCardLinkLabel(project)}
+        />
+      ))
+    }
+  </masonry-grid-lanes>
+</section>
+
+<style>
+  section {
+    margin-block-start: var(--spacing-section-large);
+  }
+
+  masonry-grid-lanes {
+    display: block;
+    inline-size: 100%;
+    margin-block-start: var(--size-24);
+    position: relative;
+  }
+
+  masonry-grid-lanes:not(:defined) {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+</style>

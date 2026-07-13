@@ -1,13 +1,53 @@
 ---
 import Navigation from "./Header/Navigation.astro";
+import ThemeSwitch from "./Header/ThemeSwitch.astro";
 ---
 
 <header class="page-header">
-  <Navigation />
+  <div class="page-header-inner">
+    <Navigation />
+    <ThemeSwitch />
+  </div>
 </header>
 
 <style>
   .page-header {
     border-block-end: var(--size-1) solid var(--color-border);
+  }
+
+  .page-header-inner {
+    align-items: center;
+    display: grid;
+    gap: var(--size-16);
+    grid-template-columns: 1fr;
+    margin-inline: auto;
+    max-inline-size: 75rem;
+    padding-block: var(--size-16);
+    padding-inline: var(--size-16);
+  }
+
+  .page-header-inner :global(.main-nav) {
+    justify-self: center;
+    padding-block: 0;
+  }
+
+  .page-header-inner :global(.theme-switch) {
+    justify-self: center;
+  }
+
+  @media (min-width: 64rem) {
+    .page-header-inner {
+      grid-template-columns: minmax(2.75rem, 1fr) auto minmax(2.75rem, 1fr);
+      padding-inline: var(--size-32);
+    }
+
+    .page-header-inner :global(.main-nav) {
+      grid-column: 2;
+    }
+
+    .page-header-inner :global(.theme-switch) {
+      grid-column: 3;
+      justify-self: end;
+    }
   }
 </style>

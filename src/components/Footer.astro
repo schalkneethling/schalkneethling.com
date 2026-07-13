@@ -1,5 +1,6 @@
 ---
 import Social from "./Social.astro";
+import WinterFooterHorizon from "./Footer/WinterFooterHorizon.astro";
 
 const socialLinks = [
   {
@@ -22,29 +23,45 @@ const socialLinks = [
 ---
 
 <footer class="page-footer">
-  <div class="footer-content">
-    <nav aria-label="Social links" class="social-nav">
-      <ul class="social-links">
-        {
-          socialLinks.map((link) => (
-            <li>
-              <Social {...link} />
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
-    <p class="footer-copyright">
-      Copyright © {new Date().getFullYear()} - Schalk Neethling
-    </p>
+  <WinterFooterHorizon />
+  <div class="footer-panel">
+    <div class="footer-content">
+      <nav aria-label="Social links" class="social-nav">
+        <ul class="social-links">
+          {
+            socialLinks.map((link) => (
+              <li>
+                <Social {...link} />
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <p class="footer-copyright">
+        Copyright © {new Date().getFullYear()} - Schalk Neethling
+      </p>
+    </div>
   </div>
 </footer>
 
 <style>
   .page-footer {
-    background-color: var(--color-surface);
-    border-block-start: var(--size-1) solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    inline-size: 100vw;
     margin-block-start: auto;
+    margin-inline: calc(50% - 50vw);
+    position: relative;
+  }
+
+  .footer-panel {
+    background:
+      linear-gradient(
+        180deg,
+        var(--color-footer-background) 0%,
+        var(--color-footer-background-end) 100%
+      );
+    order: -1;
     padding-block: var(--size-48);
   }
 
@@ -97,7 +114,7 @@ const socialLinks = [
 
   .footer-attribution,
   .footer-copyright {
-    color: var(--color-text-muted);
+    color: var(--color-text);
     font-size: var(--typography-size-small);
     margin: 0;
   }
@@ -107,6 +124,21 @@ const socialLinks = [
   }
 
   @media (min-width: 48rem) {
+    .footer-panel {
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        color-mix(in srgb, var(--color-footer-background) 58%, transparent) 38%,
+        var(--color-footer-background) 100%
+      );
+      inset-block-end: 0;
+      inset-inline: 0;
+      order: initial;
+      padding-block: clamp(7rem, 12vw, 11rem) var(--size-32);
+      position: absolute;
+      z-index: 1;
+    }
+
     .footer-content {
       padding-inline: var(--size-32);
     }

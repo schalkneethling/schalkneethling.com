@@ -24,6 +24,7 @@
     "@astrojs/check": "^0.9.9",
     "@astrojs/mdx": "^7.0.0",
     "@astrojs/rss": "^4.0.19",
+    "@lucide/astro": "^1.23.0",
     "@schalkneethling/masonry-gridlanes-wc": "^0.1.0",
     "astro": "^7.0.4",
     "astro-embed": "^0.13.0",

@@ -14,6 +14,22 @@ interface Props {
 
 const { heading, headingId, intro, minColumnWidth = 280, projects } =
   Astro.props;
+
+const getCardUrl = (project: CollectionEntry<"projects">) => {
+  if (project.data.category === "demo") {
+    return project.data.liveUrl ?? project.data.repoUrl;
+  }
+
+  return getProjectPath(project.id);
+};
+
+const getCardLinkLabel = (project: CollectionEntry<"projects">) => {
+  if (project.data.category !== "demo") {
+    return "View project";
+  }
+
+  return project.data.liveUrl ? "Open demo" : "View repository";
+};
 ---
 
 <section aria-labelledby={headingId}>
@@ -25,12 +41,12 @@ const { heading, headingId, intro, minColumnWidth = 280, projects } =
         <ProjectCard
           name={project.data.title}
           description={project.data.description}
-          url={getProjectPath(project.id)}
+          url={getCardUrl(project)}
           language={project.data.language ?? null}
           stars={project.data.stars ?? 0}
           imageUrl={project.data.imageUrl ?? ""}
           featured={project.data.category === "main"}
-          linkLabel="View project"
+          linkLabel={getCardLinkLabel(project)}
         />
       ))
     }

@@ -18,9 +18,9 @@ const cards = await createCardsFromContentFiles({
     },
     contentAlign: "align-end",
     theme: {
-      accent: "#9D003D",
-      foreground: "#fff",
-      muted: "#fff",
+      accent: "#89C2D9",
+      foreground: "#F7FBFE",
+      muted: "#EAF7FC",
     },
   }),
 });

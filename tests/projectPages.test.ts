@@ -3,8 +3,18 @@ import { describe, expect, it } from "vitest";
 import { getProjectPath, getProjectStaticPaths } from "../src/lib/projectPages";
 
 const projects = [
-  { id: "css-community-reset", data: { title: "css-community-reset" } },
-  { id: "web-platform-pulse", data: { title: "web-platform-pulse" } },
+  {
+    id: "css-community-reset",
+    data: { category: "main", title: "css-community-reset" },
+  },
+  {
+    id: "little-demos",
+    data: { category: "demo", title: "little-demos" },
+  },
+  {
+    id: "web-platform-pulse",
+    data: { category: "main", title: "web-platform-pulse" },
+  },
 ] as const;
 
 describe("getProjectPath", () => {
@@ -24,7 +34,7 @@ describe("getProjectStaticPaths", () => {
       },
       {
         params: { slug: "web-platform-pulse" },
-        props: { project: projects[1] },
+        props: { project: projects[2] },
       },
     ]);
   });

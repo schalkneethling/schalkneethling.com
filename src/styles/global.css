@@ -7,46 +7,152 @@
 
 :root {
     /* Enable light/dark mode support */
-    color-scheme: light dark;
+    color-scheme: light;
+
+    /* Winter theme */
+    --theme-name: "Winter";
+    --winter-day-sky: #f7fbfe;
+    --winter-day-snow: #ffffff;
+    --winter-day-ice: #eaf7fc;
+    --winter-day-drift: #d6edf6;
+    --winter-day-line: #89c2d9;
+    --winter-day-ink: #012a4a;
+    --winter-day-muted: #2a6f97;
+    --winter-day-accent: #014f86;
+    --winter-day-accent-hover: #013a63;
+    --winter-evening-sky: #012a4a;
+    --winter-evening-horizon: #013a63;
+    --winter-evening-panel: #01497c;
+    --winter-evening-line: #2a6f97;
+    --winter-evening-ice: #eaf7fc;
+    --winter-evening-muted: #a9d6e5;
+    --winter-evening-accent: #89c2d9;
+    --winter-evening-accent-hover: #a9d6e5;
 
     /* Semantic color tokens using light-dark() */
-    --color-background: light-dark(#fff, #1b1b1b);
-    --color-text: light-dark(#1b1b1b, #f4f4f4);
-    --color-text-muted: light-dark(#5c5c5c, #a4a4a4);
-    --color-surface: light-dark(#f4f4f4, #2a2a2a);
-    --color-surface-elevated: light-dark(#fff, #343434);
-    --color-border: light-dark(#d5d5d5, #4e4e4e);
+    --color-background: light-dark(
+        var(--winter-day-sky),
+        var(--winter-evening-sky)
+    );
+    --color-background-end: light-dark(
+        var(--winter-day-ice),
+        var(--winter-evening-horizon)
+    );
+    --color-text: light-dark(
+        var(--winter-day-ink),
+        var(--winter-evening-ice)
+    );
+    --color-text-muted: light-dark(
+        var(--winter-day-muted),
+        var(--winter-evening-muted)
+    );
+    --color-surface: light-dark(
+        var(--winter-day-ice),
+        var(--winter-evening-horizon)
+    );
+    --color-surface-elevated: light-dark(
+        var(--winter-day-snow),
+        var(--winter-evening-panel)
+    );
+    --color-border: light-dark(
+        var(--winter-day-line),
+        var(--winter-evening-line)
+    );
+    --color-footer-background: light-dark(#c2e3f0, #013a63);
+    --color-footer-background-end: light-dark(#a9d6e5, #012a4a);
+    --color-footer-border: light-dark(
+        var(--winter-day-muted),
+        var(--winter-evening-accent)
+    );
+    --color-footer-scene-drift-back: light-dark(#d6edf6, #01497c);
+    --color-footer-scene-drift-middle: light-dark(#eaf7fc, #014f86);
+    --color-footer-scene-drift-front: var(--color-footer-background);
+    --color-footer-scene-line: light-dark(#2a6f97, #89c2d9);
+    --color-footer-scene-landmark: light-dark(#61a5c2, #012a4a);
+    --color-footer-scene-mountain-back: light-dark(#d6edf6, #013a63);
+    --color-footer-scene-mountain-front: light-dark(#89c2d9, #01497c);
+    --color-footer-scene-mountain-cap: light-dark(#ffffff, #89c2d9);
+    --color-footer-scene-pine: light-dark(#2a6f97, #2a6f97);
+    --color-footer-scene-snow-cap: light-dark(#ffffff, #a9d6e5);
+    --color-footer-scene-snowflake: light-dark(#468faf, #a9d6e5);
+    --color-footer-scene-celestial: light-dark(#2c7da0, #d6edf6);
+    --color-footer-scene-aurora: light-dark(#89c2d9, #61a5c2);
+    --color-footer-scene-window: light-dark(#eaf7fc, #d6edf6);
+    --color-footer-scene-path: light-dark(#ffffff, #2a6f97);
+    --color-footer-scene-footprint: light-dark(#2a6f97, #89c2d9);
 
     /* Reduce mobile typescale from 1.25 (major third) to 1.2 (minor third) */
     --minimalist-typography-scale-mobile: 1.2;
 
     /* Primary accent colors using light-dark() */
-    --color-accent: light-dark(#b04198, #dca2cb);
-    --color-accent-hover: light-dark(#561c4a, #ebc7e0);
-    --color-link: light-dark(#0342a4, #82a1d5);
-    --color-link-visited: light-dark(#561c4a, #c1aad5);
+    --color-accent: light-dark(
+        var(--winter-day-accent),
+        var(--winter-evening-accent)
+    );
+    --color-accent-hover: light-dark(
+        var(--winter-day-accent-hover),
+        var(--winter-evening-accent-hover)
+    );
+    --color-link: light-dark(
+        var(--winter-day-accent),
+        var(--winter-evening-accent-hover)
+    );
+    --color-link-visited: light-dark(
+        var(--winter-day-accent-hover),
+        var(--winter-evening-accent)
+    );
+    --minimalist-link-color: var(--color-link);
+    --minimalist-link-color-visited: var(--color-link-visited);
+    --minimalist-link-focus-visible-box-shadow: 0 0 0 var(--size-2)
+        var(--color-background);
+    --minimalist-link-focus-visible-outline: var(--size-2) solid
+        var(--color-accent);
 
     /* Table overrides */
-    --table-thead-bg-color: light-dark(#343434, #3d3d3d);
-    --table-thead-color: #f4f4f4;
+    --table-thead-bg-color: light-dark(
+        var(--winter-day-accent-hover),
+        var(--winter-evening-panel)
+    );
+    --table-thead-color: var(--winter-day-sky);
     --table-tbody-color: var(--color-text);
-    --table-tfoot-bg-color: light-dark(#d5d5d5, #343434);
-    --table-code-bg: light-dark(#e8e8e8, #3a3a3a);
+    --table-tfoot-bg-color: light-dark(
+        var(--winter-day-drift),
+        var(--winter-evening-horizon)
+    );
+    --table-code-bg: light-dark(
+        var(--winter-day-drift),
+        var(--winter-evening-horizon)
+    );
 
     /* Override minimalist table row backgrounds for dark mode */
-    --table-tbody-bg-odd: light-dark(#f4f4f4, #2d2d2d);
-    --table-tbody-bg-even: light-dark(#fff, #252525);
+    --table-tbody-bg-odd: light-dark(
+        var(--winter-day-ice),
+        var(--winter-evening-horizon)
+    );
+    --table-tbody-bg-even: light-dark(
+        var(--winter-day-snow),
+        var(--winter-evening-sky)
+    );
 
     /* Gradient for headings */
     --gradient-heading: linear-gradient(
         to right,
-        light-dark(var(--color-blue-base-60), var(--color-blue-light-30)),
-        light-dark(var(--color-primary-base-60), var(--color-primary-light-30))
+        light-dark(var(--winter-day-ink), var(--winter-evening-ice)),
+        light-dark(var(--color-blue-base-50), var(--winter-evening-accent))
     );
+}
+
+:root.dark {
+    color-scheme: dark;
 }
 
 /* Apply theme colors to body */
 body {
+    background-image: linear-gradient(
+        180deg,
+        var(--color-background) 0%,
+        var(--color-background-end) 100%
+    );
     background-color: var(--color-background);
     color: var(--color-text);
     overflow-wrap: anywhere;

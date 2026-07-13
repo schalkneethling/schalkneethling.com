@@ -4,3 +4,13 @@
 
 [build.environment]
   PLAYWRIGHT_BROWSERS_PATH = "0"
+
+[[redirects]]
+  from = "/now"
+  to = "/about"
+  status = 301
+
+[[redirects]]
+  from = "/now/"
+  to = "/about"
+  status = 301

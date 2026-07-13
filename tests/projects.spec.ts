@@ -42,6 +42,24 @@ test("/projects renders image headers for project cards", async ({ page }) => {
   );
 });
 
+test("/projects links little demos directly to repos or live apps", async ({
+  page,
+}) => {
+  await page.goto("/projects");
+
+  const littleDemos = page.getByLabel("Little demos");
+
+  await expect(
+    littleDemos.getByRole("link", { exact: true, name: /View repository/ }),
+  ).toHaveAttribute("href", "https://github.com/schalkneethling/little-demos");
+  await expect(
+    littleDemos.getByRole("link", { exact: true, name: /Open demo/ }).nth(0),
+  ).toHaveAttribute("href", "https://css-tree-ast-viewer.schalkneethling.com");
+  await expect(
+    littleDemos.getByRole("link", { exact: true, name: /Open demo/ }).nth(1),
+  ).toHaveAttribute("href", "https://jsconsole.schalkneethling.com");
+});
+
 test("project detail pages render project artifacts and links", async ({
   page,
 }) => {

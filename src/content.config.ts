@@ -25,7 +25,7 @@ const projectsCollection = defineCollection({
   schema: z.object({
     category: z.enum(["main", "demo"]),
     description: z.string(),
-    imageUrl: z.string().optional(),
+    imageUrl: z.string().trim().min(1),
     language: z.string().optional(),
     liveUrl: z.string().url().optional(),
     order: z.number().int().positive(),

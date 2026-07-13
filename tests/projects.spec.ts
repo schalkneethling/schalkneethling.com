@@ -5,11 +5,17 @@ test("/projects keeps project cards visible after masonry upgrade", async ({
 }) => {
   await page.goto("/projects");
 
-  const firstProject = page.getByRole("heading", {
-    name: "css-community-reset",
-  });
+  for (const sectionName of ["Projects", "Little demos"]) {
+    const cards = page
+      .getByLabel(sectionName)
+      .locator("article.project-card");
 
-  await expect(firstProject).toBeVisible();
+    expect(await cards.count()).toBeGreaterThan(1);
+    await cards.first().scrollIntoViewIfNeeded();
+    await expect(cards.first()).toBeVisible();
+    await cards.last().scrollIntoViewIfNeeded();
+    await expect(cards.last()).toBeVisible();
+  }
 });
 
 test("/projects renders image headers for project cards", async ({ page }) => {
@@ -96,8 +102,14 @@ test("project detail pages render project artifacts and links", async ({
     "https://github.com/schalkneethling/css-property-type-validator",
   );
   await expect(
+    page.getByRole("link", { exact: true, name: "Repository" }),
+  ).toHaveAttribute("target", "_blank");
+  await expect(
     page.getByRole("link", { exact: true, name: "Live project" }),
   ).toHaveAttribute("href", "https://typedcss-validator.schalkneethling.com");
+  await expect(
+    page.getByRole("link", { exact: true, name: "Live project" }),
+  ).toHaveAttribute("target", "_blank");
   await expect(
     page.getByRole("link", { exact: true, name: "GOAL.md" }),
   ).toHaveAttribute(

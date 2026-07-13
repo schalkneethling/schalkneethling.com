@@ -60,13 +60,22 @@ test("winter horizon keeps its focal scene across responsive widths", async ({
     expect(layout.image).toBeTruthy();
     expect(layout.image!.left).toBeCloseTo(layout.stage!.left, 0);
     expect(layout.image!.right).toBeCloseTo(layout.stage!.right, 0);
-    expect(layout.image!.top).toBeCloseTo(layout.stage!.top, 0);
     expect(layout.image!.bottom).toBeCloseTo(layout.stage!.bottom, 0);
     expect(layout.image!.width / layout.image!.height).toBeCloseTo(1.5, 2);
+
+    if (width >= 768) {
+      expect(layout.stage!.height).toBeLessThanOrEqual(layout.image!.height);
+      expect(layout.image!.top).toBeLessThanOrEqual(layout.stage!.top);
+      expect(layout.stage!.top - layout.image!.top).toBeLessThanOrEqual(
+        layout.image!.height * 0.15,
+      );
+    } else {
+      expect(layout.image!.top).toBeCloseTo(layout.stage!.top, 0);
+    }
   }
 });
 
-test("winter scene preserves its full frame on ultrawide screens", async ({
+test("winter scene stays full-width while anchoring the diorama on ultrawide screens", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 2048, height: 900 });
@@ -84,8 +93,12 @@ test("winter scene preserves its full frame on ultrawide screens", async ({
   expect(hostBox).not.toBeNull();
   expect(backdropStart).not.toBeNull();
   expect(hostBox!.width).toBeCloseTo(2048, 0);
-  expect(backdropStart).toEqual(hostBox);
-  await expect(backdrop).toHaveCSS("object-fit", "contain");
+  expect(backdropStart!.width).toBeCloseTo(hostBox!.width, 0);
+  expect(backdropStart!.y + backdropStart!.height).toBeCloseTo(
+    hostBox!.y + hostBox!.height,
+    0,
+  );
+  expect(backdropStart!.y).toBeLessThan(hostBox!.y);
 
   await page.waitForTimeout(500);
   const backdropLater = await backdrop.boundingBox();
@@ -110,6 +123,24 @@ test("winter horizon reserves its own space below article content", async ({
 
   expect(layout).not.toBeNull();
   expect(layout!.horizonTop).toBeGreaterThanOrEqual(layout!.mainBottom);
+});
+
+test("small screens keep the horizon before the social footer panel", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  const horizon = page.locator("[data-winter-horizon]");
+  const footerPanel = page.locator(".footer-panel");
+  const horizonBox = await horizon.boundingBox();
+  const footerPanelBox = await footerPanel.boundingBox();
+
+  expect(horizonBox).not.toBeNull();
+  expect(footerPanelBox).not.toBeNull();
+  expect(horizonBox!.y + horizonBox!.height).toBeLessThanOrEqual(
+    footerPanelBox!.y,
+  );
 });
 
 test("winter horizon stays rendered after its one-time lazy load", async ({
@@ -146,7 +177,7 @@ test("winter horizon reacts to theme changes without being recreated", async ({
   await expect(dayScene).toHaveCSS("display", "block");
   await expect(nightScene).toHaveCSS("display", "none");
 
-  await page.getByRole("switch", { name: "Dark mode" }).click();
+  await page.getByRole("radio", { name: "Dark" }).check();
 
   await expect(dayScene).toHaveCSS("display", "none");
   await expect(nightScene).toHaveCSS("display", "block");

@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { parse } from "yaml";
 
 const projectsDirectory = path.join(process.cwd(), "src/content/projects");
 
@@ -81,6 +82,16 @@ const readProjectFile = async (projectId: string) =>
 const missingFrontmatterFields = (contents: string, fields: string[]) =>
   fields.filter((field) => !new RegExp(`^${field}:`, "m").test(contents));
 
+const parseProjectFrontmatter = (contents: string) => {
+  const match = contents.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+
+  if (!match) {
+    throw new Error("Project file is missing frontmatter.");
+  }
+
+  return parse(match[1]) as { imageUrl?: unknown };
+};
+
 describe("project content", () => {
   it("defines imageUrl for every curated project card", async () => {
     const filenames = await fs.readdir(projectsDirectory);
@@ -93,7 +104,9 @@ describe("project content", () => {
         "utf8",
       );
 
-      if (!/^imageUrl:\s+".+"/m.test(contents)) {
+      const { imageUrl } = parseProjectFrontmatter(contents);
+
+      if (typeof imageUrl !== "string" || imageUrl.trim() === "") {
         filesWithoutImages.push(filename);
       }
     }

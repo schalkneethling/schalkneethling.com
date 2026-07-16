@@ -38,7 +38,7 @@
     "@schalkneethling/opengraph-cards-maker": "^0.3.0",
     "@varlock/1password-plugin": "^2.0.0",
     "axe-core": "^4.12.1",
-    "vitest": "^4.1.9",
+    "vitest": "^4.1.10",
     "yaml": "^2.8.4"
   },
   "packageManager": "pnpm@11.9.0"

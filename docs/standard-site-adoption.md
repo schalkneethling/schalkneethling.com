@@ -12,10 +12,17 @@ schalkneethling.com remains the canonical reading experience and source of
 truth for content published on this domain.
 
 - A post is eligible for a Standard.site document record when it has no
-  `canonical` frontmatter value, or when that value points to
-  `https://schalkneethling.com/`.
-- A post whose `canonical` value points to another domain, including DEV or
-  Medium, is excluded from phases 0–2.
+  `canonical` frontmatter value, or when its parsed, normalized URL origin is
+  exactly `https://schalkneethling.com`.
+- Origin matching ignores the URL path and trailing slash, normalizes hostname
+  casing, and treats the default HTTPS port (`443`) as equivalent. A different
+  scheme, hostname, or non-default port is not equivalent. For example,
+  `https://SCHALKNEETHLING.com/posts/example/` is eligible, while
+  `http://schalkneethling.com/` and `https://schalkneethling.com:8443/` are not.
+- A post whose `canonical` URL has a different normalized origin—including
+  another domain such as DEV or Medium, another scheme, or a non-default
+  port—is excluded from phases 0–2. An invalid or unparseable `canonical` value
+  is also excluded and must be reported as a validation error.
 - External-canonical posts must not be included implicitly by a generator or
   sync command. Supporting them later requires a separate policy decision.
 - Standard.site does not change the canonical URL emitted by a page.
@@ -52,15 +59,30 @@ backfill is not part of the initial rollout.
   ```
 
 - The content collection schema will validate this object while allowing all
-  existing posts to omit it.
+  existing posts to omit it. When `standardSite` is present, `publish` is
+  required and `documentAtUri` is optional. The valid states are:
+
+  - no `standardSite`: the post has no explicit Standard.site publishing
+    selection and sync skips it;
+  - `standardSite.publish: false` without `documentAtUri`: the post is
+    explicitly excluded and sync skips it;
+  - `standardSite.publish: false` with `documentAtUri`: the existing identifier
+    is retained, but sync neither updates nor deletes the remote record;
+  - `standardSite.publish: true` without `documentAtUri`: the post is selected
+    for creation; dry-run reports a create and explicit write mode creates the
+    record;
+  - `standardSite.publish: true` with `documentAtUri`: explicit write mode uses
+    the identifier to update the existing record.
+
+  A successful create must persist the returned `documentAtUri` in the same
+  post's `standardSite` frontmatter through a reviewable repository change. If
+  persistence fails, sync must stop and report the returned identifier so the
+  local state can be recovered before further writes.
 - Generated artifacts may be used for dry-run review, but they are not the
   durable source of record identifiers.
-- Returned AT-URIs must be persisted through a reviewable repository change;
-  sync tooling must not leave the remote and local state ambiguously out of
-  step.
 
-The exact field names may be refined when the schema is implemented, but the
-nested and optional shape is the adopted storage model.
+This nested, optional `standardSite` shape and its `publish` and
+`documentAtUri` invariants are the adopted storage model.
 
 ## Initial product scope
 

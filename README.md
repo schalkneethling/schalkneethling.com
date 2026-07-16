@@ -46,6 +46,16 @@ The generator uses `background.src` for the template image and
 `contentAlign: "align-end"` so the post text sits on the right while the
 background graphic remains on the left.
 
+## Standard.site
+
+The blog is adopting [Standard.site](https://standard.site/) as an AT Protocol
+metadata, discovery, and verification layer. The website remains the canonical
+reading experience.
+
+See the [Standard.site adoption policy](docs/standard-site-adoption.md) for
+content eligibility, rollout, record storage, safeguards, and the scope of the
+initial integration phases.
+
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).

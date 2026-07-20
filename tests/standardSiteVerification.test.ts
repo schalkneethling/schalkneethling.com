@@ -2,12 +2,15 @@ import { describe, expect, it } from "vitest";
 
 import {
   createPublicationVerificationResponse,
+  getDocumentVerificationLink,
   getPublicationDiscoveryLink,
   getPublicationVerificationPaths,
 } from "../src/lib/standardSiteVerification";
 
 const publicationAtUri =
   "at://did:plc:example/site.standard.publication/schalkneethling-com";
+const documentAtUri =
+  "at://did:plc:example/site.standard.document/example-post";
 
 describe("Standard.site publication verification", () => {
   it("does not add a discovery link without a publication AT-URI", () => {
@@ -41,5 +44,18 @@ describe("Standard.site publication verification", () => {
       "text/plain; charset=utf-8",
     );
     expect(await response.text()).toBe(publicationAtUri);
+  });
+});
+
+describe("Standard.site document verification", () => {
+  it("does not add a verification link without a document AT-URI", () => {
+    expect(getDocumentVerificationLink(undefined)).toBeUndefined();
+  });
+
+  it("adds the document verification link when configured", () => {
+    expect(getDocumentVerificationLink(documentAtUri)).toEqual({
+      rel: "site.standard.document",
+      href: documentAtUri,
+    });
   });
 });

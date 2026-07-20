@@ -29,6 +29,11 @@ const sourceEditUrl = `${REPO_EDIT_BASE_URL}${sourcePath}`;
 const socialImage = `/og/posts/${post.id}.png`;
 ---
 
-<MarkdownPostLayout frontmatter={post.data} socialImage={socialImage} sourceEditUrl={sourceEditUrl}>
+<MarkdownPostLayout
+  documentAtUri={post.data.standardSite?.documentAtUri}
+  frontmatter={post.data}
+  socialImage={socialImage}
+  sourceEditUrl={sourceEditUrl}
+>
   <Content />
 </MarkdownPostLayout>

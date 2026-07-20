@@ -10,12 +10,17 @@ schalkneethling.com will use a repository-local, dry-run-first command to create
 and update Standard.site records on the publishing account's AT Protocol
 Personal Data Server (PDS).
 
-The command will use the official TypeScript tooling:
+The command will use these direct, lockfile-pinned TypeScript dependencies:
 
 - [`@atproto/lex`](https://www.npmjs.com/package/@atproto/lex) for pinned
   Lexicon schemas, validation, generated types, and authenticated record calls;
 - [`@atproto/lex-password-session`](https://www.npmjs.com/package/@atproto/lex-password-session)
   for the owner-operated command's password session.
+
+Both packages are declared directly in `package.json` and locked in
+`pnpm-lock.yaml`. The repository also contains transitive `@atcute/*`
+dependencies through `astro-embed`; those are implementation details of that
+integration and are not imported by the Standard.site publishing workflow.
 
 The `site.standard.publication` and `site.standard.document` Lexicons will be
 installed into a committed `lexicons/` directory with their resolved CIDs
@@ -117,10 +122,10 @@ non-zero on selection, mapping, or Lexicon validation errors.
 ### Authenticated sync dry-run
 
 `standard-site:sync` builds the same offline plan in memory, authenticates once,
-verifies the publisher DID, and performs read-only requests for records that
-already have an AT-URI. It verifies record ownership, fetches current payloads
-and CIDs, and shows the exact creates, field-level updates, unchanged records,
-and skips that write mode would perform.
+verifies the publisher DID, and performs read-only requests for existing and
+expected record keys. It verifies record ownership, fetches current payloads
+and CIDs, and shows the exact creates, reconciliations, field-level updates,
+unchanged records, and skips that write mode would perform.
 
 The command must display a prominent `DRY RUN` marker. Without `--write`, it
 must not call create, put, or delete record endpoints, change frontmatter, or
@@ -132,17 +137,42 @@ invariants in the [adoption policy](standard-site-adoption.md).
 
 ### Write mode
 
+Every publication and document create uses a deterministic record key. The
+publication uses a fixed key for schalkneethling.com. A document key is derived
+from a versioned SHA-256 digest of its normalized canonical URL. The key
+algorithm and version are part of the persisted format and must be covered by
+tests; they must not change without a migration.
+
+The authenticated preflight constructs the expected AT-URI from the verified
+publisher DID, collection, and deterministic key, then requests that exact
+record before planning a create. When the remote record exists but the local
+publication configuration or `documentAtUri` is missing, the command plans a
+`reconcile` action instead of a create. Reconciliation verifies the record's
+ownership and canonical identity before persisting its AT-URI locally without
+rewriting the remote record. A mismatched record fails closed and requires
+manual investigation.
+
+This makes the PDS record at the deterministic key the durable orphan-recovery
+source. Subsequent runs can find an orphan even when the prior process exited
+before writing frontmatter; console output is diagnostic only and is not relied
+on for duplicate prevention.
+
 Write mode processes records one at a time:
 
 1. Authenticate and verify the publisher DID before any write.
 2. Create or update the publication record before document records.
-3. For a create, persist the returned AT-URI before starting the next write.
-4. For an update, parse the existing AT-URI and update that exact repository,
+3. Reconcile any deterministic keys found remotely without a durable local
+   AT-URI before allowing new creates.
+4. For a create, use the deterministic key and persist the returned AT-URI
+   before starting the next write.
+5. For an update, parse the existing AT-URI and update that exact repository,
    collection, and record key.
-5. Fetch the current record CID and use compare-and-swap where supported so a
-   concurrent remote change is not silently overwritten.
-6. Report created, updated, skipped, and failed records without exposing
-   credentials or session tokens.
+6. Fetch the current record and its CID immediately before every update. Supply
+   that CID as `swapRecord` to `com.atproto.repo.putRecord`. If the record or CID
+   cannot be obtained, or the compare-and-swap fails, fail closed; an
+   unconditional update is never permitted.
+7. Report created, reconciled, updated, skipped, and failed records without
+   exposing credentials or session tokens.
 
 Records with `standardSite.publish: false` are skipped. The initial workflow
 does not delete remote records.
@@ -154,9 +184,10 @@ does not delete remote records.
 - Writes are sequential rather than batched, so each successful result can be
   persisted before continuing.
 - If a record is created but its AT-URI cannot be persisted locally, the command
-  stops immediately and reports the source file, AT-URI, and CID as recovery
-  information. A subsequent run must refuse to create a duplicate until that
-  identifier is recovered into the source post.
+  stops immediately and reports the source file, deterministic key, AT-URI, and
+  CID. On the next run, authenticated preflight finds the record at that key and
+  requires a successful `reconcile` before any further creates. It never relies
+  on the previous process's console output to locate the orphan.
 - An update conflict or network failure leaves the local `documentAtUri`
   unchanged and reports the record as failed. Retrying regenerates the plan
   from current local and remote state.
@@ -175,8 +206,9 @@ does not delete remote records.
   remain usable without credentials.
 - The PDS sync implementation must use the Varlock variables and safety
   contract defined here.
-- Validation must cover publisher identity, AT-URI ownership, verification
-  links, and create/update/skip planning.
+- Validation must cover publisher identity, AT-URI ownership, deterministic key
+  stability, orphan reconciliation, mandatory record-level CAS, verification
+  links, and create/reconcile/update/skip planning.
 
 ## Sources
 

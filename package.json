@@ -11,6 +11,7 @@
     "setup:playwright": "pnpm exec playwright install chromium",
     "build": "pnpm run generate:og && astro build",
     "generate:og": "node scripts/generate-og-cards.mjs",
+    "standard-site:generate": "node scripts/generate-standard-site-records.ts",
     "refresh:project-docs": "node scripts/refresh-project-doc-cache.mjs",
     "preview": "astro preview",
     "astro": "astro",
@@ -40,6 +41,7 @@
     "@schalkneethling/opengraph-cards-maker": "^0.3.0",
     "@varlock/1password-plugin": "^2.0.0",
     "axe-core": "^4.12.1",
+    "devalue": "^5.8.1",
     "vitest": "^4.1.10",
     "yaml": "^2.8.4"
   },

@@ -122,8 +122,8 @@ evidence that adding visible affordances would benefit readers.
 - Record creation, updates, skips, and failures must be reported clearly.
 - Missing publication or document AT-URIs must not break local builds.
 
-## Next decision
+## Publishing workflow
 
-With this policy established, the next integration step is to choose and
-document the publishing and authentication workflow before adding publication
-configuration or record-generation code.
+The [publishing and authentication workflow](standard-site-publishing-workflow.md)
+defines the accepted tooling, authentication, write safeguards, and recovery
+strategy that implementation work must follow.

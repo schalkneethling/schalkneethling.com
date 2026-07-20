@@ -54,7 +54,9 @@ reading experience.
 
 See the [Standard.site adoption policy](docs/standard-site-adoption.md) for
 content eligibility, rollout, record storage, safeguards, and the scope of the
-initial integration phases.
+initial integration phases. The
+[publishing and authentication workflow](docs/standard-site-publishing-workflow.md)
+records how the site will generate and safely synchronize AT Protocol records.
 
 ## 👀 Want to learn more?
 

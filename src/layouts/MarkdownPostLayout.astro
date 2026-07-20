@@ -3,6 +3,7 @@ import BaseLayout from "./BaseLayout.astro";
 import Tags from "../components/Tags.astro";
 
 interface Props {
+  documentAtUri?: string;
   frontmatter: {
     author: string;
     canonical?: string;
@@ -19,12 +20,14 @@ interface Props {
   sourceEditUrl: string;
 }
 
-const { frontmatter, socialImage, sourceEditUrl } = Astro.props as Props;
+const { documentAtUri, frontmatter, socialImage, sourceEditUrl } =
+  Astro.props as Props;
 const tags = frontmatter.tags;
 ---
 
 <BaseLayout
   customCanonical={frontmatter.canonical}
+  documentAtUri={documentAtUri}
   pageDescription={frontmatter.description}
   pageTitle={frontmatter.title}
   socialImage={socialImage}

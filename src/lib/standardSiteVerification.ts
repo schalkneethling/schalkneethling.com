@@ -1,4 +1,10 @@
 const publicationRoute = "site.standard.publication";
+const documentRoute = "site.standard.document";
+
+export const getDocumentVerificationLink = (
+  documentAtUri: string | undefined,
+) =>
+  documentAtUri ? { rel: documentRoute, href: documentAtUri } : undefined;
 
 export const getPublicationDiscoveryLink = (
   publicationAtUri: string | undefined,

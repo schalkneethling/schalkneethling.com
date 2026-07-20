@@ -1,5 +1,8 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
+import { z } from "astro/zod";
+
+import { postStandardSiteSchema } from "./lib/postStandardSiteSchema";
 
 const postsCollection = defineCollection({
   loader: glob({
@@ -14,6 +17,7 @@ const postsCollection = defineCollection({
     tags: z.array(z.string()),
     canonical: z.string().optional(),
     layout: z.string().optional(),
+    standardSite: postStandardSiteSchema.optional(),
   }),
 });
 

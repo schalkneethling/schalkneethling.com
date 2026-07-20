@@ -1,7 +1,5 @@
 import type { StandardSitePublicationConfig } from "./standardSite";
 
-const siteOrigin = "https://schalkneethling.com";
-
 interface StandardSitePost {
   readonly id: string;
   readonly data: {
@@ -27,7 +25,7 @@ export type StandardSiteDocumentPayload = {
   readonly tags: readonly string[];
 };
 
-function getEligibleDocumentUrl(post: StandardSitePost) {
+function getEligibleDocumentUrl(post: StandardSitePost, siteOrigin: string) {
   const documentUrl = post.data.canonical
     ? new URL(post.data.canonical)
     : new URL(`/posts/${post.id}/`, siteOrigin);
@@ -46,15 +44,16 @@ export function createDocumentPayloads(
   config: StandardSitePublicationConfig,
 ): StandardSiteDocumentPayload[] {
   const site = config.identity.publicationAtUri ?? config.record.url;
+  const siteOrigin = new URL(config.record.url).origin;
 
   return posts
-    .toSorted((a, b) => a.id.localeCompare(b.id))
+    .toSorted((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
     .flatMap((post) => {
       if (post.data.standardSite?.publish !== true) {
         return [];
       }
 
-      const documentUrl = getEligibleDocumentUrl(post);
+      const documentUrl = getEligibleDocumentUrl(post, siteOrigin);
 
       if (!documentUrl) {
         return [];

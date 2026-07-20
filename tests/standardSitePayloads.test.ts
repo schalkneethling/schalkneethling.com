@@ -68,6 +68,24 @@ describe("Standard.site document payloads", () => {
     );
   });
 
+  it("derives canonical eligibility from the configured publication URL", () => {
+    const config = {
+      ...standardSite,
+      record: { ...standardSite.record, url: "https://example.com" },
+    };
+    const post = {
+      ...selectedPost,
+      data: {
+        ...selectedPost.data,
+        canonical: "https://example.com/writing/selected/",
+      },
+    };
+
+    expect(createDocumentPayloads([post], config)[0]?.path).toBe(
+      "/writing/selected/",
+    );
+  });
+
   it.each([
     ["has no explicit selection", undefined],
     ["is explicitly paused", { publish: false }],
@@ -116,5 +134,18 @@ describe("Standard.site document payloads", () => {
         (payload) => payload.title,
       ),
     ).toEqual(["Another post", "Selected post"]);
+  });
+
+  it("uses locale-independent code-unit ordering for non-ASCII ids", () => {
+    const posts = [
+      { ...selectedPost, id: "ä-post" },
+      { ...selectedPost, id: "z-post" },
+    ];
+
+    expect(
+      createDocumentPayloads(posts, standardSite).map(
+        (payload) => payload.path,
+      ),
+    ).toEqual(["/posts/z-post/", "/posts/%C3%A4-post/"]);
   });
 });

@@ -1,6 +1,6 @@
 import type { StandardSitePublicationConfig } from "./standardSite";
 
-interface StandardSitePost {
+export interface StandardSitePost {
   readonly id: string;
   readonly data: {
     readonly title: string;

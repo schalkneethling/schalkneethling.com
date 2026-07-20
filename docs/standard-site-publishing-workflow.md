@@ -119,6 +119,25 @@ This command does not load authentication variables, start a password session,
 make network requests, modify frontmatter, or write PDS records. It exits
 non-zero on selection, mapping, or Lexicon validation errors.
 
+Run it with `pnpm standard-site:generate`. The command refreshes Astro's local,
+validated content store, writes a human-readable `DRY RUN` summary to stderr,
+and writes the deterministic JSON plan to stdout. Redirect stdout to a file when
+an artifact is useful for review; generated plans are not durable state.
+
+Publication payload fields come directly from `standardSite.record`. Document
+fields are mapped as follows:
+
+| Record field  | Source                                                                              |
+| ------------- | ----------------------------------------------------------------------------------- |
+| `site`        | `standardSite.identity.publicationAtUri`, falling back to `standardSite.record.url` |
+| `path`        | Eligible same-origin `canonical` URL, or `/posts/{id}/`                             |
+| `title`       | Post `title`                                                                        |
+| `description` | Post `description`                                                                  |
+| `publishedAt` | Post `pubDate` serialized as ISO 8601                                               |
+| `tags`        | Post `tags`                                                                         |
+
+`textContent` is deferred to GitHub issue #1339.
+
 ### Authenticated sync dry-run
 
 `standard-site:sync` builds the same offline plan in memory, authenticates once,

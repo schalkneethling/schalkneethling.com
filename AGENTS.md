@@ -2,6 +2,12 @@
 
 This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
+## Pull Request Scope
+
+Before scoping an issue or task, starting a new piece of work, or expanding an
+implementation beyond its original acceptance criteria, read [PR.md](PR.md).
+Use it to keep changes coherent and comfortably reviewable.
+
 ## Development Commands
 
 | Command | Description |

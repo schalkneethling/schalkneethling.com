@@ -27,4 +27,22 @@ describe("postStandardSiteSchema", () => {
       }),
     ).toThrow("Expected a site.standard.document AT-URI");
   });
+
+  it.each([
+    "at://bad authority/site.standard.document/example-post",
+    "at:///site.standard.document/example-post",
+  ])("rejects the invalid authority in %s", (documentAtUri) => {
+    expect(() =>
+      postStandardSiteSchema.parse({ publish: true, documentAtUri }),
+    ).toThrow("Expected a site.standard.document AT-URI");
+  });
+
+  it.each([`${documentAtUri}?view=full`, `${documentAtUri}#content`])(
+    "rejects the query or fragment in %s",
+    (documentAtUri) => {
+      expect(() =>
+        postStandardSiteSchema.parse({ publish: true, documentAtUri }),
+      ).toThrow("Expected a site.standard.document AT-URI");
+    },
+  );
 });

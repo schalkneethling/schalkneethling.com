@@ -1,7 +1,9 @@
 import type { StandardSitePublicationConfig } from "./standardSite";
+import { extractStandardSiteText } from "./standardSiteText.ts";
 
 export interface StandardSitePost {
   readonly id: string;
+  readonly body?: string;
   readonly data: {
     readonly title: string;
     readonly description: string;
@@ -23,6 +25,7 @@ export type StandardSiteDocumentPayload = {
   readonly description: string;
   readonly publishedAt: string;
   readonly tags: readonly string[];
+  readonly textContent?: string;
 };
 
 function getEligibleDocumentUrl(post: StandardSitePost, siteOrigin: string) {
@@ -59,6 +62,10 @@ export function createDocumentPayloads(
         return [];
       }
 
+      const textContent = post.body
+        ? extractStandardSiteText(post.body)
+        : undefined;
+
       return [
         {
           $type: "site.standard.document",
@@ -68,6 +75,7 @@ export function createDocumentPayloads(
           description: post.data.description,
           publishedAt: post.data.pubDate.toISOString(),
           tags: [...post.data.tags],
+          ...(textContent ? { textContent } : {}),
         },
       ];
     });

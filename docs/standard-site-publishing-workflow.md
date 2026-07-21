@@ -135,8 +135,21 @@ fields are mapped as follows:
 | `description` | Post `description`                                                                  |
 | `publishedAt` | Post `pubDate` serialized as ISO 8601                                               |
 | `tags`        | Post `tags`                                                                         |
+| `textContent` | Plain text extracted from the Markdown or MDX body                                  |
 
-`textContent` is deferred to GitHub issue #1339.
+Plain-text extraction retains headings, paragraphs, list items, link text,
+image alternative text, inline code, and prose nested inside MDX components.
+It omits frontmatter, imports, HTML and JSX syntax, expressions, and fenced code
+blocks. Whitespace is normalized deterministically, with meaningful blocks on
+separate lines. This text is intended for discovery rather than reproducing the
+rendered page exactly.
+
+`textContent` is experimental during the pilot and must be treated as
+potentially reader-visible rather than indexing-only. Pilot validation must
+inspect its presentation in known Standard.site consumers. If consumers render
+it as a poor substitute for the canonical article, the field will be disabled
+or removed before any broader archive backfill. schalkneethling.com remains the
+authoritative reading experience.
 
 ### Authenticated sync dry-run
 

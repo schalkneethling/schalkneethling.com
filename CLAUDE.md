@@ -62,6 +62,12 @@ This is an Astro-based personal blog and website with the following key architec
   test. Playwright and axe-core are not required for unit-level data, schema,
   parsing, or utility tests.
 
+### Code Clarity
+
+- Prefer named predicates and intermediate validation results over dense
+  compound conditions when they make control flow easier to read and reason
+  about.
+
 ### Key Patterns
 
 - **Dynamic Routes**: `[...slug].astro` for blog post routing, `[tag].astro` for tag pages

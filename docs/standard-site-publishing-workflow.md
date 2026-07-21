@@ -82,10 +82,12 @@ The app password field is sensitive. No credential, access token, or refresh
 token will be committed or written to a local environment file. The command
 logs in once per sync run and keeps session tokens in memory only.
 
-The typed publication configuration will store the expected publisher DID and
-publication AT-URI. Before the first write, the command must confirm that the
-authenticated session DID matches that configured publisher DID. This prevents
-valid records from being created under the wrong account.
+The typed publication configuration will store the expected publisher
+[decentralized identifier (DID)](https://atproto.com/specs/did) and publication
+[AT Protocol URI (AT-URI)](https://atproto.com/specs/at-uri-scheme). Before the
+first write, the command must confirm that the authenticated session DID matches
+that configured publisher DID. This prevents valid records from being created
+under the wrong account.
 
 Dry-run generation must not require any of the authentication variables.
 
@@ -156,8 +158,9 @@ authoritative reading experience.
 `standard-site:sync` builds the same offline plan in memory, authenticates once,
 verifies the publisher DID, and performs read-only requests for existing and
 expected record keys. It verifies record ownership, fetches current payloads
-and CIDs, and shows the exact creates, reconciliations, field-level updates,
-unchanged records, and skips that write mode would perform.
+and [content identifiers (CIDs)](https://atproto.com/specs/data-model#link), and
+shows the exact creates, reconciliations, field-level updates, unchanged
+records, and skips that write mode would perform.
 
 The command must display a prominent `DRY RUN` marker. Without `--write`, it
 must not call create, put, or delete record endpoints, change frontmatter, or
@@ -169,34 +172,36 @@ invariants in the [adoption policy](standard-site-adoption.md).
 
 ### Write mode
 
-Every publication and document create uses a deterministic record key. The
-publication uses a fixed key for schalkneethling.com. A document key is derived
-from a versioned SHA-256 digest of its normalized canonical URL. The key
-algorithm and version are part of the persisted format and must be covered by
-tests; they must not change without a migration.
+The published `site.standard.publication` and `site.standard.document`
+Lexicons require
+[Timestamp Identifier (TID) record keys](https://atproto.com/specs/record-key#record-key-type-tid).
+Before each create, write mode allocates a TID using the official AT Protocol
+implementation. It atomically records the source path, canonical URL,
+collection, and TID in `.standard-site/recovery.json`. This transient journal
+is ignored by Git, does not contain credentials, and must exist before the
+remote request begins.
 
-The authenticated preflight constructs the expected AT-URI from the verified
-publisher DID, collection, and deterministic key, then requests that exact
-record before planning a create. When the remote record exists but the local
-publication configuration or `documentAtUri` is missing, the command plans a
-`reconcile` action instead of a create. Reconciliation verifies the record's
-ownership and canonical identity before persisting its AT-URI locally without
-rewriting the remote record. A mismatched record fails closed and requires
-manual investigation.
+When a pending reservation exists, authenticated preflight requests that exact
+record from the verified publisher repository. If it exists and its ownership
+and canonical identity match, the command reconciles its AT-URI locally without
+rewriting it. If it does not exist, write mode may safely retry creation with
+the same reserved TID. A mismatched record or conflicting journal entry fails
+closed and requires manual investigation.
 
-This makes the PDS record at the deterministic key the durable orphan-recovery
-source. Subsequent runs can find an orphan even when the prior process exited
-before writing frontmatter; console output is diagnostic only and is not relied
-on for duplicate prevention.
+After a successful create, the command persists the returned AT-URI before
+clearing the reservation. The journal therefore survives interruption on
+either side of the remote write; console output is diagnostic only and is not
+relied on for duplicate prevention.
 
 Write mode processes records one at a time:
 
 1. Authenticate and verify the publisher DID before any write.
-2. Create or update the publication record before document records.
-3. Reconcile any deterministic keys found remotely without a durable local
-   AT-URI before allowing new creates.
-4. For a create, use the deterministic key and persist the returned AT-URI
-   before starting the next write.
+2. Reconcile every pending recovery-journal reservation before creating or
+   updating any records.
+3. Create or update the publication record before document records.
+4. For a create, persist a TID reservation before the remote request, use that
+   exact key, persist the returned AT-URI, and then clear the reservation before
+   starting the next write.
 5. For an update, parse the existing AT-URI and update that exact repository,
    collection, and record key.
 6. Fetch the current record and its CID immediately before every update. Supply
@@ -216,10 +221,10 @@ does not delete remote records.
 - Writes are sequential rather than batched, so each successful result can be
   persisted before continuing.
 - If a record is created but its AT-URI cannot be persisted locally, the command
-  stops immediately and reports the source file, deterministic key, AT-URI, and
-  CID. On the next run, authenticated preflight finds the record at that key and
-  requires a successful `reconcile` before any further creates. It never relies
-  on the previous process's console output to locate the orphan.
+  stops immediately and leaves its TID reservation in the recovery journal. On
+  the next run, authenticated preflight requests that exact record and requires
+  a successful `reconcile` before any further creates. It never relies on the
+  previous process's console output to locate the orphan.
 - An update conflict or network failure leaves the local `documentAtUri`
   unchanged and reports the record as failed. Retrying regenerates the plan
   from current local and remote state.
@@ -238,9 +243,10 @@ does not delete remote records.
   remain usable without credentials.
 - The PDS sync implementation must use the Varlock variables and safety
   contract defined here.
-- Validation must cover publisher identity, AT-URI ownership, deterministic key
-  stability, orphan reconciliation, mandatory record-level CAS, verification
-  links, and create/reconcile/update/skip planning.
+- Validation must cover publisher identity, AT-URI ownership, valid TID
+  allocation, durable reservations, orphan reconciliation, mandatory
+  record-level CAS, verification links, and create/reconcile/update/skip
+  planning.
 
 ## Sources
 
@@ -249,5 +255,6 @@ does not delete remote records.
 - [Standard.site implementations](https://standard.site/docs/implementations/)
 - [AT Protocol SDK authentication](https://atproto.com/guides/sdk-auth)
 - [AT Protocol writing data](https://atproto.com/guides/writing-data)
+- [AT Protocol record keys](https://atproto.com/specs/record-key)
 - [`com.atproto.repo.putRecord`](https://docs.bsky.app/docs/api/com-atproto-repo-put-record)
 - [AT Protocol website Standard.site workflow](https://github.com/bluesky-social/atproto-website#publishing-blog-posts-to-at-protocol)

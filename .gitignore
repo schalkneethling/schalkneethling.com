@@ -27,3 +27,6 @@ playwright-report/
 reports/
 test-results/
 **/full-report.json
+
+# Standard.site transient recovery state
+.standard-site/

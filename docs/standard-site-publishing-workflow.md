@@ -196,9 +196,9 @@ relied on for duplicate prevention.
 Write mode processes records one at a time:
 
 1. Authenticate and verify the publisher DID before any write.
-2. Create or update the publication record before document records.
-3. Reconcile every pending recovery-journal reservation before allowing new
-   creates.
+2. Reconcile every pending recovery-journal reservation before creating or
+   updating any records.
+3. Create or update the publication record before document records.
 4. For a create, persist a TID reservation before the remote request, use that
    exact key, persist the returned AT-URI, and then clear the reservation before
    starting the next write.

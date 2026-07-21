@@ -34,7 +34,31 @@ const emptyJournal = (): StandardSiteRecoveryJournal => ({
   pendingCreates: [],
 });
 
+const journalLocks = new Map<string, Promise<void>>();
+
 export const createStandardSiteRkey = () => TID.nextStr();
+
+async function withJournalLock<T>(
+  journalPath: string,
+  operation: () => Promise<T>,
+): Promise<T> {
+  const previousOperation = journalLocks.get(journalPath) ?? Promise.resolve();
+  const currentOperation = previousOperation.catch(() => {}).then(operation);
+  const lock = currentOperation.then(
+    () => {},
+    () => {},
+  );
+
+  journalLocks.set(journalPath, lock);
+
+  try {
+    return await currentOperation;
+  } finally {
+    if (journalLocks.get(journalPath) === lock) {
+      journalLocks.delete(journalPath);
+    }
+  }
+}
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object";
@@ -134,56 +158,60 @@ export async function reserveStandardSiteCreate(
   entry: Omit<PendingStandardSiteCreate, "rkey">,
   journalPath = standardSiteRecoveryJournalPath,
 ) {
-  const journal = await readStandardSiteRecoveryJournal(journalPath);
-  const existing = journal.pendingCreates.find(
-    (pending) =>
-      pending.sourcePath === entry.sourcePath &&
-      pending.collection === entry.collection,
-  );
+  return withJournalLock(journalPath, async () => {
+    const journal = await readStandardSiteRecoveryJournal(journalPath);
+    const existing = journal.pendingCreates.find(
+      (pending) =>
+        pending.sourcePath === entry.sourcePath &&
+        pending.collection === entry.collection,
+    );
 
-  if (existing) {
-    if (existing.canonicalUrl !== entry.canonicalUrl) {
-      throw new Error(
-        `Pending Standard.site create for ${entry.sourcePath} has a different canonical URL`,
-      );
+    if (existing) {
+      if (existing.canonicalUrl !== entry.canonicalUrl) {
+        throw new Error(
+          `Pending Standard.site create for ${entry.sourcePath} has a different canonical URL`,
+        );
+      }
+      return existing;
     }
-    return existing;
-  }
 
-  const reservation = { ...entry, rkey: createStandardSiteRkey() };
-  await writeJournal(journalPath, {
-    version: 1,
-    pendingCreates: [...journal.pendingCreates, reservation],
+    const reservation = { ...entry, rkey: createStandardSiteRkey() };
+    await writeJournal(journalPath, {
+      version: 1,
+      pendingCreates: [...journal.pendingCreates, reservation],
+    });
+    return reservation;
   });
-  return reservation;
 }
 
 export async function clearStandardSiteCreate(
   reservation: PendingStandardSiteCreate,
   journalPath = standardSiteRecoveryJournalPath,
 ) {
-  const journal = await readStandardSiteRecoveryJournal(journalPath);
-  const hasReservation = journal.pendingCreates.some(
-    (pending) =>
-      pending.collection === reservation.collection &&
-      pending.rkey === reservation.rkey,
-  );
-
-  if (!hasReservation) {
-    throw new Error(
-      `Standard.site recovery reservation not found: ${reservation.collection}/${reservation.rkey}`,
+  return withJournalLock(journalPath, async () => {
+    const journal = await readStandardSiteRecoveryJournal(journalPath);
+    const hasReservation = journal.pendingCreates.some(
+      (pending) =>
+        pending.collection === reservation.collection &&
+        pending.rkey === reservation.rkey,
     );
-  }
 
-  const pendingCreates = journal.pendingCreates.filter(
-    (pending) =>
-      pending.collection !== reservation.collection ||
-      pending.rkey !== reservation.rkey,
-  );
+    if (!hasReservation) {
+      throw new Error(
+        `Standard.site recovery reservation not found: ${reservation.collection}/${reservation.rkey}`,
+      );
+    }
 
-  if (pendingCreates.length > 0) {
-    await writeJournal(journalPath, { version: 1, pendingCreates });
-  } else {
-    await rm(journalPath, { force: true });
-  }
+    const pendingCreates = journal.pendingCreates.filter(
+      (pending) =>
+        pending.collection !== reservation.collection ||
+        pending.rkey !== reservation.rkey,
+    );
+
+    if (pendingCreates.length > 0) {
+      await writeJournal(journalPath, { version: 1, pendingCreates });
+    } else {
+      await rm(journalPath, { force: true });
+    }
+  });
 }

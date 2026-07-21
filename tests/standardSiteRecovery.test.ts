@@ -56,6 +56,34 @@ describe("Standard.site create recovery", () => {
     });
   });
 
+  it("serializes concurrent journal mutations", async () => {
+    await using temporaryDirectory = await mkdtempDisposable(
+      join(tmpdir(), "standard-site-recovery-"),
+    );
+    const journalPath = join(temporaryDirectory.path, "recovery.json");
+    const entries = [
+      entry,
+      { ...entry, sourcePath: "src/content/posts/another.md" },
+    ];
+
+    const reservations = await Promise.all(
+      entries.map((pendingEntry) =>
+        reserveStandardSiteCreate(pendingEntry, journalPath),
+      ),
+    );
+
+    expect(
+      (await readStandardSiteRecoveryJournal(journalPath)).pendingCreates,
+    ).toEqual(reservations);
+
+    await Promise.all(
+      reservations.map((reservation) =>
+        clearStandardSiteCreate(reservation, journalPath),
+      ),
+    );
+    await expect(stat(journalPath)).rejects.toMatchObject({ code: "ENOENT" });
+  });
+
   it("fails closed on conflicting state and clears completed reservations", async () => {
     await using temporaryDirectory = await mkdtempDisposable(
       join(tmpdir(), "standard-site-recovery-"),

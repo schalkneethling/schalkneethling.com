@@ -15,7 +15,7 @@ Use it to keep changes coherent and comfortably reviewable.
 | `npm run dev` | Start local dev server at localhost:4321 |
 | `npm run build` | Build production site to ./dist/ |
 | `npm run preview` | Preview build locally before deploying |
-| `npx playwright test` | Run accessibility tests using Playwright |
+| `npx playwright test` | Run Playwright browser specs; accessibility-focused specs use axe-core |
 
 ## Project Architecture
 
@@ -51,9 +51,16 @@ This is an Astro-based personal blog and website with the following key architec
 
 ### Testing & Quality
 
-- **Playwright Tests**: Accessibility-focused testing with custom axe-core integration
-- **Accessibility Reporter**: `@schalkneethling/axe-aggregate-reporter` aggregates Playwright axe results
-- **Test Configuration**: Only runs on Chromium, focuses on a11y compliance
+- **Unit Tests**: `tests/**/*.test.ts` files use Vitest. Pure utilities and other
+  non-browser behavior must not be forced into Playwright or axe-core tests.
+- **Browser Tests**: `tests/**/*.spec.ts` files use Playwright. Playwright is
+  currently configured to run on Chromium only.
+- **Accessibility Tests**: Accessibility-focused Playwright specs use the
+  custom axe-core fixture in `tests/fixtures/axe-test-fixture.ts`.
+  `@schalkneethling/axe-aggregate-reporter` aggregates their results.
+- **Test Selection**: Choose the test runner according to the behavior under
+  test. Playwright and axe-core are not required for unit-level data, schema,
+  parsing, or utility tests.
 
 ### Key Patterns
 

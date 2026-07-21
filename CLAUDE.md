@@ -15,7 +15,7 @@ Use it to keep changes coherent and comfortably reviewable.
 | `npm run dev` | Start local dev server at localhost:4321 |
 | `npm run build` | Build production site to ./dist/ |
 | `npm run preview` | Preview build locally before deploying |
-| `npx playwright test` | Run accessibility tests using Playwright |
+| `npx playwright test` | Run Playwright browser specs; accessibility-focused specs use axe-core |
 
 ## Project Architecture
 

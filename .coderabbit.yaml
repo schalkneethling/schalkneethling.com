@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+reviews:
+  path_instructions:
+    - path: "tests/**/*.test.ts"
+      instructions: |
+        These files are Vitest unit tests. Do not request migration to
+        Playwright or axe-core for pure data, schema, parsing, configuration,
+        or utility tests.
+
+    - path: "tests/**/*.spec.ts"
+      instructions: |
+        These files are Playwright browser tests and run on Chromium. Require
+        the custom axe-core fixture only when a spec is accessibility-focused.

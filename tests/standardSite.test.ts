@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import { standardSite } from "../src/lib/standardSite";
 
 describe("standardSite publication configuration", () => {
-  it("provides publication metadata without requiring remote identifiers", () => {
+  it("pins the publisher identity without requiring a publication AT-URI", () => {
     expect(standardSite.identity.handle).toBe("schalkneethling.com");
-    expect(standardSite.identity.did).toBeUndefined();
+    expect(standardSite.identity.did).toBe("did:plc:brimpw7k46xczmr4pqst45df");
     expect(standardSite.identity.publicationAtUri).toBeUndefined();
     expect(standardSite.record).toMatchObject({
       $type: "site.standard.publication",

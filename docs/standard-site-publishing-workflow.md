@@ -170,6 +170,11 @@ ownership, validation, missing-record, or conflict checks exit non-zero.
 Both dry-runs must honor the `standardSite.publish` and `documentAtUri` state
 invariants in the [adoption policy](standard-site-adoption.md).
 
+The initial `standard-site:sync` prototype implements the authentication
+boundary only. It loads credentials through Varlock, starts an in-memory
+password session, verifies the authenticated DID, and exits without reading or
+writing records. Read-only record inspection is the next implementation slice.
+
 ### Write mode
 
 The published `site.standard.publication` and `site.standard.document`

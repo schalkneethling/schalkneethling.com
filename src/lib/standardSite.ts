@@ -32,8 +32,7 @@ export type StandardSitePublicationConfig = {
 export const standardSite = {
   identity: {
     handle: "schalkneethling.com",
-    // Set after the publishing account has been resolved and verified.
-    did: undefined,
+    did: "did:plc:brimpw7k46xczmr4pqst45df",
     // Set after the publication record has been created successfully.
     publicationAtUri: undefined,
   },

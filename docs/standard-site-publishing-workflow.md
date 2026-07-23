@@ -61,11 +61,11 @@ becomes a hosted or multi-user application.
 
 The required environment variables will be:
 
-| Variable | Sensitive | Purpose |
-| --- | --- | --- |
-| `ATPROTO_SERVICE_URL` | No | Entryway or PDS service used to start the password session. |
-| `ATPROTO_HANDLE` | No | Handle of the account that owns the Standard.site records. |
-| `ATPROTO_APP_PASSWORD` | Yes | Revocable app password used only for this publishing workflow. |
+| Variable               | Sensitive | Purpose                                                        |
+| ---------------------- | --------- | -------------------------------------------------------------- |
+| `ATPROTO_SERVICE_URL`  | No        | Entryway or PDS service used to start the password session.    |
+| `ATPROTO_HANDLE`       | No        | Handle of the account that owns the Standard.site records.     |
+| `ATPROTO_APP_PASSWORD` | Yes       | Revocable app password used only for this publishing workflow. |
 
 These variables will be declared in `.env.schema` and resolved by Varlock from
 the personal 1Password account at `my.1password.com`. Create a dedicated item
@@ -172,6 +172,18 @@ records, and skips that write mode would perform. That slice must honor the
 delete record endpoints, changing frontmatter, or writing recovery state.
 
 ### Write mode
+
+The current write slice supports publication creation and orphan reconciliation
+only. `pnpm standard-site:sync -- --write` reserves a publication TID, checks
+that exact record key, creates the record when it is absent, persists the
+returned AT-URI in `src/lib/standardSite.ts`, and clears the reservation only
+after persistence succeeds. A matching remote record left by an interrupted
+create is reconciled without another write.
+
+Publication updates and all document writes remain deferred. If a publication
+AT-URI is already configured, write mode skips it. If document recovery state
+exists, write mode fails closed because that state cannot yet be reconciled by
+this implementation slice.
 
 The published `site.standard.publication` and `site.standard.document`
 Lexicons require

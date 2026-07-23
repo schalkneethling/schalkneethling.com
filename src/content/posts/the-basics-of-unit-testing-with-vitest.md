@@ -6,6 +6,7 @@ author: "Schalk Neethling"
 tags: ["testing"]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3mrdktbpeus27
 ---
 
 Test-driven development has been getting renewed attention lately, often in the context of working effectively with coding agents. It has always been a good idea, of course, but like other quality concerns such as accessibility and tech debt, testing tends to fall by the wayside. One of the primary reasons for this is because they are pushed to the end of the development cycle.

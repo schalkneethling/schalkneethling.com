@@ -6,6 +6,7 @@ author: "Schalk Neethling"
 tags: ["frontend-engineering-explained", "nodejs", "testing"]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3mrdkt6wuts27
 ---
 
 [Project Calavera](https://github.com/schalkneethling/create-project-calavera/) is an open-source CLI tool that scaffolds linters, formatters, TypeScript configs, AI tooling such as agent skills, hooks, and subagents, and other common project infrastructure for web projects. It works standalone for vanilla JavaScript, TypeScript, and library projects, and it works as a complement to framework scaffolding tools like Vite+ and `vp create`, giving any project a consistent, repeatable setup through a single recipe file.

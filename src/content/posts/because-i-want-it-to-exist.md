@@ -6,6 +6,7 @@ author: "Schalk Neethling"
 tags: ["ramblings"]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3mrdkt5uztk27
 ---
 
 AI is a divisive topic. While a lot of what I will talk about here is related to AI and engineering, I want you to try and look past it for the moment, because the topic I want to touch on is broader than AI.

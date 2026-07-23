@@ -155,17 +155,18 @@ authoritative reading experience.
 
 ### Authenticated sync dry-run
 
-The initial `standard-site:sync` prototype implements the authentication
-boundary only. It loads credentials through Varlock, starts an in-memory
-password session, verifies the authenticated DID, displays a prominent
-`DRY RUN` marker, and exits without reading or writing records.
+The current `standard-site:sync` prototype loads credentials through Varlock,
+starts an in-memory password session, verifies the authenticated DID, and builds
+the offline plan in memory. It performs read-only requests for records whose
+AT-URIs are already stored in publication configuration or post frontmatter,
+verifies their ownership and Lexicon shape, and reports either their
+[content identifiers (CIDs)](https://atproto.com/specs/data-model#link) or that
+they are missing. It displays a prominent `DRY RUN` marker and never calls a
+create, put, or delete record endpoint.
 
-A later implementation slice will build the offline plan in memory and perform
-read-only requests for existing and expected record keys. It will verify record
-ownership, fetch current payloads and
-[content identifiers (CIDs)](https://atproto.com/specs/data-model#link), and
-show the exact creates, reconciliations, field-level updates, unchanged records,
-and skips that write mode would perform. That slice must honor the
+A later implementation slice will inspect expected record keys from recovery
+state and show the exact reconciliations, field-level updates, unchanged
+records, and skips that write mode would perform. That slice must honor the
 `standardSite.publish` and `documentAtUri` state invariants in the
 [adoption policy](standard-site-adoption.md) without calling create, put, or
 delete record endpoints, changing frontmatter, or writing recovery state.

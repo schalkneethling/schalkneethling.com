@@ -50,6 +50,7 @@ export function createStandardSitePlan(
           ? "document AT-URI configured"
           : "document AT-URI missing",
         ...(documentAtUri ? { documentAtUri } : {}),
+        ...(post.filePath ? { sourcePath: post.filePath } : {}),
         payload,
       };
     });

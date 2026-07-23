@@ -149,4 +149,57 @@ describe("Standard.site publication sync", () => {
     ).rejects.toThrow("does not match publication configuration");
     expect(createRecord).not.toHaveBeenCalled();
   });
+
+  it("fails closed when document recovery is pending", async () => {
+    await using paths = await createTestPaths();
+    await reserveStandardSiteCreate(
+      {
+        sourcePath: "src/content/posts/example.md",
+        canonicalUrl: "https://schalkneethling.com/posts/example/",
+        collection: "site.standard.document",
+      },
+      paths.journalPath,
+    );
+    const createRecord = vi.fn();
+
+    await expect(
+      syncStandardSitePublication(
+        standardSite,
+        publisherDid,
+        { getRecord: vi.fn(), createRecord },
+        paths,
+      ),
+    ).rejects.toThrow("site.standard.document recovery");
+    expect(createRecord).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when multiple publication creates are pending", async () => {
+    await using paths = await createTestPaths();
+    const sourcePaths = [
+      "src/lib/standardSite.ts",
+      "src/lib/standardSite-copy.ts",
+    ];
+
+    for (const sourcePath of sourcePaths) {
+      await reserveStandardSiteCreate(
+        {
+          sourcePath,
+          canonicalUrl: standardSite.record.url,
+          collection: "site.standard.publication",
+        },
+        paths.journalPath,
+      );
+    }
+    const createRecord = vi.fn();
+
+    await expect(
+      syncStandardSitePublication(
+        standardSite,
+        publisherDid,
+        { getRecord: vi.fn(), createRecord },
+        paths,
+      ),
+    ).rejects.toThrow("Found 2 pending publication creates");
+    expect(createRecord).not.toHaveBeenCalled();
+  });
 });

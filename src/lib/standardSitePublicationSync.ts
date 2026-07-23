@@ -7,8 +7,6 @@ import {
 } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
-import { AtUri } from "@atproto/syntax";
-
 import { site } from "../lexicons/index.ts";
 import type { StandardSitePublicationConfig } from "./standardSite.ts";
 import {
@@ -76,6 +74,7 @@ async function persistPublicationAtUri(atUri: string, configPath: string) {
 
 function getPendingPublication(
   pendingCreates: readonly PendingStandardSiteCreate[],
+  journalPath: string,
 ) {
   const unsupportedReservation = pendingCreates.find(
     (pending) => pending.collection !== "site.standard.publication",
@@ -83,7 +82,7 @@ function getPendingPublication(
 
   if (unsupportedReservation) {
     throw new Error(
-      `Pending ${unsupportedReservation.collection} recovery must be reconciled before publication writes`,
+      `Pending ${unsupportedReservation.collection} recovery ${unsupportedReservation.rkey} from ${unsupportedReservation.sourcePath} must be reconciled before publication writes; inspect ${journalPath}`,
     );
   }
 
@@ -93,7 +92,7 @@ function getPendingPublication(
 
   if (publications.length > 1) {
     throw new Error(
-      "Multiple pending publication creates require investigation",
+      `Found ${publications.length} pending publication creates (${publications.map((publication) => publication.rkey).join(", ")}); expected at most one. Inspect ${journalPath}`,
     );
   }
 
@@ -119,7 +118,10 @@ export async function syncStandardSitePublication(
   const journalPath = options.journalPath ?? standardSiteRecoveryJournalPath;
   const configPath = options.configPath ?? publicationSourcePath;
   const journal = await readStandardSiteRecoveryJournal(journalPath);
-  const pendingPublication = getPendingPublication(journal.pendingCreates);
+  const pendingPublication = getPendingPublication(
+    journal.pendingCreates,
+    journalPath,
+  );
 
   if (config.identity.publicationAtUri) {
     if (pendingPublication) {
@@ -144,12 +146,14 @@ export async function syncStandardSitePublication(
       journalPath,
     ));
 
-  if (
-    reservation.sourcePath !== publicationSourcePath ||
-    reservation.canonicalUrl !== config.record.url
-  ) {
+  const hasExpectedSourcePath =
+    reservation.sourcePath === publicationSourcePath;
+  const hasExpectedCanonicalUrl =
+    reservation.canonicalUrl === config.record.url;
+
+  if (!hasExpectedSourcePath || !hasExpectedCanonicalUrl) {
     throw new Error(
-      "Pending publication reservation does not match publication configuration",
+      `Pending publication reservation ${reservation.rkey} does not match publication configuration: source ${reservation.sourcePath}, canonical URL ${reservation.canonicalUrl}`,
     );
   }
 
@@ -161,14 +165,18 @@ export async function syncStandardSitePublication(
 
   if (remote) {
     const record = site.standard.publication.$parse(remote.value);
+    const hasExpectedRemoteAtUri = remote.uri === expectedAtUri;
+    const hasRemoteCid = Boolean(remote.cid);
+    const hasExpectedRemoteCanonicalUrl =
+      record.url === reservation.canonicalUrl;
 
     if (
-      remote.uri !== expectedAtUri ||
-      !remote.cid ||
-      record.url !== reservation.canonicalUrl
+      !hasExpectedRemoteAtUri ||
+      !hasRemoteCid ||
+      !hasExpectedRemoteCanonicalUrl
     ) {
       throw new Error(
-        "Pending publication record does not match its reservation",
+        `Pending publication record ${reservation.rkey} does not match its reservation: expected URI ${expectedAtUri}, received URI ${remote.uri}, CID ${remote.cid ?? "missing"}, canonical URL ${record.url}`,
       );
     }
 
@@ -177,15 +185,12 @@ export async function syncStandardSitePublication(
   }
 
   const created = await services.createRecord(config.record, reservation.rkey);
-  const createdUri = new AtUri(created.uri);
+  const hasExpectedCreatedAtUri = created.uri === expectedAtUri;
+  const hasCreatedCid = Boolean(created.cid);
 
-  if (
-    created.uri !== expectedAtUri ||
-    createdUri.hostname !== publisherDid ||
-    !created.cid
-  ) {
+  if (!hasExpectedCreatedAtUri || !hasCreatedCid) {
     throw new Error(
-      "Created publication did not return the expected AT-URI and CID",
+      `Created publication ${reservation.rkey} returned URI ${created.uri} and CID ${created.cid ?? "missing"}; expected URI ${expectedAtUri} and a CID`,
     );
   }
 

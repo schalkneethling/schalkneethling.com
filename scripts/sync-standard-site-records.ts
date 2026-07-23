@@ -59,6 +59,10 @@ function isWriteMode() {
   throw new Error(`Unsupported arguments: ${argumentsAfterScript.join(" ")}`);
 }
 
+function isRecordNotFoundError(error: unknown) {
+  return error instanceof XrpcResponseError && error.error === "RecordNotFound";
+}
+
 async function main() {
   const write = isWriteMode();
   await using session = await authenticateStandardSitePublisher();
@@ -95,10 +99,7 @@ async function main() {
     try {
       return await client.call(getRecord.main, getRecord.$params.parse(params));
     } catch (error) {
-      if (
-        error instanceof XrpcResponseError &&
-        error.error === "RecordNotFound"
-      ) {
+      if (isRecordNotFoundError(error)) {
         return undefined;
       }
       throw error;
@@ -140,7 +141,7 @@ async function main() {
     );
 
     console.error(
-      `WRITE: publication ${publication.action}; document writes are not implemented`,
+      `WRITE: publication ${publication.action}; document records unchanged because this slice does not implement document writes`,
     );
     console.log(JSON.stringify({ plan, inspections, publication }, null, 2));
     return;

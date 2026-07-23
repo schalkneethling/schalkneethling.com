@@ -13,12 +13,26 @@ type StandardSiteBuildValidationOptions = {
   readonly publicationAtUri: string;
 };
 
+type ConfiguredDocument = {
+  readonly documentAtUri: string;
+  readonly sourcePath: string;
+  readonly htmlPath: string;
+};
+
+type DiscoveredDocument = {
+  readonly documentAtUri: string;
+  readonly htmlPath: string;
+};
+
 function getHtmlDocument(html: string) {
   return new DOMParser().parseFromString(html, "text/html");
 }
 
-async function getConfiguredDocumentAtUris(postsDirectory: string) {
-  const configuredDocuments = new Map<string, string>();
+async function getConfiguredDocuments(
+  postsDirectory: string,
+  distDirectory: string,
+) {
+  const configuredDocuments: ConfiguredDocument[] = [];
 
   for await (const relativePath of glob(["**/*.md", "**/*.mdx"], {
     cwd: postsDirectory,
@@ -40,7 +54,12 @@ async function getConfiguredDocumentAtUris(postsDirectory: string) {
     const documentAtUri = document.getIn(["standardSite", "documentAtUri"]);
 
     if (typeof documentAtUri === "string") {
-      configuredDocuments.set(documentAtUri, sourcePath);
+      const postId = relativePath.replace(/\.mdx?$/u, "");
+      configuredDocuments.push({
+        documentAtUri,
+        sourcePath,
+        htmlPath: join(distDirectory, "posts", postId, "index.html"),
+      });
     }
   }
 
@@ -66,9 +85,26 @@ export async function validateStandardSiteBuild({
     );
   }
 
-  const configuredDocuments = await getConfiguredDocumentAtUris(postsDirectory);
-  const discoveredDocuments = new Map<string, string>();
+  const configuredDocuments = await getConfiguredDocuments(
+    postsDirectory,
+    distDirectory,
+  );
+  const configuredDocumentsByAtUri = Map.groupBy(
+    configuredDocuments,
+    ({ documentAtUri }) => documentAtUri,
+  );
+  const discoveredDocuments: DiscoveredDocument[] = [];
   let htmlFileCount = 0;
+
+  for (const [documentAtUri, documents] of configuredDocumentsByAtUri) {
+    if (documents.length > 1) {
+      errors.push(
+        `${documentAtUri} is configured by multiple posts: ${documents
+          .map(({ sourcePath }) => sourcePath)
+          .join(", ")}`,
+      );
+    }
+  }
 
   for await (const relativePath of glob("**/*.html", {
     cwd: distDirectory,
@@ -99,28 +135,42 @@ export async function validateStandardSiteBuild({
         continue;
       }
 
-      const existingPath = discoveredDocuments.get(href);
-
-      if (existingPath) {
-        errors.push(
-          `${href} is emitted by both ${existingPath} and ${htmlPath}`,
-        );
-      } else {
-        discoveredDocuments.set(href, htmlPath);
-      }
+      discoveredDocuments.push({ documentAtUri: href, htmlPath });
     }
   }
 
-  for (const [documentAtUri, sourcePath] of configuredDocuments) {
-    if (!discoveredDocuments.has(documentAtUri)) {
+  for (const configuredDocument of configuredDocuments) {
+    const {
+      documentAtUri,
+      sourcePath,
+      htmlPath: expectedHtmlPath,
+    } = configuredDocument;
+    const matchingLinks = discoveredDocuments.filter(
+      (document) =>
+        document.documentAtUri === documentAtUri &&
+        document.htmlPath === expectedHtmlPath,
+    );
+    const misplacedLinks = discoveredDocuments.filter(
+      (document) =>
+        document.documentAtUri === documentAtUri &&
+        document.htmlPath !== expectedHtmlPath,
+    );
+
+    if (matchingLinks.length !== 1) {
       errors.push(
-        `${sourcePath} configures ${documentAtUri}, but no built page emits it`,
+        `${sourcePath} configures ${documentAtUri}, but ${expectedHtmlPath} emits it ${matchingLinks.length} times`,
+      );
+    }
+
+    for (const { htmlPath } of misplacedLinks) {
+      errors.push(
+        `${htmlPath} emits ${documentAtUri}, but its configured page is ${expectedHtmlPath}`,
       );
     }
   }
 
-  for (const [documentAtUri, htmlPath] of discoveredDocuments) {
-    if (!configuredDocuments.has(documentAtUri)) {
+  for (const { documentAtUri, htmlPath } of discoveredDocuments) {
+    if (!configuredDocumentsByAtUri.has(documentAtUri)) {
       errors.push(
         `${htmlPath} emits ${documentAtUri}, but no post configures it`,
       );
@@ -139,6 +189,6 @@ export async function validateStandardSiteBuild({
 
   return {
     htmlFileCount,
-    documentCount: configuredDocuments.size,
+    documentCount: configuredDocuments.length,
   };
 }

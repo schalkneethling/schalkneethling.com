@@ -64,7 +64,43 @@ describe("Standard.site build validation", () => {
         ...testBuild,
         publicationAtUri,
       }),
-    ).rejects.toThrow("but no built page emits it");
+    ).rejects.toThrow("emits it 0 times");
+  });
+
+  it("rejects a document AT-URI configured by multiple posts", async () => {
+    await using testBuild = await createTestBuild();
+    await writeFile(
+      join(testBuild.postsDirectory, "duplicate.md"),
+      `---\nstandardSite:\n  publish: true\n  documentAtUri: ${documentAtUri}\n---\n`,
+    );
+
+    await expect(
+      validateStandardSiteBuild({
+        ...testBuild,
+        publicationAtUri,
+      }),
+    ).rejects.toThrow("is configured by multiple posts");
+  });
+
+  it("rejects a document link emitted by the wrong post page", async () => {
+    await using testBuild = await createTestBuild();
+    const otherPostDirectory = join(testBuild.distDirectory, "posts", "other");
+    await mkdir(otherPostDirectory, { recursive: true });
+    await writeFile(
+      join(testBuild.distDirectory, "posts", "example", "index.html"),
+      `<link rel="site.standard.publication" href="${publicationAtUri}">`,
+    );
+    await writeFile(
+      join(otherPostDirectory, "index.html"),
+      `<link rel="site.standard.publication" href="${publicationAtUri}"><link rel="site.standard.document" href="${documentAtUri}">`,
+    );
+
+    await expect(
+      validateStandardSiteBuild({
+        ...testBuild,
+        publicationAtUri,
+      }),
+    ).rejects.toThrow("but its configured page is");
   });
 
   it("reports a rendered page missing publication discovery", async () => {

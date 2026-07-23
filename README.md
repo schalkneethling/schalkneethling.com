@@ -120,7 +120,7 @@ This command builds the site and checks:
 - `/.well-known/site.standard.publication` contains the configured publication
   AT-URI;
 - every post with `standardSite.documentAtUri` emits exactly one matching
-  `site.standard.document` link; and
+  `site.standard.document` link on its rendered page; and
 - no built document link exists without matching post metadata.
 
 The command is local, read-only, and does not load AT Protocol credentials.

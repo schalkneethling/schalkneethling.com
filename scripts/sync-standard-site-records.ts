@@ -1,7 +1,15 @@
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { Client, XrpcResponseError } from "@atproto/lex-client";
+import {
+  Client,
+  XrpcResponseError,
+  type DidString,
+  type Infer,
+  type InferRecordKey,
+  type Main,
+  type RecordSchema,
+} from "@atproto/lex-client";
 import { PasswordSession } from "@atproto/lex-password-session";
 
 import { prepareStandardSitePlan } from "./generate-standard-site-records.ts";
@@ -87,6 +95,25 @@ function writeStatus(message: string) {
   process.stderr.write(`${message}\n`);
 }
 
+function createRecord<T extends RecordSchema<"tid">>(
+  client: Client,
+  publisherDid: DidString,
+  record: unknown,
+  rkey: InferRecordKey<T>,
+  definition: {
+    readonly main: Main<T>;
+    readonly $parse: (value: unknown) => Infer<T>;
+  },
+) {
+  const { $type: _type, ...input } = definition.$parse(record);
+
+  return client.create(definition.main, input, {
+    repo: publisherDid,
+    rkey,
+    validateRequest: true,
+  });
+}
+
 async function main() {
   const write = isWriteMode();
   await using session = await authenticateStandardSitePublisher();
@@ -141,55 +168,57 @@ async function main() {
   }
 
   if (write) {
-    const documentCreates: StandardSiteDocumentCreate[] = plan.documents
-      .filter((document) => document.action === "create")
-      .map((document) => {
-        if (!("sourcePath" in document) || !document.sourcePath) {
-          throw new Error(`Missing source path for document ${document.id}`);
-        }
-
-        return {
-          sourcePath: document.sourcePath,
-          canonicalUrl: new URL(document.payload.path, standardSite.record.url)
-            .href,
-          payload: document.payload,
-        };
-      });
-    const documentServices = {
-      getRecord: (rkey: string) =>
-        readRecord({
-          repo: session.did,
-          collection: "site.standard.document",
-          rkey,
-        }),
-      createRecord: async (
-        record: StandardSiteDocumentCreate["payload"],
-        rkey: string,
-      ) => {
-        const { $type: _type, ...input } =
-          site.standard.document.$parse(record);
-        return client.create(site.standard.document.main, input, {
-          repo: session.did,
-          rkey,
-          validateRequest: true,
-        });
-      },
-    };
-    const journal = await readStandardSiteRecoveryJournal();
-    const pendingDocumentSourcePaths = new Set(
-      journal.pendingCreates
-        .filter((pending) => pending.collection === "site.standard.document")
-        .map((pending) => pending.sourcePath),
-    );
-    const pendingDocumentCreates = documentCreates.filter((create) =>
-      pendingDocumentSourcePaths.has(create.sourcePath),
-    );
-    const newDocumentCreates = documentCreates.filter(
-      (create) => !pendingDocumentSourcePaths.has(create.sourcePath),
-    );
     const documents: StandardSiteDocumentSyncResult[] = [];
 
     try {
+      const documentCreates: StandardSiteDocumentCreate[] = plan.documents
+        .filter((document) => document.action === "create")
+        .map((document) => {
+          if (!("sourcePath" in document) || !document.sourcePath) {
+            throw new Error(`Missing source path for document ${document.id}`);
+          }
+
+          return {
+            sourcePath: document.sourcePath,
+            canonicalUrl: new URL(
+              document.payload.path,
+              standardSite.record.url,
+            ).href,
+            payload: document.payload,
+          };
+        });
+      const documentServices = {
+        getRecord: (rkey: string) =>
+          readRecord({
+            repo: session.did,
+            collection: "site.standard.document",
+            rkey,
+          }),
+        createRecord: (
+          record: StandardSiteDocumentCreate["payload"],
+          rkey: string,
+        ) =>
+          createRecord(
+            client,
+            session.did,
+            record,
+            rkey,
+            site.standard.document,
+          ),
+      };
+      const journal = await readStandardSiteRecoveryJournal();
+      const pendingDocumentSourcePaths = new Set(
+        journal.pendingCreates
+          .filter((pending) => pending.collection === "site.standard.document")
+          .map((pending) => pending.sourcePath),
+      );
+      const pendingDocumentCreates = documentCreates.filter((create) =>
+        pendingDocumentSourcePaths.has(create.sourcePath),
+      );
+      const newDocumentCreates = documentCreates.filter(
+        (create) => !pendingDocumentSourcePaths.has(create.sourcePath),
+      );
+
       if (pendingDocumentSourcePaths.size > 0) {
         documents.push(
           ...(await syncStandardSiteDocuments(
@@ -210,15 +239,14 @@ async function main() {
               collection: "site.standard.publication",
               rkey,
             }),
-          createRecord: async (record, rkey) => {
-            const { $type: _type, ...input } =
-              site.standard.publication.$parse(record);
-            return client.create(site.standard.publication.main, input, {
-              repo: session.did,
+          createRecord: (record, rkey) =>
+            createRecord(
+              client,
+              session.did,
+              record,
               rkey,
-              validateRequest: true,
-            });
-          },
+              site.standard.publication,
+            ),
         },
       );
 
@@ -245,7 +273,7 @@ async function main() {
       console.error(
         `WRITE STOPPED: ${completedDocuments.length} document records completed; rerun after resolving the reported error`,
       );
-      console.error(JSON.stringify({ completedDocuments }, null, 2));
+      console.log(JSON.stringify({ completedDocuments }, null, 2));
       throw error;
     }
     return;

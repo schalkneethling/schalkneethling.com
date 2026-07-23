@@ -7,6 +7,8 @@ import {
 } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
+import { parseDocument } from "yaml";
+
 import { site } from "../lexicons/index.ts";
 import type { StandardSiteDocumentPayload } from "./standardSitePayloads.ts";
 import {
@@ -39,30 +41,60 @@ type DocumentWriteServices = {
   ) => Promise<{ readonly uri: string; readonly cid?: string }>;
 };
 
+export type StandardSiteDocumentSyncResult = {
+  readonly action: "create" | "reconcile";
+  readonly sourcePath: string;
+  readonly uri: string;
+  readonly cid: string | undefined;
+};
+
 function expectedDocumentAtUri(publisherDid: string, rkey: string) {
   return `at://${publisherDid}/site.standard.document/${rkey}`;
 }
 
 async function persistDocumentAtUri(atUri: string, sourcePath: string) {
   const source = await readFile(sourcePath, "utf8");
-  const persistedIdentifier = `  documentAtUri: ${JSON.stringify(atUri)}`;
+  const frontmatter = source.match(
+    /^(?<opening>---[ \t]*\r?\n)(?<yaml>[\s\S]*?)(?<closing>\r?\n---[ \t]*(?:\r?\n|$))/,
+  );
 
-  if (source.includes(persistedIdentifier)) {
-    return;
-  }
-
-  const publishIdentifier = "standardSite:\n  publish: true";
-
-  if (source.split(publishIdentifier).length !== 2) {
+  if (!frontmatter?.groups) {
     throw new Error(
       `Cannot safely persist the document AT-URI in ${sourcePath}`,
     );
   }
 
-  const updatedSource = source.replace(
-    publishIdentifier,
-    `${publishIdentifier}\n${persistedIdentifier}`,
-  );
+  const document = parseDocument(frontmatter.groups.yaml, {
+    keepSourceTokens: true,
+  });
+  const hasValidFrontmatter =
+    document.errors.length === 0 &&
+    document.getIn(["standardSite", "publish"]) === true;
+  const existingAtUri = document.getIn(["standardSite", "documentAtUri"]);
+
+  if (
+    !hasValidFrontmatter ||
+    (existingAtUri !== undefined && existingAtUri !== atUri)
+  ) {
+    throw new Error(
+      `Cannot safely persist the document AT-URI in ${sourcePath}`,
+    );
+  }
+
+  if (existingAtUri === atUri) {
+    return;
+  }
+
+  document.setIn(["standardSite", "documentAtUri"], atUri);
+  const lineEnding = frontmatter.groups.opening.includes("\r\n")
+    ? "\r\n"
+    : "\n";
+  const serializedFrontmatter = document
+    .toString({ lineWidth: 0 })
+    .trimEnd()
+    .replaceAll("\n", lineEnding);
+  const updatedFrontmatter = `${frontmatter.groups.opening}${serializedFrontmatter}${frontmatter.groups.closing}`;
+  const updatedSource = source.replace(frontmatter[0], updatedFrontmatter);
   const sourceDirectory = dirname(sourcePath);
 
   await mkdir(sourceDirectory, { recursive: true });
@@ -122,6 +154,20 @@ async function completeReservation(
   await clearStandardSiteCreate(reservation, journalPath);
 }
 
+function attachCompletedResults(
+  error: unknown,
+  results: readonly StandardSiteDocumentSyncResult[],
+) {
+  if (error instanceof Error && Object.isExtensible(error)) {
+    Object.defineProperty(error, "completedResults", {
+      enumerable: true,
+      value: [...results],
+    });
+  }
+
+  throw error;
+}
+
 export async function syncStandardSiteDocuments(
   creates: readonly StandardSiteDocumentCreate[],
   publisherDid: string,
@@ -133,75 +179,82 @@ export async function syncStandardSiteDocuments(
     creates,
     journal.pendingCreates,
   );
-  const results = [];
+  const results: StandardSiteDocumentSyncResult[] = [];
 
   for (const create of orderedCreates) {
-    const reservation = await reserveStandardSiteCreate(
-      {
-        sourcePath: create.sourcePath,
-        canonicalUrl: create.canonicalUrl,
-        collection: "site.standard.document",
-      },
-      journalPath,
-    );
-    const expectedAtUri = expectedDocumentAtUri(publisherDid, reservation.rkey);
-    const remote = await services.getRecord(reservation.rkey);
+    try {
+      const reservation = await reserveStandardSiteCreate(
+        {
+          sourcePath: create.sourcePath,
+          canonicalUrl: create.canonicalUrl,
+          collection: "site.standard.document",
+        },
+        journalPath,
+      );
+      const expectedAtUri = expectedDocumentAtUri(
+        publisherDid,
+        reservation.rkey,
+      );
+      const remote = await services.getRecord(reservation.rkey);
 
-    if (remote) {
-      const record = site.standard.document.$parse(remote.value);
-      const hasRemotePath = typeof record.path === "string";
-      const remoteCanonicalUrl =
-        typeof record.path === "string"
-          ? new URL(record.path, create.canonicalUrl).href
-          : undefined;
-      const hasExpectedUri = remote.uri === expectedAtUri;
-      const hasCid = Boolean(remote.cid);
-      const hasExpectedSite = record.site === create.payload.site;
-      const hasExpectedCanonicalUrl =
-        remoteCanonicalUrl === reservation.canonicalUrl;
+      if (remote) {
+        const record = site.standard.document.$parse(remote.value);
+        const hasRemotePath = typeof record.path === "string";
+        const remoteCanonicalUrl =
+          typeof record.path === "string"
+            ? new URL(record.path, create.canonicalUrl).href
+            : undefined;
+        const hasExpectedUri = remote.uri === expectedAtUri;
+        const hasCid = Boolean(remote.cid);
+        const hasExpectedSite = record.site === create.payload.site;
+        const hasExpectedCanonicalUrl =
+          remoteCanonicalUrl === reservation.canonicalUrl;
 
-      if (
-        !hasExpectedUri ||
-        !hasCid ||
-        !hasExpectedSite ||
-        !hasRemotePath ||
-        !hasExpectedCanonicalUrl
-      ) {
+        if (
+          !hasExpectedUri ||
+          !hasCid ||
+          !hasExpectedSite ||
+          !hasRemotePath ||
+          !hasExpectedCanonicalUrl
+        ) {
+          throw new Error(
+            `Pending document record ${reservation.rkey} does not match its reservation`,
+          );
+        }
+
+        await completeReservation(reservation, remote.uri, journalPath);
+        results.push({
+          action: "reconcile",
+          sourcePath: create.sourcePath,
+          uri: remote.uri,
+          cid: remote.cid,
+        });
+        continue;
+      }
+
+      const created = await services.createRecord(
+        create.payload,
+        reservation.rkey,
+      );
+      const hasExpectedUri = created.uri === expectedAtUri;
+      const hasCid = Boolean(created.cid);
+
+      if (!hasExpectedUri || !hasCid) {
         throw new Error(
-          `Pending document record ${reservation.rkey} does not match its reservation`,
+          `Created document ${reservation.rkey} returned URI ${created.uri} and CID ${created.cid ?? "missing"}; expected URI ${expectedAtUri} and a CID`,
         );
       }
 
-      await completeReservation(reservation, remote.uri, journalPath);
+      await completeReservation(reservation, created.uri, journalPath);
       results.push({
-        action: "reconcile" as const,
+        action: "create",
         sourcePath: create.sourcePath,
-        uri: remote.uri,
-        cid: remote.cid,
+        uri: created.uri,
+        cid: created.cid,
       });
-      continue;
+    } catch (error) {
+      attachCompletedResults(error, results);
     }
-
-    const created = await services.createRecord(
-      create.payload,
-      reservation.rkey,
-    );
-    const hasExpectedUri = created.uri === expectedAtUri;
-    const hasCid = Boolean(created.cid);
-
-    if (!hasExpectedUri || !hasCid) {
-      throw new Error(
-        `Created document ${reservation.rkey} returned URI ${created.uri} and CID ${created.cid ?? "missing"}; expected URI ${expectedAtUri} and a CID`,
-      );
-    }
-
-    await completeReservation(reservation, created.uri, journalPath);
-    results.push({
-      action: "create" as const,
-      sourcePath: create.sourcePath,
-      uri: created.uri,
-      cid: created.cid,
-    });
   }
 
   return results;

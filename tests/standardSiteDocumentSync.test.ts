@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   syncStandardSiteDocuments,
-  type StandardSiteDocumentCreate,
+  type StandardSiteDocumentSyncResult,
 } from "../src/lib/standardSiteDocumentSync";
 import {
   readStandardSiteRecoveryJournal,
@@ -76,11 +76,38 @@ describe("Standard.site document sync", () => {
       cid: "bafyreiexample",
     });
     expect(await readFile(document.sourcePath, "utf8")).toContain(
-      `documentAtUri: "${result?.uri}"`,
+      `documentAtUri: ${result?.uri}`,
     );
     await expect(stat(document.journalPath)).rejects.toMatchObject({
       code: "ENOENT",
     });
+  });
+
+  it("persists into equivalent YAML frontmatter without changing line endings", async () => {
+    await using document = await createTestDocument();
+    await writeFile(
+      document.sourcePath,
+      "---\r\nstandardSite: { publish: true }\r\ntitle: Example\r\n---\r\nBody\r\n",
+    );
+
+    const [result] = await syncStandardSiteDocuments(
+      [document.create],
+      publisherDid,
+      {
+        getRecord: async () => undefined,
+        createRecord: async (_record, rkey) => ({
+          uri: documentUri(rkey),
+          cid: "bafyreiexample",
+        }),
+      },
+      document.journalPath,
+    );
+    const persistedSource = await readFile(document.sourcePath, "utf8");
+
+    expect(persistedSource).toContain(`documentAtUri: ${result?.uri}`);
+    expect(persistedSource).toContain("---\r\n");
+    expect(persistedSource).toContain("\r\nBody\r\n");
+    expect(persistedSource).not.toMatch(/(?<!\r)\n/);
   });
 
   it("reconciles a pending remote record before a new create", async () => {
@@ -123,6 +150,75 @@ describe("Standard.site document sync", () => {
       "create",
     ]);
     expect(operations[0]).toBe(`get:${reservation.rkey}`);
+  });
+
+  it.each([
+    ["source path", "src/content/posts/other.md", undefined],
+    ["canonical URL", undefined, "https://schalkneethling.com/posts/other/"],
+  ])(
+    "blocks the batch when pending recovery has a mismatched %s",
+    async (_description, sourcePath, canonicalUrl) => {
+      await using document = await createTestDocument();
+      await reserveStandardSiteCreate(
+        {
+          sourcePath: sourcePath ?? document.sourcePath,
+          canonicalUrl: canonicalUrl ?? document.create.canonicalUrl,
+          collection: "site.standard.document",
+        },
+        document.journalPath,
+      );
+      const getRecord = vi.fn();
+      const createRecord = vi.fn();
+
+      await expect(
+        syncStandardSiteDocuments(
+          [document.create],
+          publisherDid,
+          { getRecord, createRecord },
+          document.journalPath,
+        ),
+      ).rejects.toThrow("does not match the current document plan");
+      expect(getRecord).not.toHaveBeenCalled();
+      expect(createRecord).not.toHaveBeenCalled();
+    },
+  );
+
+  it("attaches completed results when a later create fails", async () => {
+    await using firstDocument = await createTestDocument("first");
+    await using secondDocument = await createTestDocument("second");
+    const failure = new Error("PDS unavailable");
+    const createRecord = vi
+      .fn()
+      .mockImplementationOnce(async (_record, rkey) => ({
+        uri: documentUri(rkey),
+        cid: "bafyreifirst",
+      }))
+      .mockRejectedValueOnce(failure);
+
+    try {
+      await syncStandardSiteDocuments(
+        [firstDocument.create, secondDocument.create],
+        publisherDid,
+        { getRecord: async () => undefined, createRecord },
+        firstDocument.journalPath,
+      );
+      expect.unreachable("Expected document sync to fail");
+    } catch (error) {
+      expect(error).toBe(failure);
+      expect(
+        (
+          error as Error & {
+            completedResults: StandardSiteDocumentSyncResult[];
+          }
+        ).completedResults,
+      ).toMatchObject([
+        {
+          action: "create",
+          sourcePath: firstDocument.sourcePath,
+          cid: "bafyreifirst",
+        },
+      ]);
+    }
   });
 
   it("leaves the reservation when local persistence fails", async () => {

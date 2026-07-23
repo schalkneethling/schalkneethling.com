@@ -12,6 +12,8 @@
     "build": "pnpm run generate:og && astro build",
     "generate:og": "node scripts/generate-og-cards.mjs",
     "standard-site:generate": "node scripts/generate-standard-site-records.ts",
+    "standard-site:lexicons:build": "lex build --clear --index-file",
+    "standard-site:lexicons:check": "lex install --ci && pnpm standard-site:lexicons:build",
     "standard-site:sync": "varlock run -- node scripts/sync-standard-site-records.ts",
     "refresh:project-docs": "node scripts/refresh-project-doc-cache.mjs",
     "preview": "astro preview",
@@ -20,7 +22,7 @@
     "test:a11y": "playwright test",
     "a11y:viewer": "axe-aggregate-viewer ./full-report.json",
     "a11y:viewer:standalone": "axe-aggregate-viewer ./full-report.json --standalone",
-    "test:unit": "vitest run"
+    "test:unit": "pnpm standard-site:lexicons:build && vitest run"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",

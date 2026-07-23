@@ -4,7 +4,10 @@ import { join } from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { standardSite } from "../src/lib/standardSite";
+import {
+  standardSite,
+  type StandardSitePublicationConfig,
+} from "../src/lib/standardSite";
 import { syncStandardSitePublication } from "../src/lib/standardSitePublicationSync";
 import {
   readStandardSiteRecoveryJournal,
@@ -12,6 +15,13 @@ import {
 } from "../src/lib/standardSiteRecovery";
 
 const publisherDid = "did:plc:brimpw7k46xczmr4pqst45df";
+const unpublishedStandardSite = {
+  ...standardSite,
+  identity: {
+    ...standardSite.identity,
+    publicationAtUri: undefined,
+  },
+} satisfies StandardSitePublicationConfig;
 
 async function createTestPaths() {
   const temporaryDirectory = await mkdtempDisposable(
@@ -49,7 +59,7 @@ describe("Standard.site publication sync", () => {
     });
 
     const result = await syncStandardSitePublication(
-      standardSite,
+      unpublishedStandardSite,
       publisherDid,
       {
         getRecord: async () => undefined,
@@ -81,7 +91,7 @@ describe("Standard.site publication sync", () => {
     const createRecord = vi.fn();
 
     const result = await syncStandardSitePublication(
-      standardSite,
+      unpublishedStandardSite,
       publisherDid,
       {
         getRecord: async () => ({
@@ -109,7 +119,7 @@ describe("Standard.site publication sync", () => {
 
     await expect(
       syncStandardSitePublication(
-        standardSite,
+        unpublishedStandardSite,
         publisherDid,
         {
           getRecord: async () => undefined,
@@ -141,7 +151,7 @@ describe("Standard.site publication sync", () => {
 
     await expect(
       syncStandardSitePublication(
-        standardSite,
+        unpublishedStandardSite,
         publisherDid,
         { getRecord: vi.fn(), createRecord },
         paths,
@@ -164,7 +174,7 @@ describe("Standard.site publication sync", () => {
 
     await expect(
       syncStandardSitePublication(
-        standardSite,
+        unpublishedStandardSite,
         publisherDid,
         { getRecord: vi.fn(), createRecord },
         paths,
@@ -194,7 +204,7 @@ describe("Standard.site publication sync", () => {
 
     await expect(
       syncStandardSitePublication(
-        standardSite,
+        unpublishedStandardSite,
         publisherDid,
         { getRecord: vi.fn(), createRecord },
         paths,

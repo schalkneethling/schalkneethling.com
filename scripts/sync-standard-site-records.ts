@@ -133,7 +133,6 @@ async function main() {
           return client.create(site.standard.publication.main, input, {
             repo: session.did,
             rkey,
-            validate: true,
             validateRequest: true,
           });
         },

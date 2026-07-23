@@ -16,7 +16,14 @@ const post = {
 
 describe("Standard.site dry-run plan", () => {
   it("plans creates from missing local identifiers", () => {
-    const plan = createStandardSitePlan([post], standardSite);
+    const config = {
+      ...standardSite,
+      identity: {
+        handle: standardSite.identity.handle,
+        did: standardSite.identity.did,
+      },
+    };
+    const plan = createStandardSitePlan([post], config);
 
     expect(plan.publication.action).toBe("create");
     expect(plan.documents[0]).toMatchObject({

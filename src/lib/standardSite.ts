@@ -34,7 +34,8 @@ export const standardSite = {
     handle: "schalkneethling.com",
     did: "did:plc:brimpw7k46xczmr4pqst45df",
     // Set after the publication record has been created successfully.
-    publicationAtUri: undefined,
+    publicationAtUri:
+      "at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.publication/3mrd3atn7qc2y",
   },
   record: {
     $type: "site.standard.publication",

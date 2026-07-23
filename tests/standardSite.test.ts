@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import { standardSite } from "../src/lib/standardSite";
 
 describe("standardSite publication configuration", () => {
-  it("pins the publisher identity without requiring a publication AT-URI", () => {
+  it("pins the publisher identity and publication AT-URI", () => {
     expect(standardSite.identity.handle).toBe("schalkneethling.com");
     expect(standardSite.identity.did).toBe("did:plc:brimpw7k46xczmr4pqst45df");
-    expect(standardSite.identity.publicationAtUri).toBeUndefined();
+    expect(standardSite.identity.publicationAtUri).toBe(
+      "at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.publication/3mrd3atn7qc2y",
+    );
     expect(standardSite.record).toMatchObject({
       $type: "site.standard.publication",
       url: "https://schalkneethling.com",

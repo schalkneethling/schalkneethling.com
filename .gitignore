@@ -3,6 +3,7 @@ dist/
 public/og/
 # generated types
 .astro/
+/src/lexicons/
 
 # dependencies
 node_modules/

@@ -100,7 +100,7 @@ contract is:
   validation, and action planning without authentication or network access.
 - `pnpm standard-site:sync` performs an authenticated, read-only PDS preflight
   and is a dry run by default.
-- `pnpm standard-site:sync -- --write` is the only mode permitted to create or
+- `pnpm standard-site:sync --write` is the only mode permitted to create or
   update PDS records.
 
 ### Offline planning dry-run
@@ -174,11 +174,17 @@ delete record endpoints, changing frontmatter, or writing recovery state.
 ### Write mode
 
 The current write slice supports publication creation and orphan reconciliation
-only. `pnpm standard-site:sync -- --write` reserves a publication TID, checks
+only. `pnpm standard-site:sync --write` reserves a publication TID, checks
 that exact record key, creates the record when it is absent, persists the
 returned AT-URI in `src/lib/standardSite.ts`, and clears the reservation only
 after persistence succeeds. A matching remote record left by an interrupted
 create is reconciled without another write.
+
+Payloads are validated locally against the pinned Standard.site Lexicons before
+the request. The PDS uses AT Protocol's default optimistic validation because
+it may not have the third-party Standard.site Lexicons installed; explicitly
+requiring server-side validation would reject an otherwise valid record when
+the PDS cannot resolve that Lexicon.
 
 Publication updates and all document writes remain deferred. If a publication
 AT-URI is already configured, write mode skips it. If document recovery state

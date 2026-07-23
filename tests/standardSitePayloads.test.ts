@@ -28,7 +28,7 @@ describe("Standard.site document payloads", () => {
     expect(createDocumentPayloads([selectedPost], standardSite)).toEqual([
       {
         $type: "site.standard.document",
-        site: "https://schalkneethling.com",
+        site: standardSite.identity.publicationAtUri,
         path: "/posts/selected-post/",
         title: "Selected post",
         description: "A selected post.",

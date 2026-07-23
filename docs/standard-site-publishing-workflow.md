@@ -173,12 +173,13 @@ delete record endpoints, changing frontmatter, or writing recovery state.
 
 ### Write mode
 
-The current write slice supports publication creation and orphan reconciliation
-only. `pnpm standard-site:sync --write` reserves a publication TID, checks
-that exact record key, creates the record when it is absent, persists the
-returned AT-URI in `src/lib/standardSite.ts`, and clears the reservation only
-after persistence succeeds. A matching remote record left by an interrupted
-create is reconciled without another write.
+The current write slice supports publication and document creation plus orphan
+reconciliation. `pnpm standard-site:sync --write` reserves a Timestamp
+Identifier (TID), checks that exact record key, creates the record when it is
+absent, persists the returned AT-URI in publication configuration or post
+frontmatter, and clears the reservation only after persistence succeeds. A
+matching remote record left by an interrupted create is reconciled without
+another write.
 
 Payloads are validated locally against the pinned Standard.site Lexicons before
 the request. The PDS uses AT Protocol's default optimistic validation because
@@ -186,10 +187,9 @@ it may not have the third-party Standard.site Lexicons installed; explicitly
 requiring server-side validation would reject an otherwise valid record when
 the PDS cannot resolve that Lexicon.
 
-Publication updates and all document writes remain deferred. If a publication
-AT-URI is already configured, write mode skips it. If document recovery state
-exists, write mode fails closed because that state cannot yet be reconciled by
-this implementation slice.
+Publication and document updates remain deferred. If a publication AT-URI is
+already configured, write mode skips it. Pending publication and document
+recovery state is reconciled before any new creates.
 
 The published `site.standard.publication` and `site.standard.document`
 Lexicons require

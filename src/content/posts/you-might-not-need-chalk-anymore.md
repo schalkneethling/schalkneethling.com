@@ -4,6 +4,8 @@ pubDate: 2026-07-02
 description: "Node.js now ships with util.styleText(), a built-in alternative to chalk for terminal text styling. Here is what it can do, when it is enough, and when you might still reach for a dependency."
 author: "Schalk Neethling"
 tags: ["nodejs", "frontend-engineering-explained"]
+standardSite:
+  publish: true
 ---
 
 If you have been writing CLI tools or Node.js scripts of any kind, there is a good chance you have `chalk` in your `package.json`. For years it has been the go-to way to add colour and emphasis to terminal output. But Node.js itself has been quietly closing that gap, and for many projects the built-in `util.styleText()` is now all you need.

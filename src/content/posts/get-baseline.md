@@ -4,6 +4,8 @@ pubDate: 2026-07-07
 description: Search the web-features catalog, preview the baseline-status component, and generate the CDN or bundler snippet, all from one small web app.
 author: Schalk Neethling
 tags: ["tools"]
+standardSite:
+  publish: true
 ---
 
 Adding the [`<baseline-status>`](https://github.com/web-platform-dx/baseline-status) web component to a page starts with one required attribute: `featureId`. The value has to match an identifier from the [web-features](https://github.com/web-platform-dx/web-features) catalog, and finding the correct identifier has usually meant one of a few routes: browsing the `features` directory in the web-features repository, opening [webstatus.dev](https://webstatus.dev/) and reading the identifier off the end of the URL, or doing the same on the [web features explorer](https://web-platform-dx.github.io/web-features-explorer/), which also puts a Copy ID button directly on each feature's page.

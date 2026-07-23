@@ -72,13 +72,13 @@ export function createStandardSitePlan(
 
 async function loadPosts() {
   const store = parse(
-    await readFile(resolve(".astro/data-store.json"), "utf8"),
+    await readFile(resolve("node_modules/.astro/data-store.json"), "utf8"),
   ) as Map<string, Map<string, StandardSitePost>>;
   return [...(store.get("posts")?.values() ?? [])];
 }
 
 export async function prepareStandardSitePlan() {
-  const sync = spawnSync("pnpm", ["exec", "astro", "sync"], {
+  const sync = spawnSync("pnpm", ["exec", "astro", "sync", "--force"], {
     encoding: "utf8",
   });
 

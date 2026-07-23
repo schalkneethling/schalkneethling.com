@@ -4,6 +4,8 @@ pubDate: 2026-07-05
 description: "It's been a while since I have listened to a talk and found a real connection with the speaker and what they were sharing. This streak was broken a couple of days ago when I listened to a talk by Ryo Lu at Cursor's Compile 26 conference."
 author: "Schalk Neethling"
 tags: ["ramblings"]
+standardSite:
+  publish: true
 ---
 
 AI is a divisive topic. While a lot of what I will talk about here is related to AI and engineering, I want you to try and look past it for the moment, because the topic I want to touch on is broader than AI.

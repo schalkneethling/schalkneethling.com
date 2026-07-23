@@ -4,6 +4,8 @@ pubDate: 2026-06-30
 description: "Project Calavera is a CLI tool that scaffolds linters, formatters, AI tooling, and common project infrastructure for web projects. Calavera ❤️ Vite. This post walks through the full contribution path for a new integration, using the Varlock PR as a concrete example."
 author: "Schalk Neethling"
 tags: ["frontend-engineering-explained", "nodejs", "testing"]
+standardSite:
+  publish: true
 ---
 
 [Project Calavera](https://github.com/schalkneethling/create-project-calavera/) is an open-source CLI tool that scaffolds linters, formatters, TypeScript configs, AI tooling such as agent skills, hooks, and subagents, and other common project infrastructure for web projects. It works standalone for vanilla JavaScript, TypeScript, and library projects, and it works as a complement to framework scaffolding tools like Vite+ and `vp create`, giving any project a consistent, repeatable setup through a single recipe file.

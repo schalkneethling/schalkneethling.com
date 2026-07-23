@@ -1,6 +1,7 @@
 {
   "version": 1,
   "lexicons": [
+    "com.atproto.repo.getRecord",
     "site.standard.document",
     "site.standard.publication"
   ],
@@ -8,6 +9,10 @@
     "com.atproto.label.defs": {
       "uri": "at://did:plc:6msi3pj7krzih5qxqtryxlzw/com.atproto.lexicon.schema/com.atproto.label.defs",
       "cid": "bafyreidp2wpcbzl2qiob2uwoc7lhntojx3tjcr553mmahw2f5cumtm3wpm"
+    },
+    "com.atproto.repo.getRecord": {
+      "uri": "at://did:plc:6msi3pj7krzih5qxqtryxlzw/com.atproto.lexicon.schema/com.atproto.repo.getRecord",
+      "cid": "bafyreihdnm3v25uaptt5vjvnpfsfgb6fbhxew2ye3l6q4ndm7xi5wpc4vy"
     },
     "com.atproto.repo.strongRef": {
       "uri": "at://did:plc:6msi3pj7krzih5qxqtryxlzw/com.atproto.lexicon.schema/com.atproto.repo.strongRef",

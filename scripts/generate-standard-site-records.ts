@@ -77,7 +77,7 @@ async function loadPosts() {
   return [...(store.get("posts")?.values() ?? [])];
 }
 
-async function main() {
+export async function prepareStandardSitePlan() {
   const sync = spawnSync("pnpm", ["exec", "astro", "sync"], {
     encoding: "utf8",
   });
@@ -86,11 +86,16 @@ async function main() {
   process.stderr.write(sync.stderr);
 
   if (sync.status !== 0) {
-    process.exitCode = sync.status ?? 1;
-    return;
+    throw new Error(
+      `Astro content sync failed with status ${sync.status ?? 1}`,
+    );
   }
 
-  const plan = createStandardSitePlan(await loadPosts());
+  return createStandardSitePlan(await loadPosts());
+}
+
+async function main() {
+  const plan = await prepareStandardSitePlan();
   const counts = Object.groupBy(plan.documents, (document) => document.action);
 
   console.error(

@@ -34,7 +34,7 @@
     "@schalkneethling/masonry-gridlanes-wc": "^0.1.0",
     "astro": "^7.1.1",
     "astro-embed": "^0.13.1",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "varlock": "^1.9.0"
   },
   "devDependencies": {

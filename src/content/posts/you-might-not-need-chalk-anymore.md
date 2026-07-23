@@ -6,6 +6,7 @@ author: "Schalk Neethling"
 tags: ["nodejs", "frontend-engineering-explained"]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3mrdktderuc27
 ---
 
 If you have been writing CLI tools or Node.js scripts of any kind, there is a good chance you have `chalk` in your `package.json`. For years it has been the go-to way to add colour and emphasis to terminal output. But Node.js itself has been quietly closing that gap, and for many projects the built-in `util.styleText()` is now all you need.

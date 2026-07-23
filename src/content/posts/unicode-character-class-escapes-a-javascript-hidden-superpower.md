@@ -6,6 +6,7 @@ author: "Schalk Neethling"
 tags: ["javascript", "frontend-engineering-explained"]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3mrdktcrds227
 ---
 
 I will admit something up front: I am not a regular expression wizard 🧙. Like a great many developers, I find regular expressions equal parts useful and intimidating, and I reach for them with the cautious respect one might reserve for a sharp kitchen knife. What I do recognise, however, is when an addition to the language makes regular expressions meaningfully better. Unicode character class escapes are one of those additions, and once you have seen what they do, it is hard to imagine how we have survived without them.

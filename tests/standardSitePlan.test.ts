@@ -5,6 +5,7 @@ import { standardSite } from "../src/lib/standardSite";
 
 const post = {
   id: "example-post",
+  filePath: "src/content/posts/example-post.md",
   data: {
     title: "Example post",
     description: "An example.",
@@ -30,6 +31,7 @@ describe("Standard.site dry-run plan", () => {
       id: "example-post",
       action: "create",
       reason: "document AT-URI missing",
+      sourcePath: "src/content/posts/example-post.md",
       payload: { $type: "site.standard.document" },
     });
   });

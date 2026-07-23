@@ -3,6 +3,7 @@ import { extractStandardSiteText } from "./standardSiteText.ts";
 
 export interface StandardSitePost {
   readonly id: string;
+  readonly filePath?: string;
   readonly body?: string;
   readonly data: {
     readonly title: string;

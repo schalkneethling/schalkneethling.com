@@ -42,6 +42,8 @@ img {
 }
 ```
 
+See it in action using [this little `image-orientation` demo](https://exif-image-orientation.schalkneethling.com).
+
 ## What Changed?
 
 A detail to be aware of is that `from-image` is not just a value you can opt into. It is the property's initial value, the same mechanism behind properties like `margin` and `padding`: a value the browser applies to every element unless something overrides it, whether or not any stylesheet ever mentions the property. Unlike `margin` or `padding`, though, whose familiar defaults usually come from a browser's own user-agent stylesheet rather than the specification's initial value, `image-orientation` has no competing stylesheet in play. The initial value is applied by default as per the specification.

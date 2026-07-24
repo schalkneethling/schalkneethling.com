@@ -142,7 +142,7 @@ APP_ENV=development
 
 The `.gitignore` merge is also project-owned. The integration can append the missing Varlock lines under a small heading:
 
-```gitignore
+```plaintext
 # Varlock
 !.env.schema
 !.env.*

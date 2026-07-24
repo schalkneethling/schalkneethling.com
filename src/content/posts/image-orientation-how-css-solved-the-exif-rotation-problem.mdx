@@ -1,0 +1,112 @@
+---
+title: "image-orientation: How CSS Solved the EXIF Rotation Problem"
+pubDate: 2026-07-13
+description: "In 2012, EXIF orientation handling varied wildly across browsers and web services. The image orientation CSS specification has since standardized how browsers honor that data by default, but there are still edge cases that bite."
+author: "Schalk Neethling"
+tags: ["css", "frontend-engineering-explained"]
+standardSite:
+  publish: true
+---
+
+import { BaselineStatus } from "astro-embed";
+
+A Drupal project I worked on this year had an odd rendering bug. Photographs uploaded through the media library displayed the JPEG photo the correct way up, but the WebP variant of the same photograph was rotated. Same source file, two derivatives, two different orientations, in the same browser, on the same page.
+
+What gives?
+
+In July 2012, developer Dave Perrett published an article titled [EXIF orientation handling is a ghetto](https://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/), after noticing that one image rendered correctly on his local machine but arrived rotated on a staging server. He tested the same set of images across a dozen popular web services of the time and documented just how differently each one handled the same metadata.
+
+## What the Orientation Tag Encodes
+
+[Exchangeable Image File Format (EXIF)](https://en.wikipedia.org/wiki/EXIF) is a metadata standard embedded in photos by cameras and phones. Among the tags it defines is an orientation value with eight possible states, covering every combination of rotation and mirroring. The reason this tag exists at all is that a camera sensor captures pixels in a fixed physical layout regardless of how the camera was held. Rather than rotate the pixel data itself at the moment of capture, the camera writes a tag saying, in effect, rotate this before you display it. Software that reads the tag shows the photo upright. Software that ignores it shows the raw sensor data, sideways or upside down.
+
+## A Decade of Disagreement
+
+Perrett's 2012 survey found that results varied by site, by product within the same company, by browser, and even within a single browser depending on context. Google's own services (Google+, Blogger, and Picasa, possibly sharing one image pipeline) failed to display four of the eight orientation values, all of them the mirrored ones. Gmail corrected landscape images at 0 and 180 degrees but failed the 90-degree rotations, and its portrait handling followed its own separate, inconsistent pattern. GitHub exposed an inconsistency inside a single browser: desktop Safari left an embedded image unrotated within an HTML page but corrected the same image when opened directly in its own tab, a discrepancy GitHub's layout code had not accounted for. A long list of services, including Pinterest, Tumblr, WordPress.com, and SkyDrive, made no attempt at orientation correction at all. Only a handful, among them Facebook, Flickr, Photoshop.com, and TwitPic, handled it the way a photographer would expect.
+
+Perrett's conclusion was that every one of these services was solving the same problem independently, with wildly different results, and that a browser-level standard was the only way out.
+
+## One Standard to Rule Them All
+
+That standard arrived, gradually, as the CSS `image-orientation` property. [Firefox 26](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/image-orientation), released in 2013, was the first browser to support it, offering two keyword values: `from-image`, which reads the EXIF tag and rotates the image to match, and `none`, which ignores it and renders the pixel data exactly as encoded. Chrome did not add support until version 81, in April 2020, by which point Safari and Chromium-based Edge had also shipped it. According to MDN, `image-orientation` has been Baseline widely available since April 2020, and the property is specified in the [CSS Images Module Level 3](https://drafts.csswg.org/css-images/#the-image-orientation).
+
+<BaselineStatus id="image-orientation" />
+
+```css
+img {
+  image-orientation: from-image; /* read EXIF, rotate to match */
+}
+
+img {
+  image-orientation: none; /* ignore EXIF, render pixels as stored */
+}
+```
+
+## What Changed?
+
+A detail to be aware of is that `from-image` is not just a value you can opt into. It is the property's initial value, the same mechanism behind properties like `margin` and `padding`: a value the browser applies to every element unless something overrides it, whether or not any stylesheet ever mentions the property. Unlike `margin` or `padding`, though, whose familiar defaults usually come from a browser's own user-agent stylesheet rather than the specification's initial value, `image-orientation` has no competing stylesheet in play. The initial value is applied by default as per the specification.
+
+Every browser that supports `image-orientation` honors EXIF orientation automatically, with no CSS written at all. This is close to the inverse of the 2012 situation. Back then, a web service like Tumblr had to do extra work to get orientation right. Today, an image pipeline has to actively strip or override the tag to get it wrong.
+
+MDN also notes that the property specifies a layout-independent correction to an image's orientation. Whether a landscape photo tagged as needing a 90-degree rotation should be reported as 600×450 or 450×600 can depend on the tool. For example, this is something ImageMagick and OS X disagree on.
+
+Handling the rotation independently of layout removes that ambiguity; the box is sized from the encoded dimensions, and the visual correction happens on top of it.
+
+## When Automatic Correction Becomes the Problem
+
+The problem that confused me and which led to this article was a photo grid where one of the photos was rotated 90 degrees, lying on its side, for no obvious reason. Opening the URL in the `img` element's `src` attribute in a new tab, however, rendered it correctly, which was the initial source of confusion, since that appeared to be the same file. The subtlety was that the grid used `picture` with multiple `source` elements for responsive delivery, so `img.src` reflected only the fallback value, not the resource the browser had actually selected and rendered. What needed inspecting instead was `element.currentSrc`, which resolved to the WebP variant the responsive image pipeline had generated, and it was this variant that was, seemingly, incorrectly rotated.
+
+This is the scenario that happens when the EXIF data and the pixels disagree. In the image processing pipeline, the JPEG derivative preserved the original EXIF orientation, as it was not post-processed. The WebP derivative was post-processed, resulting in the conversion leaving the pixel data and accompanying orientation metadata out of sync. Due to the default described above, the browser read the EXIF tag and rotated accordingly. The browser did the right thing; the EXIF tag was wrong.
+
+The fix was a single declaration:
+
+```css
+img {
+  image-orientation: none;
+}
+```
+
+This tells the browser to ignore the embedded orientation tag and render the file's pixel data exactly as it was encoded, which in this case happened to be the orientation the WebP conversion had already produced.
+
+## `none` and Cross-Origin Images
+
+This restriction is specific to `none`. Because `from-image` is already the property's initial value, honoring the tag never has to override anything, so there is nothing here to restrict. The only reason to declare `image-orientation: from-image` explicitly is to reset an element back to the default after something upstream set it to `none`.
+
+The restriction has nothing to do with HTTP versus HTTPS. It is easy to read it that way given MDN's own phrasing, non-secure-origin images, but the mechanism, tracked in [CSSWG issue 5165](https://github.com/w3c/csswg-drafts/issues/5165), is about cross-origin resource sharing rather than transport security: specifically, a cross-origin image loaded without CORS, what the Fetch specification calls an opaque response.
+
+Here is the leak this closes. Rendering the same cross-origin image once with `from-image` and once with `none`, then comparing the result, would let a page learn one bit of information about a resource it otherwise cannot inspect: whether that image carries a nonzero EXIF orientation. Browsers prevent this by ignoring `none` for any cross-origin image that was not fetched with proper CORS clearance. A same-origin image, or a cross-origin image loaded with a `crossorigin` attribute and a matching `Access-Control-Allow-Origin` header, is unaffected, regardless of scheme.
+
+If `image-orientation: none` appears to do nothing, the image's CORS status is worth checking before the stylesheet.
+
+## Not a General-Purpose Rotation Tool
+
+The specification is explicit that `image-orientation` exists only to correct the orientation an image was captured in. For any other rotation, whether a deliberate design choice or a print-layout requirement, the recommended tool is `transform` with a `rotate()` value, or its standalone equivalent, the `rotate` property, which has had broad browser support since 2022:
+
+<BaselineStatus id="individual-transforms" />
+
+```css
+/* using transform */
+.thumbnail--rotated {
+  transform: rotate(90deg);
+}
+
+/* or the individual rotate property */
+.thumbnail--rotated {
+  rotate: 90deg;
+}
+```
+
+When `image-orientation` and a rotation, whether via `transform` or the standalone `rotate` property, are used on the same element, the orientation correction is applied first, before that rotation.
+
+This distinction is about intent, not mechanism. With `none`, the browser ignores whatever the EXIF tag says, unconditionally, whether that tag correctly describes how the photo was captured or is wrong, as in the WebP case above. Whether that produces a visible difference from `from-image` depends entirely on the tag's value: no difference if it specifies no rotation, a visible one otherwise.
+
+## Where This Leaves Us
+
+The rendering-side chaos Perrett documented in 2012 has largely been resolved by browsers converging on a single, standardized default. What has taken its place is a narrower, more specific failure mode: image-processing pipelines that handle orientation inconsistently across the derivatives they generate. When a photograph looks correct in one format and wrong in another, the browser is doing what it has done since 2020, reading whatever orientation tag it finds and rotating to match. The place to look is not the browser but the step that produced the mismatched file.
+
+## Further Reading
+
+- MDN: [image-orientation](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/image-orientation)
+- Specification: [CSS Images Module Level 3 — the-image-orientation](https://drafts.csswg.org/css-images/#the-image-orientation)
+- CSS Working Group: [issue 5165, on the cross-origin restriction for `none`](https://github.com/w3c/csswg-drafts/issues/5165)
+- Dave Perrett: [EXIF orientation handling is a ghetto](https://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/) (2012)

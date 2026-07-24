@@ -48,11 +48,13 @@ See it in action using [this little `image-orientation` demo](https://exif-image
 
 A detail to be aware of is that `from-image` is not just a value you can opt into. It is the property's initial value, the same mechanism behind properties like `margin` and `padding`: a value the browser applies to every element unless something overrides it, whether or not any stylesheet ever mentions the property. Unlike `margin` or `padding`, though, whose familiar defaults usually come from a browser's own user-agent stylesheet rather than the specification's initial value, `image-orientation` has no competing stylesheet in play. The initial value is applied by default as per the specification.
 
-Every browser that supports `image-orientation` honors EXIF orientation automatically, with no CSS written at all. This is close to the inverse of the 2012 situation. Back then, a web service like Tumblr had to do extra work to get orientation right. Today, an image pipeline has to actively strip or override the tag to get it wrong.
+Every browser that supports `image-orientation` honors EXIF orientation automatically, with no CSS written at all. This is close to the inverse of the 2012 situation. Back then, a web service like Tumblr had to do extra work to get orientation right.
+
+Today, an image pipeline has to get the tag and the pixels out of sync to get it wrong, whether by stripping the tag, overriding it with an incorrect value, or rewriting the pixel data during a format conversion while leaving a now-stale tag in place. `from-image` only reads whatever tag is present; it has no way to know the pixels underneath have changed.
 
 MDN also notes that the property specifies a layout-independent correction to an image's orientation. Whether a landscape photo tagged as needing a 90-degree rotation should be reported as 600×450 or 450×600 can depend on the tool. For example, this is something ImageMagick and OS X disagree on.
 
-Handling the rotation independently of layout removes that ambiguity; the box is sized from the encoded dimensions, and the visual correction happens on top of it.
+The specification resolves that ambiguity in one direction: orientation correction is applied before layout, so the natural width and height CSS lays out against are already the rotated dimensions, exactly as if the file had been encoded that way to begin with. A 90 or 270-degree correction swaps them; a photo encoded at 600×450 with a 90-degree tag lays out at 450×600.
 
 ## When Automatic Correction Becomes the Problem
 

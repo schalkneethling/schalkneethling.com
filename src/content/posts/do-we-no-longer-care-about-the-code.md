@@ -1,7 +1,7 @@
 ---
-title: Do we no longer care about the code?
+title: Do We No Longer Care About the Code?
 pubDate: 2026-07-28
-description: "We do. We care about it differently. The attention that used to go into reading the code now goes into the specification, and into the deterministic checks that make non-deterministic tools dependable."
+description: We do. We care about it differently. The attention that used to go into reading the code now goes into the specification, and into the deterministic checks that make non-deterministic tools dependable.
 author: Schalk Neethling
 tags: [frontend-engineering-explained, ai]
 ---
@@ -26,7 +26,7 @@ How can we prevent this from happening again?
 
 We have had to ask and answer them many times during postmortems in our careers. What has changed is where these problems originate and when we catch them. Problems will still reach production. The goal is to catch more of them earlier each time, and to let each one strengthen the checks that come before it.
 
-## When The Answer Is The Specification
+## When the Answer Is the Specification
 
 If the answer points at the specification, we need to understand where it came up short or where we were too ambiguous. Ambiguity is what really bites when working with AI agents. We must be clear in our language, ensure there is a common understanding, and provide a clear statement of what success and failure mean.
 
@@ -34,7 +34,7 @@ Defining failure deserves as much attention as defining success, and it covers t
 
 State diagrams are one of the most direct ways to remove this kind of ambiguity. Enumerating the states the system can occupy, and the transitions that are legal between them, turns a set of assumptions into a document. Every transition that is not drawn is a transition that should not happen, which converts an unstated boundary into a stated one. Written in a text format such as [Mermaid](https://mermaid.js.org/), the diagram lives in the repository next to the specification, which means the same artifact is readable by the team, by the client, and by the agent implementing against it. It also gives the tests something concrete to assert against, because an illegal transition is a testable condition rather than a matter of judgment. A test that asserts an illegal transition cannot occur is a clear example of the deterministic checks we must build into our systems.
 
-## When The Answer Is The Implementation
+## When the Answer Is the Implementation
 
 The state diagram is a small example of a larger pattern. If the problem is the implementation rather than the specification, we must clearly document the defects, and from there we define the deterministic guardrails and tooling that catch the same defect the next time it appears and report it to the agent in terms it can act on, preventing it from ever reaching `main`.
 
@@ -42,9 +42,9 @@ This is where a fair objection arrives. If we are not reading every line of the 
 
 The discipline is to treat every defect as a candidate for a guardrail rather than only as something to fix.
 
-## Where The Investment Goes
+## Where the Investment Goes
 
-### Linting, Including The Rules Only We Need
+### Linting, Including the Rules Only We Need
 
 Linting deserves real investment, and not only the rules that already exist in the ecosystem. The valuable part is identifying what this particular codebase needs that no general-purpose rule set knows about. A one-off custom lint rule, a small command line tool that checks one specific thing, a hook that runs before the agent completes a task: the effort involved in building these used to be difficult to justify for a single project. It is easy to justify now, because each one closes a category of failure permanently.
 
@@ -66,19 +66,19 @@ Cucumber scenarios, written in [Gherkin](https://cucumber.io/docs/gherkin/refere
 
 Everything that runs locally should run again in continuous integration, and continuous integration should also run the things that are too slow to justify on every local change. The expensive accessibility sweep, the full visual regression suite, the stress test: these are important enough to run and slow enough that requiring them locally would discourage people from running anything at all.
 
-### Code Review By Agents
+### Code Review by Agents
 
 Code review by other agents is now part of the pipeline rather than a novelty, and a single reviewer is not the best arrangement. We run a general reviewer that considers the change as a whole, and alongside it a set of reviewers with narrower remits: one for semantics and accessibility, one for best practices, one for security. Narrow remits produce sharper reviews, because a reviewer asked to weigh everything at once tends to report the problems that are easiest to name and pass over the ones that need sustained attention.
 
 The important part is the feedback loop. When something slips past the review, we do not simply fix it. We update the guidance the review tooling works from, so that the same category of problem is caught next time.
 
-### Application And Supply Chain Security
+### Application and Supply Chain Security
 
 Security is introduced through skills, so that the agent builds with it in mind rather than having it applied afterward. That mechanism is not deterministic, and it is worth being honest about the limit. Guidance in a skill shapes what the agent is likely to do; it does not guarantee what the agent does. The guidance therefore has to be paired with checks that hold regardless of what the agent decided.
 
-[zizmor](https://zizmor.sh/) scans GitHub Actions workflows for the misconfigurations that have driven several real supply chain compromises. [CodeQL](https://github.com/github/codeql) scans the application code. [Knip](https://knip.dev/) reports unused files, dependencies, and exports, and every dependency removed is one fewer package to trust. [publint](https://www.npmjs.com/package/publint) catches packaging errors before a release reaches the people who consume it. [Socket](https://socket.dev/) runs in continuous integration and examines dependencies for malicious behavior rather than only for known vulnerabilities, which matters because a package published an hour ago with a payload in its install script has no advisory attached to it yet. However, dependency configuration should use cooldown periods to begin with, so that a freshly published version is not installable until it has existed long enough for the ecosystem to notice a problem. The two work together: the cooldown buys the time, and behavioral analysis is part of what does the noticing. Most package managers now support cooldowns directly, and the analysis behind the practice is worth reading: of ten prominent supply chain attacks examined, eight had windows of opportunity shorter than a week.
+[zizmor](https://zizmor.sh/) scans GitHub Actions workflows for the misconfigurations that have driven several real supply chain compromises. [CodeQL](https://github.com/github/codeql) scans the application code. [Knip](https://knip.dev/) reports unused files, dependencies, and exports, and every dependency removed is one fewer package to trust. [publint](https://www.npmjs.com/package/publint) catches packaging errors before a release reaches the people who consume it. [Socket](https://socket.dev/) runs in continuous integration and examines dependencies for malicious behavior rather than only for known vulnerabilities, which matters because a package published an hour ago with a payload in its install script has no advisory attached to it yet. However, dependency configuration should use cooldown periods to begin with, so that a freshly published version is not installable until it has existed long enough for the ecosystem to notice a problem. The two work together: the cooldown buys the time, and behavioral analysis is part of what does the noticing. Support is uneven, however. The JavaScript and Python ecosystems are well covered, with npm, pnpm, Yarn, Bun, Deno, uv, pip, and poetry all offering it natively and pnpm applying a one-day cooldown by default, while Go, Maven, NuGet, and Composer have nothing native and depend on Renovate or Dependabot instead. [cooldowns.dev](https://cooldowns.dev/) tracks the state of each tool. The evidence behind the practice is worth reading: [an analysis of ten prominent supply chain attacks](https://blog.yossarian.net/2025/11/21/We-should-all-be-using-dependency-cooldowns) found that eight had exploitation windows under one week.
 
-The skills themselves are a supply chain surface in their own right, and a newer one. They are installed from marketplaces and repositories, they run with implicit trust, and they combine natural language instructions, metadata, declared permissions, dependencies, and executable helper code in a single bundle. [SkillSpector](https://github.com/NVIDIA/SkillSpector) exists to scan them before installation, and the figures its authors cite are worth serious consideration: research they point to found vulnerabilities in roughly a quarter of the skills examined, and likely malicious intent in about one in twenty. That is a measure of how thorough these checks now have to become.
+The skills themselves are a supply chain surface in their own right, and a newer one. They are installed from marketplaces and repositories, they run with implicit trust, and they combine natural language instructions, metadata, declared permissions, dependencies, and executable helper code in a single bundle. [SkillSpector](https://github.com/NVIDIA/SkillSpector) exists to scan them before installation, and the research behind it is worth serious consideration. [A study of agent skills in the wild](https://arxiv.org/abs/2601.10338) collected 42,447 skills from two major marketplaces, analyzed 31,132 of them, and found that 26.1 percent contained at least one vulnerability, while 5.2 percent exhibited high-severity patterns strongly suggesting malicious intent. The authors are careful to note that the headline figure conflates deliberate malice with ordinary negligence, which is arguably the point, since both reach you the same way. That is a measure of how thorough these checks now have to become.
 
 ### Staging Environments
 
@@ -98,7 +98,7 @@ There is a maintenance responsibility here that we did not really think about be
 
 As new models are released, we do not necessarily need everything that is currently in our skills. A model that has innate knowledge of a pattern does not need to be told about it, and the instruction that helped one model can add noise for the next. This is a form of decay, and it needs active attention.
 
-The response is the same as everywhere else: invest in tooling, and make the loop measurable rather than impressionistic. Establish a baseline by running a skill's evaluation cases against the new model with no skill loaded at all, which tells you what the model already knows. Run them again with the skill in place. Where the two scores are the same, the skill is carrying instructions the model no longer needs, and those parts can go. Then version the skill and publish it, whether that means a single skill or the whole set.
+The response is the same as everywhere else: invest in tooling, and make the loop measurable rather than impressionistic. Establish a baseline by running a skill's evaluation cases against the new model with no skill loaded at all, which tells you what the model already knows. Run them again with the skill in place. Where the two scores are the same, you have a candidate for removal rather than a verdict. A single run tells you the model handled those cases without help; it does not tell you the instruction was doing nothing, because evaluation cases are a sample and the instruction may be covering edge cases the sample never reaches. Confirm before deleting anything: broaden the cases, repeat the runs, and watch for regressions. Then version the skill and publish it, whether that means a single skill or the whole set.
 
 This is worth dwelling on, because it runs in the opposite direction to everything else here. Deterministic guardrails accumulate. Skills need to shrink.
 
@@ -116,7 +116,7 @@ One might ask whether any of this means we no longer need to learn. That is the 
 
 A focus on the web platform, on the frameworks and tools you use, and on expanding your knowledge into systems and systems thinking is critical.
 
-Consider a simple example. A few years ago, building a modal or a popover meant writing a considerable amount of HTML, CSS, and JavaScript, and still ending up with something that was not quite accessible and somewhat fragile. Focus management, inert backgrounds, escape key handling, z-index coordination, and the correct semantics for assistive technology were all left to the author. Today the native [`dialog` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog) and the Popover API give better results with far less code. The `dialog` element has been available across browsers since March 2022 and is Baseline Widely available; the Popover API reached Baseline Newly available in 2024, with the light-dismiss behavior on iOS and iPadOS resolved in Safari 18.3.
+Consider a simple example. A few years ago, building a modal or a popover meant writing a considerable amount of HTML, CSS, and JavaScript, and still ending up with something that was not quite accessible and somewhat fragile. Focus management, inert backgrounds, escape key handling, z-index coordination, and the correct semantics for assistive technology were all left to the author. Today the native [`dialog` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog) and the Popover API give better results with far less code. The `dialog` element has been available across browsers since March 2022 and is Baseline Widely available; the Popover API reached Baseline Newly available on January 27, 2025, once Safari 18.3 on iOS and iPadOS fixed light dismiss.
 
 This is the point worth holding on to. Knowing the platform is what allows you to recognize that the correct output is less code. An agent that does not know the Popover API exists will produce a competent-looking implementation of focus trapping, and it will pass review by someone who also does not know. Platform knowledge is what makes a person able to reject work that looks correct.
 
@@ -147,7 +147,9 @@ No. What we care about now is what is shipped to our users. Not that we did not 
 - [Knip](https://knip.dev/)
 - [publint](https://www.npmjs.com/package/publint)
 - [Socket](https://socket.dev/)
-- [Dependency cooldowns](https://cooldowns.dev/)
+- [Dependency cooldowns](https://cooldowns.dev/) by Martin Prpič
+- [We should all be using dependency cooldowns](https://blog.yossarian.net/2025/11/21/We-should-all-be-using-dependency-cooldowns)
+- [Agent Skills in the Wild: An Empirical Study of Security Vulnerabilities at Scale](https://arxiv.org/abs/2601.10338)
 - [The case for dependency cooldowns in a post-axios world](https://securitylabs.datadoghq.com/articles/dependency-cooldowns/) from Datadog Security Labs
 - [Package managers need to cool down](https://nesbitt.io/2026/03/04/package-managers-need-to-cool-down.html) by Andrew Nesbitt
 - [Playwright](https://playwright.dev/) and the [playwright repository](https://github.com/microsoft/playwright)

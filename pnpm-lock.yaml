@@ -48,8 +48,8 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
       varlock:
-        specifier: ^1.13.0
-        version: 1.13.0
+        specifier: ^1.14.1
+        version: 1.14.1
     devDependencies:
       '@axe-core/playwright':
         specifier: ^4.12.1
@@ -65,7 +65,7 @@ importers:
         version: 0.3.0(esbuild@0.28.1)
       '@varlock/1password-plugin':
         specifier: ^2.0.0
-        version: 2.0.0(varlock@1.13.0)
+        version: 2.0.0(varlock@1.14.1)
       axe-core:
         specifier: ^4.12.1
         version: 4.12.1
@@ -2900,8 +2900,8 @@ packages:
   varint@6.0.0:
     resolution: {integrity: sha512-cXEIW6cfr15lFv563k4GuVuW/fiwjknytD37jIOLSdSWuOI6WnO/oKwmP2FQTU2l01LP8/M5TSAJpzUaGe3uWg==}
 
-  varlock@1.13.0:
-    resolution: {integrity: sha512-ObLDZbCasisbOh5WKxZmnNy12jBV1FoGkl9GJw+bPodUBmju2diqsdjgWf3aiPwUdcYURG2mEqS70HZhA7CSww==}
+  varlock@1.14.1:
+    resolution: {integrity: sha512-7KT7yhhqnNsliBRir2q0Lj2jk1wFHCRHH2YNaN5vWupgdqYWdKDGGAfd2DbKr9MqAhlG3o8ap5J4QzsQWrOCqQ==}
     engines: {bun: '>=1.3.3', node: '>=22.3.0'}
     hasBin: true
 
@@ -4374,9 +4374,9 @@ snapshots:
 
   '@ungap/structured-clone@1.3.3': {}
 
-  '@varlock/1password-plugin@2.0.0(varlock@1.13.0)':
+  '@varlock/1password-plugin@2.0.0(varlock@1.14.1)':
     dependencies:
-      varlock: 1.13.0
+      varlock: 1.14.1
 
   '@vitest/expect@4.1.10':
     dependencies:
@@ -6456,7 +6456,7 @@ snapshots:
 
   varint@6.0.0: {}
 
-  varlock@1.13.0: {}
+  varlock@1.14.1: {}
 
   vfile-location@5.0.3:
     dependencies:

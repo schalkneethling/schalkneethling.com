@@ -4,6 +4,8 @@ pubDate: 2026-08-04
 description: A release is a product workflow. It has users, interfaces, failure states and recovery semantics. Automating eighteen packages onto trusted publishing took four prereleases to get right.
 author: Schalk Neethling
 tags: ["nodejs", "git"]
+standardSite:
+  publish: true
 ---
 
 I thought I was going to add versioning to Calavera's agent skills.

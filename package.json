@@ -32,7 +32,7 @@
     "@atproto/common-web": "^0.5.6",
     "@atproto/lex": "^0.3.0",
     "@atproto/lex-client": "^0.3.0",
-    "@atproto/lex-password-session": "^0.1.8",
+    "@atproto/lex-password-session": "^0.1.9",
     "@atproto/syntax": "^0.7.2",
     "@lucide/astro": "^1.27.0",
     "@schalkneethling/masonry-gridlanes-wc": "^0.1.0",

@@ -2,6 +2,7 @@
 import { render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import { getPublishedPosts } from "../../lib/posts";
+import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
 import MarkdownPostLayout from "../../layouts/MarkdownPostLayout.astro";
 
 const REPO_EDIT_BASE_URL = "https://github.com/schalkneethling/schalkneethling.com/edit/main/";
@@ -24,6 +25,9 @@ interface Props {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const hasMermaidDiagrams = /^[ \t]{0,3}(?:```|~~~)mermaid(?:[ \t].*)?$/m.test(
+  post.body ?? "",
+);
 const sourcePath = getPostSourcePath(post.filePath);
 const sourceEditUrl = `${REPO_EDIT_BASE_URL}${sourcePath}`;
 const socialImage = `/og/posts/${post.id}.png`;
@@ -36,4 +40,5 @@ const socialImage = `/og/posts/${post.id}.png`;
   sourceEditUrl={sourceEditUrl}
 >
   <Content />
+  {hasMermaidDiagrams && <MermaidDiagrams />}
 </MarkdownPostLayout>

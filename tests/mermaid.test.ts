@@ -9,6 +9,7 @@ describe("hasMermaidFence", () => {
     "``` mermaid",
     "~~~\tmermaid",
     "   ````  mermaid title=Example",
+    "~~~ mermaid title=`Example`",
   ])("detects a Mermaid fence in %j", (fence) => {
     expect(hasMermaidFence(`Before\n${fence}\ngraph TD\nAfter`)).toBe(true);
   });
@@ -19,6 +20,8 @@ describe("hasMermaidFence", () => {
     "``~mermaid",
     "```mermaidx",
     "    ```mermaid",
+    "\t```mermaid",
+    "```mermaid title=`Example`",
     "Before ```mermaid",
   ])("does not treat %j as a Mermaid fence", (fence) => {
     expect(hasMermaidFence(fence)).toBe(false);

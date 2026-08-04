@@ -1,0 +1,93 @@
+<script>
+  const diagramSources = new Map<HTMLElement, string>();
+
+  for (const code of document.querySelectorAll<HTMLElement>(
+    "pre > code.language-mermaid",
+  )) {
+    const container = code.parentElement;
+
+    if (!container) {
+      continue;
+    }
+
+    const source = code.textContent ?? "";
+    container.className = "mermaid";
+    container.textContent = source;
+    diagramSources.set(container, source);
+  }
+
+  if (diagramSources.size > 0) {
+    const { default: mermaid } = await import("mermaid");
+    const root = document.documentElement;
+    const getTheme = () => (root.classList.contains("dark") ? "dark" : "default");
+    let requestedTheme = getTheme();
+    let renderedTheme: string | undefined;
+    let isRendering = false;
+
+    const renderDiagrams = async () => {
+      if (isRendering) {
+        return;
+      }
+
+      isRendering = true;
+
+      try {
+        while (renderedTheme !== requestedTheme) {
+          const theme = requestedTheme;
+
+          for (const [container, source] of diagramSources) {
+            container.removeAttribute("data-processed");
+            container.textContent = source;
+          }
+
+          mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: "strict",
+            theme,
+          });
+          await mermaid.run({ nodes: [...diagramSources.keys()] });
+          renderedTheme = theme;
+        }
+      } catch (error) {
+        console.error("Unable to render Mermaid diagrams", error);
+      } finally {
+        isRendering = false;
+      }
+    };
+
+    const themeObserver = new MutationObserver(() => {
+      const nextTheme = getTheme();
+
+      if (nextTheme !== requestedTheme) {
+        requestedTheme = nextTheme;
+        void renderDiagrams();
+      }
+    });
+
+    themeObserver.observe(root, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    void renderDiagrams();
+  }
+</script>
+
+<style is:global>
+  pre.mermaid {
+    align-items: center;
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--size-8, 0.5rem);
+    display: flex;
+    justify-content: center;
+    margin-block: var(--size-32, 2rem);
+    overflow-x: auto;
+    padding: var(--size-16, 1rem);
+  }
+
+  pre.mermaid svg {
+    block-size: auto;
+    max-inline-size: 100%;
+  }
+</style>

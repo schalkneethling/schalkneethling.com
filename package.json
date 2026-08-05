@@ -36,7 +36,7 @@
     "@atproto/syntax": "^0.7.2",
     "@lucide/astro": "^1.27.0",
     "@schalkneethling/masonry-gridlanes-wc": "^0.1.0",
-    "astro": "^7.1.5",
+    "astro": "^7.1.6",
     "astro-embed": "^0.13.1",
     "mermaid": "^11.16.0",
     "typescript": "^7.0.2",

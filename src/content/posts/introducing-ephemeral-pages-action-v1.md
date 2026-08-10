@@ -75,7 +75,7 @@ fails, the Action fails with those outputs intact and prints the public URL.
 The original use case involved accessibility reports, and "Accessibility report" remains the
 default label. The Action itself has no dependency on axe, [Axe Aggregate Reporter](https://github.com/schalkneethling/axe-aggregate-reporter/), Playwright, or any other report producer.
 
-It can publish most single-file HTML report from accessibility tooling, Lighthouse and other
+It can publish most single-file HTML reports from accessibility tooling, Lighthouse and other
 performance workflows, Playwright, Cypress, or another test reporter, code-coverage and
 bundle-analysis tools, visual-regression systems, or a custom script that produces an HTML
 dashboard.

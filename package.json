@@ -40,7 +40,7 @@
     "astro-embed": "^0.13.1",
     "mermaid": "^11.16.0",
     "typescript": "^7.0.2",
-    "varlock": "^1.14.1"
+    "varlock": "^1.16.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

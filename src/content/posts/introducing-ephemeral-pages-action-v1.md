@@ -3,9 +3,10 @@ title: Introducing Ephemeral Pages Action v1
 pubDate: 2026-08-10
 description: Ephemeral Pages Action publishes a self-contained HTML document from a pull-request workflow and posts the temporary link back as a pull-request comment. Version 1.0.0 is now available.
 author: Schalk Neethling
-tags: [git, testing]
+tags: [ git, testing ]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3msqr4247ak2e
 ---
 
 When a pull-request check reports a pass or a fail, it can often generate, or benefit from

@@ -34,7 +34,7 @@
     "@atproto/lex-client": "^0.3.3",
     "@atproto/lex-password-session": "^0.2.0",
     "@atproto/syntax": "^0.7.2",
-    "@lucide/astro": "^1.27.0",
+    "@lucide/astro": "^1.32.0",
     "@schalkneethling/masonry-gridlanes-wc": "^0.1.0",
     "astro": "^7.2.0",
     "astro-embed": "^0.13.1",

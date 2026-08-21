@@ -48,7 +48,7 @@
     "@schalkneethling/axe-aggregate-reporter": "0.6.2",
     "@schalkneethling/opengraph-cards-maker": "^0.3.0",
     "@varlock/1password-plugin": "^2.0.0",
-    "axe-core": "^4.12.1",
+    "axe-core": "^4.13.0",
     "devalue": "^5.9.0",
     "linkedom": "^0.18.13",
     "remark-frontmatter": "^5.0.0",

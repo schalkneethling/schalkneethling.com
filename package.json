@@ -47,7 +47,7 @@
     "@schalkneethling/axe-aggregate-reporter": "0.6.2",
     "@schalkneethling/opengraph-cards-maker": "^0.3.0",
     "@types/node": "^24.10.1",
-    "@varlock/1password-plugin": "^2.0.0",
+    "@varlock/1password-plugin": "^2.0.3",
     "axe-core": "^4.13.0",
     "devalue": "^5.9.0",
     "linkedom": "^0.18.13",

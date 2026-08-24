@@ -19,9 +19,11 @@
   if (diagramSources.size > 0) {
     const { default: mermaid } = await import("mermaid");
     const root = document.documentElement;
-    const getTheme = () => (root.classList.contains("dark") ? "dark" : "default");
+    type DiagramTheme = "dark" | "default";
+    const getTheme = (): DiagramTheme =>
+      root.classList.contains("dark") ? "dark" : "default";
     let requestedTheme = getTheme();
-    let renderedTheme: string | undefined;
+    let renderedTheme: DiagramTheme | undefined;
     let isRendering = false;
 
     const renderDiagrams = async () => {

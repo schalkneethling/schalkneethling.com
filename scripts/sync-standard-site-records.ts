@@ -9,11 +9,11 @@ import {
   type InferRecordKey,
   type Main,
   type RecordSchema,
-} from "@atproto/lex-client";
+} from "@atproto/lex";
 import { PasswordSession } from "@atproto/lex-password-session";
+import { assertAtIdentifierString } from "@atproto/syntax";
 
 import { prepareStandardSitePlan } from "./generate-standard-site-records.ts";
-import { getRecord } from "../src/lexicons/com/atproto/repo.ts";
 import { site } from "../src/lexicons/index.ts";
 import { standardSite } from "../src/lib/standardSite.ts";
 import { assertStandardSitePublisherDid } from "../src/lib/standardSiteAuth.ts";
@@ -75,6 +75,28 @@ function isWriteMode() {
 
 function isRecordNotFoundError(error: unknown) {
   return error instanceof XrpcResponseError && error.error === "RecordNotFound";
+}
+
+export async function readStandardSiteRecord(
+  client: Client,
+  params: {
+    repo: string;
+    collection: "site.standard.document" | "site.standard.publication";
+    rkey: string;
+  },
+) {
+  try {
+    assertAtIdentifierString(params.repo);
+    const response = await client.getRecord(params.collection, params.rkey, {
+      repo: params.repo,
+    });
+    return response.body;
+  } catch (error) {
+    if (isRecordNotFoundError(error)) {
+      return undefined;
+    }
+    throw error;
+  }
 }
 
 function getCompletedDocumentResults(error: unknown) {
@@ -142,20 +164,8 @@ async function main() {
   }
 
   const client = new Client(session);
-  const readRecord = async (params: {
-    repo: string;
-    collection: "site.standard.document" | "site.standard.publication";
-    rkey: string;
-  }) => {
-    try {
-      return await client.call(getRecord.main, getRecord.$params.parse(params));
-    } catch (error) {
-      if (isRecordNotFoundError(error)) {
-        return undefined;
-      }
-      throw error;
-    }
-  };
+  const readRecord = (params: Parameters<typeof readStandardSiteRecord>[1]) =>
+    readStandardSiteRecord(client, params);
   const inspections = [];
 
   for (const reference of references) {

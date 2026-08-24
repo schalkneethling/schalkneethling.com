@@ -3,7 +3,10 @@ title: Do We No Longer Care About the Code?
 pubDate: 2026-07-28
 description: We do. We care about it differently. The attention that used to go into reading the code now goes into the specification, and into the deterministic checks that make non-deterministic tools dependable.
 author: Schalk Neethling
-tags: [frontend-engineering-explained, ai]
+tags: [ frontend-engineering-explained, ai ]
+standardSite:
+  publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3mtu7ogoe722y
 ---
 
 I read [The Machine Kept the Code](https://stephanmaximilianhuber.com/posts/the-machine-kept-the-code) by Stephan Huber, and watched Kent C. Dodds on why we should [stop reviewing diffs and start reviewing systems](https://www.youtube.com/watch?v=Xs-U7SY2uNE), and between them they finally convinced me of what I have been toying with in my head. It is not that we do not care about the code anymore; we care about it differently. The system, the end-user experience, and the product are now taking center stage.

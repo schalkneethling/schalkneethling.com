@@ -3,9 +3,10 @@ title: An MCP server for Ephemeral Pages
 pubDate: 2026-08-24
 description: Ephemeral Pages is now available as a public MCP server. A look at what the new MCP specification stateless protocol core changed, and why this allowed me to add MCP support to the service.
 author: Schalk Neethling
-tags: ["typescript", "nodejs"]
+tags: [ "typescript", "nodejs" ]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3mtu7ojskas2y
 ---
 
 When I first started building Ephemeral Pages, I always intended to have it available as an MCP server as well. After reviewing the specification at the time and getting a better understanding of the deployment requirements, I decided against it. The deployment story pointed toward a financial investment I could not justify for what is still entirely a hobby project.

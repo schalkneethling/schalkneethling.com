@@ -11,6 +11,10 @@ updates:
       semver-patch-days: 2
       include:
         - "*"
+    groups:
+      atproto:
+        patterns:
+          - "@atproto/*"
 
   - package-ecosystem: "github-actions"
     directory: "/"

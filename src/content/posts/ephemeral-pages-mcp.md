@@ -278,7 +278,7 @@ Claude Code and Codex both negotiate `2025-11-25`, and because I set `legacy: "r
 }
 ```
 
-This is the server behaving exactly as specified and exactly as configured. It is also, for the moment, a server with no clients — and not only the two I tried. Apify maintains a machine-readable dataset of MCP clients and their capabilities, published as `mcp-client-capabilities` on npm and PyPI. It currently tracks forty-two clients. Thirty-eight of them report `2025-06-18` and the remaining four report `2025-03-26`. Not one is on `2026-07-28`, and not one is even on the revision before it.
+This is the server behaving exactly as specified and exactly as configured. On 24 August 2026, I tested Claude Code 2.1.241 and Codex CLI 0.147.0; both negotiated `2025-11-25` and were rejected as shown above. Those are the only compatibility results this post makes. Apify maintains a community-maintained, machine-readable dataset of MCP clients and their capabilities, published as `mcp-client-capabilities` on npm and PyPI. Its documentation cautions that it can lag reality: it lists Claude Code at `2025-06-18`, while my test above negotiated `2025-11-25`. That makes the dataset useful background, but not evidence for a claim about which clients currently support `2026-07-28`.
 
 That dataset is community-maintained and lags reality, which its own documentation is careful about: it lists Claude Code at `2025-06-18` while the error above shows Claude Code negotiating `2025-11-25`. So treat those numbers as a floor rather than a census. The direction is not in doubt, though. Nothing out there speaks this revision yet.
 

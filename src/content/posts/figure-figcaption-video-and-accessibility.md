@@ -55,7 +55,7 @@ The second situation is the common one, and it is less comfortable. The video co
 
 What follows is not a replacement for that missing work. Captions and descriptions have their own success criteria, [1.2.2](https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html) and [1.2.3](https://www.w3.org/WAI/WCAG22/Understanding/audio-description-or-media-alternative-prerecorded.html) among them, and no attribute is going to satisfy those. The requirement remains unmet. Record that somewhere, instead of sweeping it under the rug.
 
-What we can still do is name the thing. [WCAG success criterion 1.1.1](https://www.w3.org/WAI/WCAG22/Understanding/non-text-content.html) asks for less from time-based media than it does from images. An image needs a text alternative that serves the equivalent purpose, which is why `alt` has to convey the meaning and describe its content. Nothing else in an `img` can. For time-based media, the requirement is only descriptive identification of the content. That is a much smaller scope and can be satisfied by a single attribute.
+What we can still do is name the thing. [WCAG success criterion 1.1.1](https://www.w3.org/WAI/WCAG22/Understanding/non-text-content.html) asks for less from time-based media than it does from images. An image needs a text alternative that serves the equivalent purpose, which is why `alt` has to convey the meaning and describe its content. It is the native mechanism for that, though not the only one, since `aria-labelledby` and `aria-label` both take precedence over it in the name computation. For time-based media, the requirement is only descriptive identification of the content. That is a much smaller scope and can be satisfied by a single attribute.
 
 That leaves one question. How do we give a `video` element an accessible name? It is less obvious than it looks.
 
@@ -76,9 +76,13 @@ The first instinct is usually to reach for a caption, and the markup looks right
 
 The video in that example has no accessible name.
 
-[MDN states the rule plainly](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/figure): the [`figcaption`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/figcaption) provides the accessible name for its parent [`figure`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/figure). It follows the same pattern as `legend` for `fieldset` and `caption` for `table`. If the `figure` has `aria-label` or `aria-labelledby`, those win. Otherwise the `figcaption` subtree is used. Otherwise the `title` attribute. Nothing in that sequence applies to the children of the figure.
+[MDN still describes](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/figcaption) the [`figcaption`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/figcaption) as providing the accessible name for its parent [`figure`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/figure), on the same pattern as `legend` for `fieldset` and `caption` for `table`. That description is behind the platform, and the reason it changed is our exact case.
 
-A caption annotates a figure, not whatever happens to sit inside it. That does mean the relationship we perceive between the caption and the media next to it is a visual and editorial one, not a programmatic one.
+The ARIA working group resolved in 2021 to move away from `figcaption` participating in the name computation for `figure`, and [the mapping change](https://github.com/w3c/html-aam/pull/359) removes it, replacing the labelling relationship with a details relationship. Scott O'Hara's argument for it was that transcripts get placed in `figcaption` elements, and flattening a whole transcript into an accessible name would be terrible. That change is still working its way through: the original pull request was migrated to the ARIA monorepo in 2024, and the web platform test covering a figure with no figcaption landed as tentative in April 2025.
+
+The behavior is less ambiguous than the specification work. When [Adrian Roselli tested figure and figcaption across screen readers](https://adrianroselli.com/2025/01/brief-note-on-figure-and-figcaption-support.html) in January 2025 — including a video inside a figure with a transcript in the caption — no screen reader combination treated the caption as the accessible name or the accessible description, not even for an image with no `alt`. I have not re-tested this as of August 26, 2026.
+
+So the caption does not name the video, and on current evidence it does not reliably name the figure either. What the wrapper actually buys is a boundary that NVDA announces on entry and exit, and that JAWS, Narrator, TalkBack, and VoiceOver on iOS do not mention at all.
 
 So what does the `video` element give us? Nothing, as it turns out. The content attributes the HTML Standard defines for `video` are `src`, `crossorigin`, `poster`, `preload`, `autoplay`, `playsinline`, `loop`, `muted`, `controls`, `loading`, `width`, and `height`, plus the global attributes. There is no `alt`, and nothing else in that list provides a text alternative.
 
@@ -97,7 +101,7 @@ If the caption is visible on the page, pointing at it is a defensible choice:
 </figure>
 ```
 
-The visible text and the accessible name stay in sync, and the name comes from a text node, which machine translation handles more reliably than an attribute value. The cost is repetition. The `figure` is already taking its name from that same caption, so a screen reader user may hear the string twice in quick succession.
+The visible text and the accessible name stay in sync, and the name comes from a text node, which machine translation handles more reliably than an attribute value. The cost is repetition: the caption text becomes the video's accessible name while also being read as ordinary content, so the same string can be announced more than once in a single pass.
 
 That trade is no longer worth making once the caption is visually hidden because the design does not call for showing it, which is where a lot of this markup ends up in practice. [The HTML Standard](https://html.spec.whatwg.org/multipage/grouping-content.html#the-figure-element) describes a `figure` as flow content that is self-contained and typically referenced as a single unit from the main flow of the document. It is specific about what the caption is for: when we refer to a figure from the main content by identifying it through its caption, by a figure number for instance, that is what allows us to move the content elsewhere, to the side of the page or into an appendix, without disturbing the flow of the document.
 
@@ -140,9 +144,9 @@ One last distinction is worth holding on to. If a caption is meant as supplement
 
 ## Wrapping Up
 
-If one idea is worth carrying away from this, it is that the `figcaption` names the `figure`. It does not name the `video` inside it. We compute an accessible name from the element and its attributes, not from a sibling by proximity alone.
+If one idea is worth carrying away from this, it is that a `figcaption` does not name the `video` beside it, and on current evidence does not reliably name its own `figure` either. We compute an accessible name from the element and its attributes, not from a sibling by proximity alone.
 
-The mistake I made was assuming the `figure` was contributing something. It was not. Once the caption was visually hidden, the wrapper existed only to hold a string, and a `figure` whose caption nobody can see is a node screen reader users traverse for nothing. Dropping it left a clear choice between naming the video with `aria-label` and referencing a visually hidden `span` with `aria-labelledby`, and I would take the `span` in almost every case.
+The mistake I made was assuming the `figure` was contributing something. It was not. Once the caption was visually hidden, the wrapper existed only to hold a string, and a `figure` whose caption nobody can see is an extra node that NVDA announces and most other screen readers ignore. Dropping it left a clear choice between naming the video with `aria-label` and referencing a visually hidden `span` with `aria-labelledby`, and I would take the `span` in almost every case.
 
 ## Further Reading
 
@@ -151,6 +155,8 @@ The mistake I made was assuming the `figure` was contributing something. It was 
 - [The `figure` element in the HTML Standard](https://html.spec.whatwg.org/multipage/grouping-content.html#the-figure-element), which is clearer than most summaries about what a caption is actually for
 - [Understanding Success Criterion 1.1.1: Non-text Content](https://www.w3.org/WAI/WCAG22/Understanding/non-text-content.html), and specifically the time-based media clause
 - [`video` in ARIA in HTML](https://w3c.github.io/html-aria/#el-video), the author-facing half of what the HTML Standard delegates
+- [Brief Note on Figure and Figcaption Support, by Adrian Roselli](https://adrianroselli.com/2025/01/brief-note-on-figure-and-figcaption-support.html), the cross-screen-reader testing behind the claims in this post
+- [Change figure & figcaption accName computation](https://github.com/w3c/html-aam/pull/359), the mapping change and the reasoning for it
 - [Audio Description Support in HTML Video, by Adrian Roselli](https://adrianroselli.com/2023/12/ad-support-in-html-video.html), the demo and cross-engine testing behind the note above
 - [H96: Using the track element to provide audio descriptions](https://www.w3.org/WAI/WCAG22/Techniques/html/H96), an advisory technique rather than a sufficient one, and clear about why
 - [`aria-label` on MDN](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label), whose Description section lists where the attribute is and is not supported

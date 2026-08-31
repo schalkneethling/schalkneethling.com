@@ -3,9 +3,10 @@ title: Figure, video, figcaption, and accessibility
 pubDate: 2026-08-26
 description: What makes a video element accessible is captions, descriptions, and a transcript. When those are out of reach, what are the remaining options for giving a video element an accessible name?
 author: Schalk Neethling
-tags: [html, accessibility]
+tags: [ html, accessibility ]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3muejel4ytk2y
 ---
 
 A video is not made accessible by the markup we wrap around it. It is made accessible by the alternatives we provide to people who are blind or have low vision, people who are deaf or hard of hearing, and people who would simply rather read.

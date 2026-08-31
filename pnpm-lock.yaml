@@ -48,8 +48,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       varlock:
-        specifier: ^1.16.1
-        version: 1.16.1
+        specifier: ^1.17.1
+        version: 1.17.1
     devDependencies:
       '@axe-core/playwright':
         specifier: ^4.13.0
@@ -68,7 +68,7 @@ importers:
         version: 24.13.3
       '@varlock/1password-plugin':
         specifier: ^2.0.3
-        version: 2.0.3(varlock@1.16.1)
+        version: 2.0.3(varlock@1.17.1)
       axe-core:
         specifier: ^4.13.0
         version: 4.13.0
@@ -1341,6 +1341,24 @@ packages:
     engines: {node: '>=22'}
     peerDependencies:
       varlock: ^1.15.0
+
+  '@varlock/native-helper-darwin@1.17.1':
+    resolution: {integrity: sha512-b1Dzq5VZu9VsSHG05ulYmYBH0zP6Gd8D9tzvkvu1MmGtUBwt/E1teoXAjZvOlLetrwAyXI2Z86Gssu4JxPnt5Q==}
+    os: [darwin]
+
+  '@varlock/native-helper-linux-arm64@1.17.1':
+    resolution: {integrity: sha512-dnrpHCqxJlyvjYMm3u6uC0H4iCmal2qvs6VZBDQc+UdOUfuiHOwkpAoCYlYeB22DNuUqCNqyzQVoqt3BbR+3Yg==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@varlock/native-helper-linux-x64@1.17.1':
+    resolution: {integrity: sha512-fRSPD31umpSntaMxGSVInvknh0mCSKWXiYmM5hqnoUHg5NvlgqNifaYKu82PKydeyUu5vf6INXNHC291eBddqA==}
+    cpu: [x64]
+    os: [linux]
+
+  '@varlock/native-helper-win32-x64@1.17.1':
+    resolution: {integrity: sha512-6GzjTd3mVXdAkvDYdtGtnCzbReCD2DcGSDGPV1EE+vCfBdH/oqMokYeG/zfruhSpERYHdX4BLnQ7iGELq5igbA==}
+    os: [win32, linux]
 
   '@vitest/expect@4.1.11':
     resolution: {integrity: sha512-VX2x5vNJXET47KAFzwERI+KRMtTTCSWTfSMKsW7JsUsXV4psq++e3DvZpuTDOpHcxytiDs6p2nhVb2tVDiiUYw==}
@@ -3138,8 +3156,8 @@ packages:
   varint@6.0.0:
     resolution: {integrity: sha512-cXEIW6cfr15lFv563k4GuVuW/fiwjknytD37jIOLSdSWuOI6WnO/oKwmP2FQTU2l01LP8/M5TSAJpzUaGe3uWg==}
 
-  varlock@1.16.1:
-    resolution: {integrity: sha512-n3s+uPnn5nxHvPGhtLIMj7gC0Xd9Bje4smRSRcLsI2p11VPhs1e/ZfcJcfOhyNH5yp1RwHszJ8QR3x5eTGF7Zg==}
+  varlock@1.17.1:
+    resolution: {integrity: sha512-nRxUKuWvvHcCUfLTWu78GYsyR34toOWGG9nhV9ObpVxsZ07mofsAsZrg4zDnWv5sRcujpV8DiQ9I5euDqIQ1WQ==}
     engines: {bun: '>=1.3.3', node: '>=22.3.0'}
     hasBin: true
 
@@ -4719,9 +4737,21 @@ snapshots:
       d3-selection: 3.0.0
       d3-transition: 3.0.1(d3-selection@3.0.0)
 
-  '@varlock/1password-plugin@2.0.3(varlock@1.16.1)':
+  '@varlock/1password-plugin@2.0.3(varlock@1.17.1)':
     dependencies:
-      varlock: 1.16.1
+      varlock: 1.17.1
+
+  '@varlock/native-helper-darwin@1.17.1':
+    optional: true
+
+  '@varlock/native-helper-linux-arm64@1.17.1':
+    optional: true
+
+  '@varlock/native-helper-linux-x64@1.17.1':
+    optional: true
+
+  '@varlock/native-helper-win32-x64@1.17.1':
+    optional: true
 
   '@vitest/expect@4.1.11':
     dependencies:
@@ -7044,7 +7074,12 @@ snapshots:
 
   varint@6.0.0: {}
 
-  varlock@1.16.1: {}
+  varlock@1.17.1:
+    optionalDependencies:
+      '@varlock/native-helper-darwin': 1.17.1
+      '@varlock/native-helper-linux-arm64': 1.17.1
+      '@varlock/native-helper-linux-x64': 1.17.1
+      '@varlock/native-helper-win32-x64': 1.17.1
 
   vfile-location@5.0.3:
     dependencies:

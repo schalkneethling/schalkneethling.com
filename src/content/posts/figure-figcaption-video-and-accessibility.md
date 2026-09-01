@@ -127,10 +127,10 @@ I have not verified this against current browser builds myself, and the two sour
 
 As of this writing, August 26, 2026, a static `aria-label`, written once at authoring time, is the best-supported case and is not among those observed to fail. That is not the same as saying the concern has gone away.
 
-There is an option that removes the question rather than reasoning about it. Point `aria-labelledby` at a visually hidden `span`:
+There is an option that removes the question rather than reasoning about it. Point `aria-labelledby` at a hidden `span`:
 
 ```html
-<span id="orbit-label" class="visually-hidden">Satellite orbit simulation</span>
+<span id="orbit-label" hidden>Satellite orbit simulation</span>
 <video src="orbit.webm" controls aria-labelledby="orbit-label">
 </video>
 ```

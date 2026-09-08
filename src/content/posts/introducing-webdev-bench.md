@@ -3,9 +3,10 @@ title: "Introducing WebDev Bench: A Coding-Agent Benchmark Judged on Web Platfor
 pubDate: 2026-09-08
 description: WebDev Bench judges coding agents against the web platform's own standards, not visual fidelity or preference votes. Here is what the foundation phase built, what its first pilot found, and what comes next.
 author: Schalk Neethling
-tags: [agentic-engineering, ai]
+tags: [ agentic-engineering, ai ]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3muzs5hutpk2t
 ---
 
 WebDev Bench is a benchmark I am building to evaluate coding agents on web development tasks when they are constrained to using only web platform features. Topics include semantic markup, ARIA correctness, and WCAG conformance. Judgment is based on the platform's own rules, not a personal preference or a fixed reference implementation. Its first pilot just finished: eighteen of eighteen valid runs, three models, two conditions, three samples of each, spread across two machines over several days.

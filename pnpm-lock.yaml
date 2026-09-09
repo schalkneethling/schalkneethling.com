@@ -67,8 +67,8 @@ importers:
         specifier: ^26.2.0
         version: 26.2.0
       '@varlock/1password-plugin':
-        specifier: ^2.0.3
-        version: 2.0.3(varlock@1.18.0)
+        specifier: ^2.0.4
+        version: 2.0.4(varlock@1.18.0)
       axe-core:
         specifier: ^4.13.0
         version: 4.13.0
@@ -1336,11 +1336,11 @@ packages:
   '@upsetjs/venn.js@2.0.0':
     resolution: {integrity: sha512-WbBhLrooyePuQ1VZxrJjtLvTc4NVfpOyKx0sKqioq9bX1C1m7Jgykkn8gLrtwumBioXIqam8DLxp88Adbue6Hw==}
 
-  '@varlock/1password-plugin@2.0.3':
-    resolution: {integrity: sha512-XmhxX9H3ZXbWJlR0g97uqxellKSoeXVwKKTmMPWQov7SxN718RedE2pKRIzO+WB/N8mS14IxiNNwxtRlkTJWow==}
+  '@varlock/1password-plugin@2.0.4':
+    resolution: {integrity: sha512-/+oM5v4NnN6KBxeJAAVCZt9UvHgLq1LxvLEgTM/CnuCjPBXQtvFCaB1qoYU/FgabebsIsHonjLV9HAorKQYLgA==}
     engines: {node: '>=22'}
     peerDependencies:
-      varlock: ^1.15.0
+      varlock: ^1.17.1
 
   '@varlock/native-helper-darwin@1.18.0':
     resolution: {integrity: sha512-O/Wn7G97N9RhdHrMNmDJtqH86+1vCKTzkThW7ICghvBtJslWAY4tpfDb32/AIh8OHOkIoHHmQ90ak6uovbZ2rw==}
@@ -4747,7 +4747,7 @@ snapshots:
       d3-selection: 3.0.0
       d3-transition: 3.0.1(d3-selection@3.0.0)
 
-  '@varlock/1password-plugin@2.0.3(varlock@1.18.0)':
+  '@varlock/1password-plugin@2.0.4(varlock@1.18.0)':
     dependencies:
       varlock: 1.18.0
 

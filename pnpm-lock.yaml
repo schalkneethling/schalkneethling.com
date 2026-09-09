@@ -39,8 +39,8 @@ importers:
         specifier: ^7.2.0
         version: 7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0)
       astro-embed:
-        specifier: ^0.13.1
-        version: 0.13.1(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0))(typescript@6.0.3)
+        specifier: ^0.14.0
+        version: 0.14.0(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0))(typescript@6.0.3)
       mermaid:
         specifier: ^11.17.2
         version: 11.17.2
@@ -111,10 +111,10 @@ packages:
   '@astro-community/astro-embed-gist@0.1.0':
     resolution: {integrity: sha512-wP3EoBZZjDoPLH6TZzem8jDJxOuweDoK5zWmSra0QBKz3Lry1tZGCwKII5mlnOL2AmTKLrfqrBXTxSGwb7AimQ==}
 
-  '@astro-community/astro-embed-integration@0.12.1':
-    resolution: {integrity: sha512-c0OFLOWnfJ/nOE/pTaSp50PIbcijZ0UeTcn8+/pDuIIGTIAH+Z2LYtxpG5+wktXnxarr47Ed7WEVcKHFV75TLQ==}
+  '@astro-community/astro-embed-integration@0.13.0':
+    resolution: {integrity: sha512-lHan0L43UIdFZYomXn9s/9zd5a5Z+w82D0Gs2PjarWG5MUbHPMcuaLbbFLxASEeDaBBM0BexT4/G+8W+5qLvIQ==}
     peerDependencies:
-      astro: ^5.0.0 || ^6.0.0-alpha || ^7.0.0
+      astro: ^7.2.4
 
   '@astro-community/astro-embed-link-preview@0.3.1':
     resolution: {integrity: sha512-TI++efm08+kJqxqA7bvxBr7+Zt4yCceA6s3wvAQJ87eiaxbLqAFUSQ+paQD66ET9dIC+IuKzHOMwsoDfqBidYw==}
@@ -259,16 +259,16 @@ packages:
   '@astrojs/yaml2ts@0.2.4':
     resolution: {integrity: sha512-8oddpOae35pJsXPQXhTkM0ypfKPskVsh2bCxRtbf7e+/Epw2nReakFYpLKjZMEr75CsoF203PMnCocpfz0s69A==}
 
-  '@atcute/atproto@4.0.3':
-    resolution: {integrity: sha512-BNylfO7nK0yYBpSpnGhOYgrJTeZWrXHPrb6tOQmp9A3Am0epctIWm6/5lPC4ZNPHpUbwr5w/LzH/v7kjAoKEDg==}
+  '@atcute/atproto@4.0.4':
+    resolution: {integrity: sha512-aEp5wQVPVbZcFJUwoi54tyT+ehRI/xtPe9T0zIvcryHAVXF/zxHtNboM+htbZLOAGsDFsqzgCyxph0Bafw7L8w==}
     peerDependencies:
       '@atcute/lexicons': ^2.0.0
 
-  '@atcute/bluesky-richtext-segmenter@3.0.1':
-    resolution: {integrity: sha512-5TrzZTpPkVchiNG+YAW8MmBVnN/gLPN/V3nJgpQcnLrQOebqTV+lR+yZ0d4T70NsBD32vJHyxoX5PY+6hY2KlA==}
+  '@atcute/bluesky-richtext-segmenter@3.0.2':
+    resolution: {integrity: sha512-LXsUuElLQ/gQe2g04SzgTeEbSwhcnmswioGdneve8e3vE+FU353EjuEVIsnA/H5rnGeLswLdrua7Io1twezynA==}
 
-  '@atcute/bluesky@4.0.14':
-    resolution: {integrity: sha512-XttxcMS81Ld089FFqSF8c1bBZutlNkTWMxCL150IuQeoC/aKNK1M9jd0RrMtVVsaxiWUFSX5yetfEfOCwIZm7A==}
+  '@atcute/bluesky@4.0.20':
+    resolution: {integrity: sha512-rboI/y7QQ9HJjW2yhkzwoBLWBgv0qbqi7uDVSS6HCZi5ZddAusIXOTTG6AALroDPbU6WNg+511HRTl+BnM6VXA==}
     peerDependencies:
       '@atcute/lexicons': ^2.0.0
 
@@ -277,19 +277,19 @@ packages:
     peerDependencies:
       '@atcute/lexicons': ^2.0.0
 
-  '@atcute/identity@2.0.1':
-    resolution: {integrity: sha512-FEURUvl30SyyWWikkvm+MLz0Snuf0OF10L/qxRhWjj6qDB5Ib+XWhiBuwidjvhCkrCepTUNLbj4TlUm/gHaUig==}
+  '@atcute/identity@2.0.2':
+    resolution: {integrity: sha512-amr/EQceqVtBVmjBK4uUF7nKKYuRttadigpvOcAn4dnO6SNSwSjQi8KDH9LnukEotPsSP4UDsQvNfHWEoUcslw==}
     peerDependencies:
       '@atcute/lexicons': ^2.0.0
 
-  '@atcute/lexicons@2.0.2':
-    resolution: {integrity: sha512-ATBADJAy4KQ76NB86BjgYKrRdbDRUo76Cbqna4WIfQAgN105Rcy972MiNKs+BSmcOOM3WakilgTm0CXD4RC0iA==}
+  '@atcute/lexicons@2.1.0':
+    resolution: {integrity: sha512-cqbtPfFctoddrSFBt65xyD7st01d8rNntyinRfRhlRPGlqEg8FWacgc7piBw0SAs1SG+5BoV3d3mhzWfQHcByg==}
 
-  '@atcute/uint8array@1.1.4':
-    resolution: {integrity: sha512-rSW5AFVCIN4ooH7vEZB+J60+uWjn5fRBQAQL58qHLiDm8+xDPmHfEU5GfYOJuuD+7UBj8KKiQugIzohFn8/xPw==}
+  '@atcute/uint8array@1.1.5':
+    resolution: {integrity: sha512-1SFCXOtjE3ismP92CqzbOfYSwJmPPPFbj798wLXSpLv2hSd5OIaUrTh6EqRVR1VZ3ZhR+vaBmd3kxAN0wkw+gQ==}
 
-  '@atcute/util-text@1.3.3':
-    resolution: {integrity: sha512-WhedTmg/msFhrdwXw9RjnNcDl8Vmisxl4+Vzyf5k3+8Gj5TKQg72dLSDtBNmNLd61RbHjgfQRBgE0ez6q/jciw==}
+  '@atcute/util-text@1.3.4':
+    resolution: {integrity: sha512-u2UAM7iSM09sQaSG9jtxWFSPgB8boVj50/BoyMvYnhVgGBu+nXIuAcdDUQCsZA44YZgTPPhN/b86JX+jH7SPzQ==}
 
   '@atproto-labs/did-resolver@0.3.7':
     resolution: {integrity: sha512-F3M3U5cU1QSAXX3J5auGEc5N2pgDgpirAjvyDFsytXuyWfrjWfTPd/H+DZrrED7gK+noW0cAWtxxjdX7/cTSVQ==}
@@ -1483,14 +1483,13 @@ packages:
     resolution: {integrity: sha512-LElXdjswlqjWrPpJFg1Fx4wpkOCxj1TDHlSV4PlaRxHGWko024xICaa97ZkMfs6DRKlCguiAI+rbXv5GWwXIkg==}
     hasBin: true
 
-  astro-auto-import@0.5.2:
-    resolution: {integrity: sha512-C7sxtj0nK4F7AiafNoS8lY/JyqW6/JlnkXTdNIT6CKroV/p4m5j6dkpKEAXZf/7Z+SeDcmAlWI6G1nVMssRRPQ==}
-    engines: {node: '>=20.0.0'}
+  astro-auto-import@0.6.0:
+    resolution: {integrity: sha512-ru98hrmIZcLvNIcQWtGHKlYE2C+5+8dp86vGnDiGpdmqcFcG/Tn7uNVGhF1CUkvxNRtE+YZhmWTD94lnxY++rA==}
     peerDependencies:
-      astro: ^5.0.0 || ^6.0.0 || ^7.0.0
+      astro: ^7.2.4
 
-  astro-embed@0.13.1:
-    resolution: {integrity: sha512-X79C+Uh9wA4JWkBRTk6drLpOfzqpPlibAL/p0MTV2811canAPzF9Sv9Bq3gdUSCDCQXRFxTVsW89CKtDkg8xqA==}
+  astro-embed@0.14.0:
+    resolution: {integrity: sha512-VpOnmbeReZvjhK9SYEEsGKZOXBJtrSBMohkVnUwi2ue+qZ19jhM5I3p6SE1NYTi6NY2yoRKJb8J2OtjVDR3lMQ==}
     peerDependencies:
       astro: ^5.0.0 || ^6.0.0-alpha || ^7.0.0
 
@@ -3050,6 +3049,9 @@ packages:
   unicode-segmenter@0.14.5:
     resolution: {integrity: sha512-jHGmj2LUuqDcX3hqY12Ql+uhUTn8huuxNZGq7GvtF6bSybzH3aFgedYu/KTzQStEgt1Ra2F3HxadNXsNjb3m3g==}
 
+  unicode-segmenter@0.17.3:
+    resolution: {integrity: sha512-hKZwqBjJDmqNrq1+LjDxck1qLzJFcLLJM2Xq92ORRHOuau6GSHeELmn+uyk6zNH1CK9mogrUJGP9WJCJUQXMAw==}
+
   unified@11.0.5:
     resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
 
@@ -3488,11 +3490,11 @@ snapshots:
 
   '@astro-community/astro-embed-bluesky@0.2.3(typescript@6.0.3)':
     dependencies:
-      '@atcute/atproto': 4.0.3(@atcute/lexicons@2.0.2)
-      '@atcute/bluesky': 4.0.14(@atcute/lexicons@2.0.2)
-      '@atcute/bluesky-richtext-segmenter': 3.0.1
-      '@atcute/client': 5.1.1(@atcute/lexicons@2.0.2)(typescript@6.0.3)
-      '@atcute/lexicons': 2.0.2
+      '@atcute/atproto': 4.0.4(@atcute/lexicons@2.1.0)
+      '@atcute/bluesky': 4.0.20(@atcute/lexicons@2.1.0)
+      '@atcute/bluesky-richtext-segmenter': 3.0.2
+      '@atcute/client': 5.1.1(@atcute/lexicons@2.1.0)(typescript@6.0.3)
+      '@atcute/lexicons': 2.1.0
     transitivePeerDependencies:
       - typescript
 
@@ -3500,7 +3502,7 @@ snapshots:
     dependencies:
       '@astro-community/astro-embed-utils': 0.2.0
 
-  '@astro-community/astro-embed-integration@0.12.1(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0))(typescript@6.0.3)':
+  '@astro-community/astro-embed-integration@0.13.0(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0))(typescript@6.0.3)':
     dependencies:
       '@astro-community/astro-embed-bluesky': 0.2.3(typescript@6.0.3)
       '@astro-community/astro-embed-gist': 0.1.0
@@ -3511,7 +3513,7 @@ snapshots:
       '@astro-community/astro-embed-youtube': 0.5.10
       '@types/unist': 3.0.3
       astro: 7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0)
-      astro-auto-import: 0.5.2(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0))
+      astro-auto-import: 0.6.0(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0))
       unist-util-select: 5.1.0
     transitivePeerDependencies:
       - typescript
@@ -3750,43 +3752,43 @@ snapshots:
     dependencies:
       yaml: 2.9.0
 
-  '@atcute/atproto@4.0.3(@atcute/lexicons@2.0.2)':
+  '@atcute/atproto@4.0.4(@atcute/lexicons@2.1.0)':
     dependencies:
-      '@atcute/lexicons': 2.0.2
+      '@atcute/lexicons': 2.1.0
 
-  '@atcute/bluesky-richtext-segmenter@3.0.1': {}
+  '@atcute/bluesky-richtext-segmenter@3.0.2': {}
 
-  '@atcute/bluesky@4.0.14(@atcute/lexicons@2.0.2)':
+  '@atcute/bluesky@4.0.20(@atcute/lexicons@2.1.0)':
     dependencies:
-      '@atcute/atproto': 4.0.3(@atcute/lexicons@2.0.2)
-      '@atcute/lexicons': 2.0.2
+      '@atcute/atproto': 4.0.4(@atcute/lexicons@2.1.0)
+      '@atcute/lexicons': 2.1.0
 
-  '@atcute/client@5.1.1(@atcute/lexicons@2.0.2)(typescript@6.0.3)':
+  '@atcute/client@5.1.1(@atcute/lexicons@2.1.0)(typescript@6.0.3)':
     dependencies:
-      '@atcute/identity': 2.0.1(@atcute/lexicons@2.0.2)(typescript@6.0.3)
-      '@atcute/lexicons': 2.0.2
+      '@atcute/identity': 2.0.2(@atcute/lexicons@2.1.0)(typescript@6.0.3)
+      '@atcute/lexicons': 2.1.0
     transitivePeerDependencies:
       - typescript
 
-  '@atcute/identity@2.0.1(@atcute/lexicons@2.0.2)(typescript@6.0.3)':
+  '@atcute/identity@2.0.2(@atcute/lexicons@2.1.0)(typescript@6.0.3)':
     dependencies:
-      '@atcute/lexicons': 2.0.2
+      '@atcute/lexicons': 2.1.0
       valibot: 1.4.2(typescript@6.0.3)
     transitivePeerDependencies:
       - typescript
 
-  '@atcute/lexicons@2.0.2':
+  '@atcute/lexicons@2.1.0':
     dependencies:
-      '@atcute/uint8array': 1.1.4
-      '@atcute/util-text': 1.3.3
+      '@atcute/uint8array': 1.1.5
+      '@atcute/util-text': 1.3.4
       '@standard-schema/spec': 1.1.0
       esm-env: 1.2.2
 
-  '@atcute/uint8array@1.1.4': {}
+  '@atcute/uint8array@1.1.5': {}
 
-  '@atcute/util-text@1.3.3':
+  '@atcute/util-text@1.3.4':
     dependencies:
-      unicode-segmenter: 0.14.5
+      unicode-segmenter: 0.17.3
 
   '@atproto-labs/did-resolver@0.3.7':
     dependencies:
@@ -4906,17 +4908,17 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro-auto-import@0.5.2(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0)):
+  astro-auto-import@0.6.0(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0)):
     dependencies:
       acorn: 8.18.0
       astro: 7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0)
 
-  astro-embed@0.13.1(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0))(typescript@6.0.3):
+  astro-embed@0.14.0(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0))(typescript@6.0.3):
     dependencies:
       '@astro-community/astro-embed-baseline-status': 0.2.2
       '@astro-community/astro-embed-bluesky': 0.2.3(typescript@6.0.3)
       '@astro-community/astro-embed-gist': 0.1.0
-      '@astro-community/astro-embed-integration': 0.12.1(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0))(typescript@6.0.3)
+      '@astro-community/astro-embed-integration': 0.13.0(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.2.0)(yaml@2.9.0))(typescript@6.0.3)
       '@astro-community/astro-embed-link-preview': 0.3.1
       '@astro-community/astro-embed-mastodon': 0.1.1
       '@astro-community/astro-embed-twitter': 0.5.11
@@ -7003,6 +7005,8 @@ snapshots:
   undici-types@8.3.0: {}
 
   unicode-segmenter@0.14.5: {}
+
+  unicode-segmenter@0.17.3: {}
 
   unified@11.0.5:
     dependencies:

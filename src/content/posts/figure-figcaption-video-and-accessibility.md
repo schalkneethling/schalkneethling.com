@@ -127,17 +127,17 @@ I have not verified this against current browser builds myself, and the two sour
 
 As of this writing, August 26, 2026, a static `aria-label`, written once at authoring time, is the best-supported case and is not among those observed to fail. That is not the same as saying the concern has gone away.
 
-There is an option that removes the question rather than reasoning about it. Point `aria-labelledby` at a visually hidden `span`:
+There is an option that removes the question rather than reasoning about it. Point `aria-labelledby` at a hidden `span`:
 
 ```html
-<span id="orbit-label" class="visually-hidden">Satellite orbit simulation</span>
+<span id="orbit-label" hidden>Satellite orbit simulation</span>
 <video src="orbit.webm" controls aria-labelledby="orbit-label">
 </video>
 ```
 
 The name is now computed from a text node, so it is ordinary document content. Translation tools treat it the way they treat a paragraph, and a localization workflow extracting strings will find it without anyone remembering that attributes need extracting too. There is no failure case left to test for. It is also what Roselli recommends.
 
-The cost is markup. An extra element, an `id` to wire it up, and a utility class in the stylesheet, all to hold a string that `aria-label` keeps in a single attribute. Across a component rendered hundreds of times that is a real amount of additional HTML shipped to every reader.
+The cost is markup. An extra element with an `id` to wire it up, just to hold a string that `aria-label` keeps in a single attribute. Across a component rendered hundreds of times that is a real amount of additional HTML shipped to every reader.
 
 I take that trade. Support for static `aria-label` is good and I have no evidence it is about to fail, but good support is not the same as no failure case, and a few lines of markup remove the question permanently rather than leaving it to be re-checked whenever a browser changes. My recommendation is `aria-labelledby` referencing real text, and I would only reach for `aria-label` where referencing text adds genuine complexity, such as a component where the string is generated far from where the element renders.
 
@@ -147,7 +147,7 @@ One last distinction is worth holding on to. If a caption is meant as supplement
 
 If one idea is worth carrying away from this, it is that a `figcaption` does not name the `video` beside it, and on current evidence does not reliably name its own `figure` either. We compute an accessible name from the element and its attributes, not from a sibling by proximity alone.
 
-The mistake I made was assuming the `figure` was contributing something. It was not. Once the caption was visually hidden, the wrapper existed only to hold a string, and a `figure` whose caption nobody can see is an extra node that NVDA announces and most other screen readers ignore. Dropping it left a clear choice between naming the video with `aria-label` and referencing a visually hidden `span` with `aria-labelledby`, and I would take the `span` in almost every case.
+The mistake I made was assuming the `figure` was contributing something. It was not. Once the caption was visually hidden, the wrapper existed only to hold a string, and a `figure` whose caption nobody can see is an extra node that NVDA announces and most other screen readers ignore. Dropping it left a clear choice between naming the video with `aria-label` and referencing a hidden `span` with `aria-labelledby`, and I would take the `span` in almost every case.
 
 ## Further Reading
 

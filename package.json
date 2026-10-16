@@ -11,6 +11,7 @@
     "setup:playwright": "pnpm exec playwright install chromium",
     "build": "pnpm run generate:og && astro build",
     "generate:og": "node scripts/generate-og-cards.mjs",
+    "post:verify-live": "node scripts/verify-live-post.ts",
     "standard-site:generate": "node scripts/generate-standard-site-records.ts",
     "standard-site:lexicons:build": "lex build --clear --index-file --import-ext .ts",
     "standard-site:lexicons:check": "lex install --ci && pnpm standard-site:lexicons:build",

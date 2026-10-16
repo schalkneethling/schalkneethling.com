@@ -1,3 +1,6 @@
+/** How many of the newest posts the homepage lists. */
+export const LATEST_POSTS_COUNT = 3;
+
 type PostWithPubDate = {
   data: {
     pubDate: Date;

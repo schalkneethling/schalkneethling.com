@@ -1,11 +1,18 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import Posts from "./Posts.astro";
-import { getPublishedPosts, sortPostsByPubDateDesc } from "../lib/posts";
+import {
+  LATEST_POSTS_COUNT,
+  getPublishedPosts,
+  sortPostsByPubDateDesc,
+} from "../lib/posts";
 
 const posts = await getPublishedPosts();
 const sortedPosts: CollectionEntry<"posts">[] = sortPostsByPubDateDesc(posts);
-const latestPosts: CollectionEntry<"posts">[] = sortedPosts.slice(0, 3);
+const latestPosts: CollectionEntry<"posts">[] = sortedPosts.slice(
+  0,
+  LATEST_POSTS_COUNT,
+);
 ---
 
 <section aria-labelledby="latest-posts">

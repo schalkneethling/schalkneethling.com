@@ -52,7 +52,7 @@ const LISTING_PROBLEM = {
     "Run the checks again to rule out caching, then inspect getPublishedPosts and the listing component.",
 } as const;
 
-const UNREACHABLE_PROBLEM = {
+export const UNREACHABLE_PROBLEM = {
   reason:
     "The site is unreachable from this machine, or the network blocks it.",
   nextStep:

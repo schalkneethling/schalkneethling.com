@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+This file provides guidance to Codex when working with code in this repository.
 
 ## Pull Request Scope
 
@@ -19,10 +19,14 @@ and the guardrails for merging.
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start local dev server at localhost:4321 |
-| `npm run build` | Build production site to ./dist/ |
-| `npm run preview` | Preview build locally before deploying |
-| `npx playwright test` | Run Playwright browser specs; accessibility-focused specs use axe-core |
+| `pnpm dev` | Start local dev server at localhost:4321 |
+| `pnpm run build` | Generate Open Graph cards and build the production site to ./dist/ |
+| `pnpm preview` | Preview build locally before deploying |
+| `pnpm run typecheck` | Typecheck the project and validate content with `astro check` |
+| `pnpm run test:unit` | Run the Vitest unit tests |
+| `pnpm run test:a11y` | Run Playwright browser specs; accessibility-focused specs use axe-core |
+| `pnpm post:publish <slug>` | Promote a draft to a published post (dry run unless `--write`) |
+| `pnpm post:verify <slug>` | Build and confirm a post is published by the build |
 
 ## Project Architecture
 
@@ -30,14 +34,17 @@ This is an Astro-based personal blog and website with the following key architec
 
 ### Framework & Build
 
-- **Astro 5.x** with MDX integration for content authoring
+- **Astro 7.x** with MDX integration for content authoring
 - TypeScript configuration with strict type checking
 - Static site generation targeting production deployment
 
 ### Content Management
 
-- **Content Collections**: Blog posts defined in `src/content/posts/` with schema validation
-- **Frontmatter Schema**: Posts require title, pubDate, description, author, tags (defined in `src/content/config.ts`)
+- **Content Collections**: Defined in `src/content.config.ts`. Blog posts live in
+  `src/content/posts/` and project entries in `src/content/projects/`, both
+  with schema validation. Drafts in `src/content/drafts/` are not a collection
+  and are never built.
+- **Frontmatter Schema**: Posts require title, pubDate, description, author, tags (defined in `src/lib/postSchema.ts`)
 - **Mixed Content Types**: `.md` and `.mdx` files supported for posts
 
 ### Component Architecture
@@ -46,7 +53,8 @@ This is an Astro-based personal blog and website with the following key architec
 - **Modular Components**: Organized by feature areas:
   - `Header/` - Navigation, hamburger menu, theme toggle
   - `Home/` - Homepage-specific components (hero, featured content, collective)
-  - `Now/` - "Now" page components for current activities
+  - `Projects/` - Project cards and listings
+  - `Footer/` - Footer artwork
 - **Reusable Components**: Picture, Video, Tags, Social, Posts listing
 
 ### Styling System
@@ -77,8 +85,8 @@ This is an Astro-based personal blog and website with the following key architec
 
 ### Key Patterns
 
-- **Dynamic Routes**: `[...slug].astro` for blog post routing, `[tag].astro` for tag pages
-- **RSS Generation**: Automated feed generation in `rss.xml.js`
+- **Dynamic Routes**: `posts/[...slug].astro` for blog post routing, `tags/[tag].astro` for tag pages, `projects/[slug].astro` for project pages
+- **RSS Generation**: Automated feed generation in `src/pages/rss.xml.js`
 - **Asset Management**: Static assets in `public/`, organized by content type
 - **Content Validation**: Zod schemas ensure content structure consistency
 

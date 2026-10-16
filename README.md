@@ -17,6 +17,8 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm preview`                | Preview your build locally, before deploying     |
 | `pnpm post:publish <slug>`    | Preview promoting a draft to a published post    |
 | `pnpm post:verify <slug>`     | Build and confirm a post is published by it      |
+| `pnpm post:await-deploy`      | Wait for a commit to deploy, then check posts    |
+| `pnpm post:verify-live`       | Check posts are live and listed in production    |
 | `pnpm run typecheck`          | Typecheck the project with `astro check`         |
 | `pnpm run test:a11y`          | Run Playwright axe accessibility tests           |
 | `pnpm run a11y:viewer`        | Open the generated axe aggregate report viewer   |

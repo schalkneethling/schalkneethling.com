@@ -8,6 +8,13 @@ Before scoping an issue or task, starting a new piece of work, or expanding an
 implementation beyond its original acceptance criteria, read [PR.md](PR.md).
 Use it to keep changes coherent and comfortably reviewable.
 
+## Publishing Posts
+
+Drafts live in `src/content/drafts/` and are never built. When asked to
+publish a draft, follow [docs/publishing-posts.md](docs/publishing-posts.md)
+exactly: it defines the `pnpm post:publish` and `pnpm post:verify` commands
+and the guardrails for merging.
+
 ## Development Commands
 
 | Command | Description |

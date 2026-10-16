@@ -49,6 +49,21 @@ describe("findBuiltPostProblems", () => {
     ).toEqual(["dist/rss.xml does not link to /posts/example/."]);
   });
 
+  it("only counts a post linked from a feed item's link", () => {
+    const feedMentioningPostInDescription = `<rss><channel>
+<item><title>Example</title><link>https://schalkneethling.com/posts/example-post/</link>
+<description>A follow-up to https://schalkneethling.com/posts/another-post/</description></item>
+</channel></rss>`;
+
+    expect(
+      findBuiltPostProblems({
+        slug: "another-post",
+        hasPostPage: true,
+        rssXml: feedMentioningPostInDescription,
+      }),
+    ).toEqual(["dist/rss.xml does not link to /posts/another-post/."]);
+  });
+
   it("reports a missing feed", () => {
     expect(
       findBuiltPostProblems({

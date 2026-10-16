@@ -1,3 +1,5 @@
+import { parseRssItems, postPath } from "./livePostVerification.ts";
+
 export type BuiltPostEvidence = {
   readonly slug: string;
   readonly hasPostPage: boolean;
@@ -16,7 +18,7 @@ export function findBuiltPostProblems({
   rssXml,
 }: BuiltPostEvidence) {
   const problems: string[] = [];
-  const postPath = `/posts/${slug}/`;
+  const path = postPath(slug);
 
   if (!hasPostPage) {
     problems.push(`The build did not produce dist/posts/${slug}/index.html.`);
@@ -24,8 +26,14 @@ export function findBuiltPostProblems({
 
   if (rssXml === undefined) {
     problems.push("The build did not produce dist/rss.xml.");
-  } else if (!rssXml.includes(`${postPath}<`)) {
-    problems.push(`dist/rss.xml does not link to ${postPath}.`);
+  } else {
+    const isListedInFeed = parseRssItems(rssXml).some(
+      (item) => item.slug === slug,
+    );
+
+    if (!isListedInFeed) {
+      problems.push(`dist/rss.xml does not link to ${path}.`);
+    }
   }
 
   return problems;

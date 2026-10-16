@@ -25,6 +25,25 @@ async function listMarkdownFiles(directory: string) {
     .toSorted();
 }
 
+/**
+ * Git does not keep empty folders, so the drafts folder disappears once the
+ * last draft is published. Treat a missing drafts folder as having no drafts.
+ */
+async function listDraftFiles() {
+  try {
+    return await listMarkdownFiles(DRAFTS_DIRECTORY);
+  } catch (error) {
+    const isMissingFolder =
+      (error as NodeJS.ErrnoException).code === "ENOENT";
+
+    if (isMissingFolder) {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
 function fail(errors: readonly string[]): never {
   for (const error of errors) {
     console.error(`error: ${error}`);
@@ -50,7 +69,7 @@ async function main() {
 
   const resolution = resolveDraftFileName(
     positionals[0],
-    await listMarkdownFiles(DRAFTS_DIRECTORY),
+    await listDraftFiles(),
   );
 
   if (!resolution.ok) {

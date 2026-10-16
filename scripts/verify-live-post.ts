@@ -12,6 +12,7 @@ import {
   selectExistingPostSample,
   type CheckedPost,
   type FetchedPage,
+  type LivePostProblem,
 } from "../src/lib/livePostVerification.ts";
 
 const POSTS_DIRECTORY = "src/content/posts";
@@ -24,7 +25,7 @@ and be linked from /blog, /rss.xml and, when it is one of the latest posts, the
 homepage. A sample of existing posts must still load. The titles come from
 ${POSTS_DIRECTORY}, so run this from a checkout of the deployed commit.`;
 
-async function fetchPage(url: URL): Promise<FetchedPage> {
+export async function fetchPage(url: URL): Promise<FetchedPage> {
   try {
     const response = await fetch(url, {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
@@ -69,33 +70,25 @@ async function readPostTitle(slug: string) {
   return undefined;
 }
 
-async function main() {
-  const { values, positionals } = parseArgs({
-    allowPositionals: true,
-    options: {
-      "site-url": { type: "string", default: DEFAULT_SITE_URL },
-      help: { type: "boolean", short: "h", default: false },
-    },
-  });
+export type LiveCheckRun =
+  | { readonly ok: false; readonly unknownSlugs: string[] }
+  | {
+      readonly ok: true;
+      readonly problems: LivePostProblem[];
+      readonly newPosts: CheckedPost[];
+      readonly sampledPosts: CheckedPost[];
+    };
 
-  if (values.help || positionals.length === 0) {
-    console.log(USAGE);
-    process.exit(values.help ? 0 : 1);
-  }
-
-  const siteUrl = values["site-url"];
-  const slugs = [...new Set(positionals)];
+/** Fetches the production pages for the given posts and checks them. */
+export async function runLiveChecks(
+  slugs: readonly string[],
+  siteUrl: string,
+): Promise<LiveCheckRun> {
   const titles = await Promise.all(slugs.map(readPostTitle));
   const unknownSlugs = slugs.filter((_, index) => titles[index] === undefined);
 
   if (unknownSlugs.length > 0) {
-    for (const slug of unknownSlugs) {
-      console.error(
-        `error: No post with a title at ${POSTS_DIRECTORY}/${slug}.md or .mdx.`,
-      );
-    }
-
-    process.exit(1);
+    return { ok: false, unknownSlugs };
   }
 
   const pageUrl = (path: string) => new URL(path, siteUrl);
@@ -131,27 +124,71 @@ async function main() {
     sampledPosts,
   });
 
-  if (problems.length > 0) {
-    for (const problem of problems) {
-      console.error(`\nWhat failed:   ${problem.what}`);
-      console.error(`Likely reason: ${problem.reason}`);
-      console.error(`Next step:     ${problem.nextStep}`);
-    }
+  return { ok: true, problems, newPosts, sampledPosts };
+}
 
+export function printProblems(problems: readonly LivePostProblem[]) {
+  for (const problem of problems) {
+    console.error(`\nWhat failed:   ${problem.what}`);
+    console.error(`Likely reason: ${problem.reason}`);
+    console.error(`Next step:     ${problem.nextStep}`);
+  }
+}
+
+export function printUnknownSlugs(unknownSlugs: readonly string[]) {
+  for (const slug of unknownSlugs) {
     console.error(
-      `\n${problems.length} production check(s) failed on ${siteUrl}.`,
+      `error: No post with a title at ${POSTS_DIRECTORY}/${slug}.md or .mdx.`,
+    );
+  }
+}
+
+export function printVerifiedPosts(
+  run: Extract<LiveCheckRun, { ok: true }>,
+  siteUrl: string,
+) {
+  for (const { slug } of run.newPosts) {
+    console.log(
+      `Verified: ${new URL(postPath(slug), siteUrl).href} is live and listed.`,
+    );
+  }
+
+  const sampleSlugs =
+    run.sampledPosts.map(({ slug }) => slug).join(", ") || "none";
+  console.log(`Existing posts still load: ${sampleSlugs}.`);
+}
+
+async function main() {
+  const { values, positionals } = parseArgs({
+    allowPositionals: true,
+    options: {
+      "site-url": { type: "string", default: DEFAULT_SITE_URL },
+      help: { type: "boolean", short: "h", default: false },
+    },
+  });
+
+  if (values.help || positionals.length === 0) {
+    console.log(USAGE);
+    process.exit(values.help ? 0 : 1);
+  }
+
+  const siteUrl = values["site-url"];
+  const run = await runLiveChecks([...new Set(positionals)], siteUrl);
+
+  if (!run.ok) {
+    printUnknownSlugs(run.unknownSlugs);
+    process.exit(1);
+  }
+
+  if (run.problems.length > 0) {
+    printProblems(run.problems);
+    console.error(
+      `\n${run.problems.length} production check(s) failed on ${siteUrl}.`,
     );
     process.exit(1);
   }
 
-  for (const { slug } of newPosts) {
-    console.log(
-      `Verified: ${pageUrl(postPath(slug)).href} is live and listed.`,
-    );
-  }
-
-  const sampleSlugs = sampledPosts.map(({ slug }) => slug).join(", ") || "none";
-  console.log(`Existing posts still load: ${sampleSlugs}.`);
+  printVerifiedPosts(run, siteUrl);
 }
 
 if (

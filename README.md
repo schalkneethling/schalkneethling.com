@@ -15,6 +15,7 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm run generate:og`        | Generates per-post Open Graph card images        |
 | `pnpm run build`              | Generates Open Graph cards and builds to `dist/` |
 | `pnpm preview`                | Preview your build locally, before deploying     |
+| `pnpm post:await-deploy`      | Wait for a commit to deploy, then check posts    |
 | `pnpm post:verify-live`       | Check posts are live and listed in production    |
 | `pnpm run typecheck`          | Typecheck the project with `astro check`         |
 | `pnpm run test:a11y`          | Run Playwright axe accessibility tests           |

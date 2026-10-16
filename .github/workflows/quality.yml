@@ -62,15 +62,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      # The Open Graph card generator renders with Playwright Chromium.
+      # The Open Graph card generator renders with its own Playwright
+      # dependency, which can be a different version from @playwright/test and
+      # expect a different Chromium revision. Install Chromium through the
+      # generator's copy so the build finds the revision it needs.
       - name: Cache Playwright browsers
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          key: playwright-og-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install --with-deps chromium
+      - name: Install Chromium for the Open Graph generator
+        run: |
+          PLAYWRIGHT_CLI=$(node --print '
+            const { createRequire } = require("node:module");
+            const path = require("node:path");
+            const requireFromGenerator = createRequire(
+              require.resolve("@schalkneethling/opengraph-cards-maker"),
+            );
+            path.join(
+              path.dirname(requireFromGenerator.resolve("playwright/package.json")),
+              "cli.js",
+            );
+          ')
+          node "$PLAYWRIGHT_CLI" --version
+          node "$PLAYWRIGHT_CLI" install --with-deps chromium
 
       - name: Build the site
         run: pnpm run build

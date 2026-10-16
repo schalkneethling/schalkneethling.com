@@ -15,6 +15,8 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm run generate:og`        | Generates per-post Open Graph card images        |
 | `pnpm run build`              | Generates Open Graph cards and builds to `dist/` |
 | `pnpm preview`                | Preview your build locally, before deploying     |
+| `pnpm post:publish <slug>`    | Preview promoting a draft to a published post    |
+| `pnpm post:verify <slug>`     | Build and confirm a post is published by it      |
 | `pnpm post:await-deploy`      | Wait for a commit to deploy, then check posts    |
 | `pnpm post:verify-live`       | Check posts are live and listed in production    |
 | `pnpm run typecheck`          | Typecheck the project with `astro check`         |
@@ -64,7 +66,8 @@ records how the site will generate and safely synchronize AT Protocol records.
 ### Publishing a new post
 
 Publishing to the website is unchanged unless a post opts into Standard.site.
-Write the post, open a pull request, merge it, and allow the canonical page to
+Write the post as a draft and publish it with the procedure in
+[Publishing a post](docs/publishing-posts.md), then allow the canonical page to
 deploy as before.
 
 To publish the post to Standard.site as well:

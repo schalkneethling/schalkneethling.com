@@ -8,3 +8,7 @@ onlyBuiltDependencies:
   - koffi
   - protobufjs
   - sharp
+# Minutes. Matches the shortest Dependabot cooldown (semver-patch-days: 2 in
+# .github/dependabot.yml), so nothing in the lockfile is newer than the
+# quickest update Dependabot is allowed to propose.
+minimumReleaseAge: 2880

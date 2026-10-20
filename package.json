@@ -11,6 +11,8 @@
     "setup:playwright": "node scripts/install-og-chromium.mjs",
     "build": "pnpm run generate:og && astro build",
     "generate:og": "node scripts/generate-og-cards.mjs",
+    "post:publish": "node scripts/publish-draft.ts",
+    "post:verify": "node scripts/verify-post.ts",
     "post:await-deploy": "node scripts/await-deploy.ts",
     "post:verify-live": "node scripts/verify-live-post.ts",
     "standard-site:generate": "node scripts/generate-standard-site-records.ts",
@@ -35,13 +37,13 @@
     "@atproto/lex": "^0.4.0",
     "@atproto/lex-password-session": "^0.3.0",
     "@atproto/syntax": "^0.7.7",
-    "@lucide/astro": "^1.41.0",
+    "@lucide/astro": "^1.59.0",
     "@schalkneethling/masonry-gridlanes-wc": "^0.1.0",
-    "astro": "^7.3.1",
+    "astro": "^7.4.0",
     "astro-embed": "^0.14.0",
     "mermaid": "^11.17.2",
     "typescript": "^6.0.3",
-    "varlock": "^1.18.0"
+    "varlock": "^1.23.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
@@ -50,7 +52,7 @@
     "@schalkneethling/opengraph-cards-maker": "^0.3.0",
     "@types/node": "^26.2.0",
     "@varlock/1password-plugin": "^2.0.4",
-    "axe-core": "^4.13.0",
+    "axe-core": "^4.14.0",
     "devalue": "^6.0.2",
     "linkedom": "^0.18.13",
     "remark-frontmatter": "^5.0.0",
@@ -58,7 +60,7 @@
     "remark-parse": "^11.0.0",
     "unified": "^11.0.5",
     "vitest": "^4.1.11",
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.1"
   },
   "packageManager": "pnpm@11.9.0"
 }

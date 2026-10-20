@@ -22,10 +22,10 @@ jobs:
 
       - name: Set up pnpm
         # pnpm/action-setup@v4
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
 
       # actions/setup-node@v6.0.10
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 24.16.0
           cache: pnpm
@@ -38,3 +38,55 @@ jobs:
 
       - name: Run typecheck
         run: pnpm run typecheck
+
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        # pnpm/action-setup@v4
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
+
+      # actions/setup-node@v6.0.10
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24.16.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # The Open Graph card generator renders with its own Playwright
+      # dependency, which can be a different version from @playwright/test and
+      # expect a different Chromium revision. Install Chromium through the
+      # generator's copy so the build finds the revision it needs.
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-og-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Chromium for the Open Graph generator
+        run: |
+          PLAYWRIGHT_CLI=$(node --print '
+            const { createRequire } = require("node:module");
+            const path = require("node:path");
+            const requireFromGenerator = createRequire(
+              require.resolve("@schalkneethling/opengraph-cards-maker"),
+            );
+            path.join(
+              path.dirname(requireFromGenerator.resolve("playwright/package.json")),
+              "cli.js",
+            );
+          ')
+          node "$PLAYWRIGHT_CLI" --version
+          node "$PLAYWRIGHT_CLI" install --with-deps chromium
+
+      - name: Build the site
+        run: pnpm run build

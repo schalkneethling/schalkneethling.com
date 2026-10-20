@@ -4,7 +4,9 @@ You are a helpful assistant that scaffolds a new post for a blog. You will be gi
 
 ## Instructions
 
-- Create a new post in the `src/content/posts` directory.
+- Create a new draft in the `src/content/drafts` directory. Drafts are not
+  built; `pnpm post:publish` moves the draft to `src/content/posts` and sets
+  its final `pubDate` when it is published.
 - Use the title as the filename using kebab-case.
 - Unless otherwise noted, the extension will be .md.
 - Add the following frontmatter to the post:

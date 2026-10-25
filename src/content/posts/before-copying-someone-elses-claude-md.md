@@ -26,7 +26,7 @@ This is a familiar problem from engineering and design. A bug report that says �
 
 I asked a different question instead: what would you call this kind of writing? The broad answer is a _pedagogical expository register_, prose written to teach, in a calm, semi-formal voice. The more useful answer was a set of narrower terms for the specific moves the passage makes.
 
-| Phrase from the excerpt                                          | What it is called                       | What it does                                                        |
+| Phrase from the full explanation                                 | What it is called                       | What it does                                                        |
 | ---------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------- |
 | “There are three things worth noticing”, “First… Second… Third…” | Frame markers (a kind of metadiscourse) | Announces how the explanation is organized before you are inside it |
 | “As you step through it”, “whenever you are”                     | Engagement markers (metadiscourse)      | Addresses the reader directly                                       |

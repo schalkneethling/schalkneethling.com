@@ -104,11 +104,13 @@ gh pr merge --merge
 ## Confirming the post is live
 
 Netlify deploys `main` after the merge. Switch your local checkout to `main`,
-pull the merge, and clean up the merged post branch with `git trim`:
+pull the merge, clean up the merged post branch with `git trim`, and install
+the latest dependencies with `vp i`:
 
 ```sh
 git switch main
 git pull && git trim
+vp i
 ```
 
 Then wait for the deploy and check the live site with one command, passing the
@@ -174,8 +176,10 @@ with these guardrails:
    The author does not need to approve the merge separately. Otherwise stop
    at the open pull request and report its link.
 10. After merging, switch the local checkout to `main` and run
-    `git pull && git trim`. If `git trim` is not installed, say so rather
-    than deleting branches another way. Then run
+    `git pull && git trim`, then `vp i` to install the latest dependencies.
+    If `git trim` is not installed, say so rather than deleting branches
+    another way. Where `vp` is not available, run `pnpm install` instead.
+    Then run
     `pnpm post:await-deploy <merge-commit> <slug>` in the background and keep
     working or end the turn while it waits. Report its
     result: the live URL when it passes, or each failure as what failed, the

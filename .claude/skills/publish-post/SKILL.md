@@ -27,8 +27,9 @@ The procedure, in order:
 8. Commit as `post: <title>`, push, and open a pull request.
 9. Merge once every pull request check has passed and every review thread is
    resolved. The author does not need to approve the merge separately.
-10. After merging, run `pnpm post:await-deploy <merge-commit> <slug>` in the
-    background and report its result. If it cannot reach the site, say so,
+10. After merging, switch to `main` and run `git pull && git trim`. Then run
+    `pnpm post:await-deploy <merge-commit> <slug>` in the background and
+    report its result. If it cannot reach the site, say so,
     do not call the post live, and give the author the command to run.
 
 Never edit the post's content while publishing, never bypass a failing check,

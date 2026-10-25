@@ -103,12 +103,18 @@ gh pr merge --merge
 
 ## Confirming the post is live
 
-Netlify deploys `main` after the merge. Wait for that deploy and check the
-live site with one command, passing the merge commit and the post's slug:
+Netlify deploys `main` after the merge. Switch your local checkout to `main`,
+pull the merge, and clean up the merged post branch with `git trim`:
 
 ```sh
 git switch main
-git pull
+git pull && git trim
+```
+
+Then wait for the deploy and check the live site with one command, passing the
+merge commit and the post's slug:
+
+```sh
 pnpm post:await-deploy "$(gh pr view post-<slug> --json mergeCommit -q .mergeCommit.oid)" <slug>
 ```
 
@@ -167,8 +173,11 @@ with these guardrails:
    thread is resolved, and the pull request contains nothing except the post.
    The author does not need to approve the merge separately. Otherwise stop
    at the open pull request and report its link.
-10. After merging, run `pnpm post:await-deploy <merge-commit> <slug>` in the
-    background and keep working or end the turn while it waits. Report its
+10. After merging, switch the local checkout to `main` and run
+    `git pull && git trim`. If `git trim` is not installed, say so rather
+    than deleting branches another way. Then run
+    `pnpm post:await-deploy <merge-commit> <slug>` in the background and keep
+    working or end the turn while it waits. Report its
     result: the live URL when it passes, or each failure as what failed, the
     likely reason, and the next step, exactly as the command prints them.
 11. If the command reports that the site cannot be reached, the agent's

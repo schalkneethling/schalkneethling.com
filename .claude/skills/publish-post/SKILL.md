@@ -22,13 +22,14 @@ The procedure, in order:
    changed.
 6. Run `pnpm post:verify <slug>`. If it cannot run, say so; do not claim the
    post is verified.
-7. Commit as `post: <title>`, push, and open a pull request.
-8. Merge only when the author explicitly asked for the post to be published or
-   made live and every pull request check has passed. Otherwise report the
-   pull request link and stop.
-9. After merging, run `pnpm post:await-deploy <merge-commit> <slug>` in the
-   background and report its result. If it cannot reach the site, say so,
-   do not call the post live, and give the author the command to run.
+7. Have a separate Opus agent at medium effort review the post, and report
+   its findings to the author. Content changes need the author's approval.
+8. Commit as `post: <title>`, push, and open a pull request.
+9. Merge once every pull request check has passed and every review thread is
+   resolved. The author does not need to approve the merge separately.
+10. After merging, run `pnpm post:await-deploy <merge-commit> <slug>` in the
+    background and report its result. If it cannot reach the site, say so,
+    do not call the post live, and give the author the command to run.
 
 Never edit the post's content while publishing, never bypass a failing check,
 and stop at the first failure with a clear report.

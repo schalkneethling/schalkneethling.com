@@ -154,20 +154,26 @@ with these guardrails:
    explicitly rather than reporting the post as verified.
 6. Stop at the first failing step and report it. Never bypass a failing check,
    skip a hook, or change tests to get a step to pass.
-7. Open the pull request with whatever GitHub tooling the environment
+7. Before opening the pull request, have a separate agent review the post
+   as written, using an Opus model at medium effort. The review looks for
+   factual errors, claims the post does not support, broken links, and
+   anything a reader would trip over. Report its findings to the author.
+   Changing the content because of a finding needs the author's approval,
+   as guardrail 2 says.
+8. Open the pull request with whatever GitHub tooling the environment
    provides. Use the `post-<slug>` branch name unless the environment assigns
    a branch.
-8. Merge only when the request explicitly asked for the post to be published
-   or made live, every check on the pull request has passed, and the pull
-   request contains nothing except the promotion. Otherwise stop at the open
-   pull request and report its link.
-9. After merging, run `pnpm post:await-deploy <merge-commit> <slug>` in the
-   background and keep working or end the turn while it waits. Report its
-   result: the live URL when it passes, or each failure as what failed, the
-   likely reason, and the next step, exactly as the command prints them.
-10. If the command reports that the site cannot be reached, the agent's
+9. Merge as soon as every check on the pull request has passed, every review
+   thread is resolved, and the pull request contains nothing except the post.
+   The author does not need to approve the merge separately. Otherwise stop
+   at the open pull request and report its link.
+10. After merging, run `pnpm post:await-deploy <merge-commit> <slug>` in the
+    background and keep working or end the turn while it waits. Report its
+    result: the live URL when it passes, or each failure as what failed, the
+    likely reason, and the next step, exactly as the command prints them.
+11. If the command reports that the site cannot be reached, the agent's
     environment has no network access to schalkneethling.com. Say so, do not
     report the post as live, and give the author the exact command to run
     themselves.
-11. When the draft opted in, remind the author that the Standard.site record is
+12. When the draft opted in, remind the author that the Standard.site record is
     created separately, after the post is live.

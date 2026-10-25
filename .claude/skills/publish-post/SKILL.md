@@ -26,6 +26,9 @@ The procedure, in order:
 8. Merge only when the author explicitly asked for the post to be published or
    made live and every pull request check has passed. Otherwise report the
    pull request link and stop.
+9. After merging, run `pnpm post:await-deploy <merge-commit> <slug>` in the
+   background and report its result. If it cannot reach the site, say so,
+   do not call the post live, and give the author the command to run.
 
 Never edit the post's content while publishing, never bypass a failing check,
 and stop at the first failure with a clear report.

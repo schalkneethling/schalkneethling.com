@@ -82,10 +82,9 @@ pnpm post:verify <slug>
 ```
 
 This runs `pnpm run build`, then checks that `dist/posts/<slug>/index.html`
-exists and that `dist/rss.xml` links to the post. Continuous integration runs
-unit tests, type checking, and accessibility tests, but it does not run a
-production build, so this is the step that catches a post that would fail on
-Netlify.
+exists and that `dist/rss.xml` links to the post. Continuous integration also
+runs a production build on the pull request, but running it locally first
+catches a post that would fail on Netlify before you push.
 
 Commit, push, and open the pull request:
 
@@ -102,8 +101,50 @@ gh pr checks --watch
 gh pr merge --merge
 ```
 
-Netlify deploys `main` after the merge. The post is live once
-`https://schalkneethling.com/posts/<slug>/` loads.
+## Confirming the post is live
+
+Netlify deploys `main` after the merge. Switch your local checkout to `main`,
+pull the merge, clean up the merged post branch with `git trim`, and install
+the latest dependencies with `vp i`:
+
+```sh
+git switch main
+git pull && git trim
+vp i
+```
+
+Then wait for the deploy and check the live site with one command, passing the
+merge commit and the post's slug:
+
+```sh
+pnpm post:await-deploy "$(gh pr view post-<slug> --json mergeCommit -q .mergeCommit.oid)" <slug>
+```
+
+The command polls `https://schalkneethling.com/version.txt`, which every
+build writes with the commit it was built from, until production serves the
+merge commit or a later commit that contains it. It waits up to 15 minutes by
+default; pass `--timeout-minutes` to change that. It then checks that
+`/posts/<slug>/` loads with the post's title, that `/blog`, `/rss.xml` and,
+for one of the three newest posts, the homepage link to it, and that a few
+existing posts still load. Failed checks are retried twice, 30 seconds apart,
+in case the CDN is still serving cached pages.
+
+Every failure is reported as what failed, the likely reason, and the next
+step. The most common ones are these:
+
+- **Production still serves an earlier commit.** The Netlify deploy failed or
+  is stuck. Check the pull request's Production build job, then the deploy log
+  on the [Netlify deploys page](https://app.netlify.com/projects/schalkneethling-com/deploys).
+- **The post returns 404.** The `pubDate` was after the build time, or the
+  file is not in `src/content/posts/`.
+- **A listing does not link to the post.** Run `pnpm post:verify-live <slug>`
+  once more to rule out caching, then inspect `getPublishedPosts` and the
+  listing component.
+- **An existing post fails.** The deploy regressed existing posts. Republish
+  the previous deploy in Netlify to roll back, then investigate.
+
+If the deploy already finished, `pnpm post:verify-live <slug>` runs the same
+checks without waiting.
 
 ## Asking an agent to publish
 
@@ -121,12 +162,31 @@ with these guardrails:
    explicitly rather than reporting the post as verified.
 6. Stop at the first failing step and report it. Never bypass a failing check,
    skip a hook, or change tests to get a step to pass.
-7. Open the pull request with whatever GitHub tooling the environment
+7. Before opening the pull request, have a separate agent review the post
+   as written, using an Opus model at medium effort. The review looks for
+   factual errors, claims the post does not support, broken links, and
+   anything a reader would trip over. Report its findings to the author.
+   Changing the content because of a finding needs the author's approval,
+   as guardrail 2 says.
+8. Open the pull request with whatever GitHub tooling the environment
    provides. Use the `post-<slug>` branch name unless the environment assigns
    a branch.
-8. Merge only when the request explicitly asked for the post to be published
-   or made live, every check on the pull request has passed, and the pull
-   request contains nothing except the promotion. Otherwise stop at the open
-   pull request and report its link.
-9. After merging, report the live URL and, when the draft opted in, remind the
-   author that the Standard.site record is created separately.
+9. Merge as soon as every check on the pull request has passed, every review
+   thread is resolved, and the pull request contains nothing except the post.
+   The author does not need to approve the merge separately. Otherwise stop
+   at the open pull request and report its link.
+10. After merging, switch the local checkout to `main` and run
+    `git pull && git trim`, then `vp i` to install the latest dependencies.
+    If `git trim` is not installed, say so rather than deleting branches
+    another way. Where `vp` is not available, run `pnpm install` instead.
+    Then run
+    `pnpm post:await-deploy <merge-commit> <slug>` in the background and keep
+    working or end the turn while it waits. Report its
+    result: the live URL when it passes, or each failure as what failed, the
+    likely reason, and the next step, exactly as the command prints them.
+11. If the command reports that the site cannot be reached, the agent's
+    environment has no network access to schalkneethling.com. Say so, do not
+    report the post as live, and give the author the exact command to run
+    themselves.
+12. When the draft opted in, remind the author that the Standard.site record is
+    created separately, after the post is live.

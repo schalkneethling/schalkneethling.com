@@ -45,7 +45,7 @@ A bookmark whose Noul is at or above 0.5 is Held unless I confirm on Haystack's 
 
 ### Classifying the Kind of Link
 
-The second Jev question during enrichment is a [Choice](https://docs.typesafe.ai/primitives/choice.md) between eight options: `tool`, `library`, `reference`, `tutorial`, `article`, `discussion`, `collection` and `other`. The options describe what a person does with the link, not where it is hosted, so a GitHub repository for a test runner is a `tool`. `other` is listed last, because TypeSafe's documentation for Jev 1.13 notes that Jev favors the first option when several options fit. The order is unchanged for `jev-1.14.0`.
+The second Jev question during enrichment is a [Choice](https://docs.typesafe.ai/primitives/choice.md) between eight options: `tool`, `library`, `reference`, `tutorial`, `article`, `discussion`, `collection` and `other`. The options describe what a person does with the link, not where it is hosted, so a GitHub repository for a test runner is a `tool`. `other` is listed last, because TypeSafe's [Jev 1.13 jaggedness page](https://docs.typesafe.ai/model-jaggedness/jev-1.13.md) notes that the model can favor the first option. As of October 28, 2026, TypeSafe had published no such page for Jev 1.14, so Haystack keeps the same order for `jev-1.14.0`.
 
 ### What the Language Model Writes
 
@@ -89,7 +89,7 @@ flowchart TD
     LOG --> OUT[Results]
 ```
 
-Haystack manages its feature flags in Flagship, so a flag can change without a deploy. <!-- TODO: link to Flagship and describe it in a few words. --> One flag, `search-enabled`, decides whether the search page exists at all. While the flag is off, `/` redirects to the saved links and the header has no Search link. When the flag cannot be read, Haystack behaves as if it were off. This lets me turn search off without a deploy. The search API itself checks the session, as every route except sign-in does.
+Haystack manages its feature flags in [Flagship](https://developers.cloudflare.com/flagship/), Cloudflare's feature flag service for Workers, which has been in public beta since May 26, 2026. A Worker reads the flags through a binding, so a flag can change without a deploy. One flag, `search-enabled`, decides whether the search page exists at all. While the flag is off, `/` redirects to the saved links and the header has no Search link. When the flag cannot be read, Haystack behaves as if it were off. This lets me turn search off without a deploy. The search API itself checks the session, as every route except sign-in does.
 
 The query is then validated against a shared schema: at least one character that is not a space, and at most 500 characters. A query that fails is rejected before anything is read from the database, sent to Jev or written to the log. The limit applies to every channel a search can arrive through, including the agent channels planned for later, because agents can send long queries and the query is included in every request sent to Jev.
 

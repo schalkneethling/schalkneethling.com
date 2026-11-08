@@ -6,9 +6,9 @@ author: Schalk Neethling
 tags: [typescript]
 ---
 
-The first search I ran against Haystack in production was "something about a select element". It returned one bookmark, an article titled "A select should tell you something", in a little over half a second. That is the result I wanted. SQLite full-text search, run over the same data, returns nothing for the same query.
+The first search I ran against Haystack in production was "something about a select element". It returned one bookmark, an article titled "A select should tell you something", in a little over half a second. That is the result I wanted. SQLite full-text search, run over the same data, returns nothing for it.
 
-Haystack is a bookmarking tool I am building on Cloudflare Workers and D1. Search is the part of it that matters most to me, because I save links so that I can find them again when I need them, and when I need them I rarely remember the words in the title. I remember the problem I had. This post explains how search works in Haystack today: what we store for each bookmark, how we decide what may be sent to Jev, the two questions we ask about every bookmark, and what the first day of real searches showed.
+Haystack is a bookmarking tool I am building on Cloudflare Workers and D1. Search is the part of it that matters most to me, because I save links so that I can find them again when I need them, and when I need them I rarely remember the words in the title. I remember the problem I had. This post explains how search works in Haystack today: what we store for each bookmark, how we decide what may be sent to Jev, the two questions we ask Jev about every bookmark at search time, and what the first day of real searches showed.
 
 > **Note**: Everything here describes Haystack as deployed on November 7, 2026, with Jev model `jev-1.14.0`. The collection is small (14 bookmarks), and every search so far is mine. The findings are a first look, not an evaluation. The evaluation is the next phase of the project, and the end of this post describes what it will measure.
 
@@ -41,11 +41,11 @@ Some links grant access on their own. A link to a shared document, a password re
 
 Jev does not see the URL. It sees a description produced by a function called `describeUrlForJudgment`, which replaces every query value, every fragment value and every path segment that does not read as words with a placeholder such as `<hex:32>` or `<digits:6>`. The page title is included, because "Reset your password" is strong evidence on its own. The question's instructions explain what the placeholders mean, because Jev interprets the question literally and has no other way to learn what they stand for.
 
-A bookmark whose Noul is at or above 0.5 is Held unless I confirm that the link is not private. For a Held bookmark, enrichment stops at this step: nothing is sent to GitHub, to the `kind` question or to the language model, and the bookmark is never a search candidate. The same check also runs when I submit the save form, with one attempt and a two-second time limit, so the form can show a warning before the bookmark is saved. A timeout there never blocks saving. The bookmark is saved, and the background enrichment asks the question again, with retries.
+A bookmark whose Noul is at or above 0.5 is Held unless I confirm on Haystack's review page that the link is not private. For a Held bookmark, enrichment stops at this step: nothing is sent to GitHub, to the `kind` question or to the language model, and the bookmark is never a search candidate. The same check also runs when I submit the save form, with one attempt and a two-second time limit, so the form can show a warning before the bookmark is saved. A timeout there never blocks saving. The bookmark is saved, and the background enrichment asks the question again, with retries.
 
 ### Classifying the Kind of Link
 
-The second Jev question is a [Choice](https://docs.typesafe.ai/primitives/choice.md) between eight options: `tool`, `library`, `reference`, `tutorial`, `article`, `discussion`, `collection` and `other`. The options describe what a person does with the link, not where it is hosted, so a GitHub repository for a test runner is a `tool`. `other` is listed last, because TypeSafe's documentation for Jev 1.13 notes that Jev favors the first option when several options fit.
+The second Jev question during enrichment is a [Choice](https://docs.typesafe.ai/primitives/choice.md) between eight options: `tool`, `library`, `reference`, `tutorial`, `article`, `discussion`, `collection` and `other`. The options describe what a person does with the link, not where it is hosted, so a GitHub repository for a test runner is a `tool`. `other` is listed last, because TypeSafe's documentation for Jev 1.13 notes that Jev favors the first option when several options fit.
 
 ### What the Language Model Writes
 
@@ -84,20 +84,20 @@ flowchart TD
     C --> CH[Split into chunks that fit<br>Jev's token budgets]
     CH --> LIM[Rate limiter:<br>requests and tokens per second]
     LIM --> J[Jev: two questions<br>per bookmark]
-    J --> R[Rank by the display signal,<br>keep those at or above the threshold]
+    J --> R[Rank by the ranking signal,<br>keep those at or above its threshold]
     R --> LOG[(Log the run and every answer)]
     LOG --> OUT[Results]
 ```
 
 A Flagship feature flag, `search-enabled`, decides whether the search page exists at all. While the flag is off, `/` redirects to the saved links and the header has no Search link. When the flag cannot be read, Haystack behaves as if it were off. This lets me turn search off without a deploy. The search API itself checks the session, as every route except sign-in does.
 
-The query is then validated against a shared schema: at least one character that is not a space, and at most 500 characters. A query that fails is rejected before anything is read from the database, sent to Jev or written to the log. The limit applies to every channel, including the agent channels planned for later, because agents can send long queries and the query is included in every request sent to Jev.
+The query is then validated against a shared schema: at least one character that is not a space, and at most 500 characters. A query that fails is rejected before anything is read from the database, sent to Jev or written to the log. The limit applies to every channel a search can arrive through, including the agent channels planned for later, because agents can send long queries and the query is included in every request sent to Jev.
 
 The candidates are the bookmarks that have at least one enrichment and are not Held. Search makes the Held decision with the same function that the background enrichment and the review page use, so the three cannot disagree. Every valid query is sent to Jev together with every candidate. There is no keyword filter in front of Jev today, and the section on D1 explains why.
 
 ### What Jev Receives
 
-For each bookmark, Jev receives three fields: the title, the kind and the `match_text`. It does not receive the URL, the bookmark's ID or anything else from the row. Each bookmark is named by an alias, `b_0`, `b_1` and so on, and our code maps every answer back to the bookmark's ID after the response arrives. The aliases are also shorter than an ID, which keeps each request smaller, because every alias appears in both of the questions asked about its bookmark.
+For each bookmark, Jev receives three fields: the title, the kind and the `match_text`. It does not receive the URL, the bookmark's ID or anything else from the row. Each bookmark is named by an alias, `b_0`, `b_1` and so on, and our code maps every answer back to the bookmark's ID after the response arrives. The aliases are also shorter than an ID, which keeps each request smaller, because every alias appears in both of the questions asked about its bookmark, which the section after next describes.
 
 ### Batches and Token Budgets
 
@@ -109,7 +109,7 @@ Every request then waits on a limiter that tracks both requests per second and e
 
 ### Pair Mode
 
-Haystack can also send one request per bookmark instead of one per chunk. This is pair mode, and a Flagship flag switches between the two modes without a deploy. Pair mode keeps each request small and independent, but every bookmark uses one request of the rate limit. Batched mode is the default, and whether batching lowers the quality of the results is one of the comparisons in the evaluation phase.
+Haystack can also send one request per bookmark instead of one per chunk. This is pair mode, and a Flagship flag switches between the two modes without a deploy. Pair mode keeps each request small and independent, but each bookmark counts as a separate request against the rate limit. Batched mode is the default, and whether batching lowers the quality of the results is one of the comparisons in the evaluation phase.
 
 ## Two Questions per Bookmark
 
@@ -155,7 +155,7 @@ The two answers are different kinds of number. A Noul of 0.5 means that yes and 
 
 > **Note**: The Score page warns that different distributions can produce the same score. On these four levels, 1.5 can mean half the probability on level 1 and half on level 2, or half on level 0 and half on level 3. In the second case, Jev is unsure whether the bookmark is unrelated or directly addresses the need, which is a very different answer. For that reason, Haystack stores the four probabilities and Jev's confidence next to the score, so that a later replay can rank by a different number derived from them.
 
-Only one of the two signals ranks the results. Today that is the Score, with a threshold of 1.5, halfway between "same general area, but would not help" and "partially addresses the need". The Noul threshold is 0.5, the point where yes becomes more likely than no. Results at or above the threshold of the ranking signal are shown, highest first. When two results have the same value, the more recently saved bookmark comes first, followed by the lower ID, so that the order never depends on the order in which chunks came back.
+Only one of the two signals ranks the results. Today that is the Score, with a threshold of 1.5, halfway between "same general area, but would not help" and "partially addresses the need". The Noul's threshold, which applies when the Noul is the ranking signal, is 0.5, the point where yes becomes more likely than no. Results at or above the threshold of the ranking signal are shown, highest first. When two results have the same value, the more recently saved bookmark comes first, followed by the lower ID, so that the order never depends on the order in which chunks came back.
 
 Asking both questions means two questions per bookmark instead of one, which uses more of the token budget and therefore more request capacity. We ask both for now so that every search records both signals. The evaluation phase can then choose between them using real data instead of my expectations.
 
@@ -242,13 +242,13 @@ FTS5 has clear advantages. It runs inside D1 with no external request, no token 
 
 ## What Comes Next
 
-The next phase of the project is the evaluation. I will write a labeled set of queries, with the bookmarks that should and should not match each one, and use the logs to replay every search under different thresholds without calling Jev again. The evaluation compares the Noul with the Score as the ranking signal and batched mode with pair mode. It also measures how latency grows with collection size and when shortlisting becomes necessary, and whether adding technologies, topics and problems solved to `match_text` improves the results. Every one of these choices is a Flagship flag, so applying the result does not need a deploy.
+The next phase of the project is the evaluation. I will write a labeled set of queries, with the bookmarks that should and should not match each one, and use the logs to replay every search under different signals and thresholds without calling Jev again. The evaluation will compare the Noul with the Score as the ranking signal, and batched mode with pair mode. It will also measure how latency grows with collection size and when shortlisting becomes necessary, and test whether adding technologies, topics and problems solved to `match_text` improves the results. Each of the choices being compared is already a Flagship flag, so applying the result does not need a deploy.
 
 ## Wrapping Up
 
 Haystack searches by need, not by words, because Jev answers the question "would this bookmark help with this query?" with a probability per bookmark. Most of the work around that question decides what may be sent to Jev: a sensitivity check that keeps links that grant access on their own away from every external service, a `match_text` field derived in code so that the URL is never sent, and token budgets and a rate limiter that keep each search within Jev's limits.
 
-The trap I hit was in my own starting values. A Score threshold of 1.5 looked reasonable when I chose it. The first evening of searches showed results at 1.50 and 1.51 that the Noul had already rejected, and one query that returned a different number of results each time I ran it. I found the problem only because we log both signals for every search. If you build something similar, log the numbers you are not using yet. They can show you when the numbers you are using are wrong.
+The trap I hit was in my own starting values. A Score threshold of 1.5 looked reasonable when I chose it. The first evening of searches showed results at 1.50 and 1.51 that the Noul had already rejected, and one query that returned a different number of results on each of its two runs. I found the problem only because we log both signals for every search. If you build something similar, log the numbers you are not using yet. They can show you when the numbers you are using are wrong.
 
 ## Further Reading
 

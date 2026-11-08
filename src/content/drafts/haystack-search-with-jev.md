@@ -1,22 +1,22 @@
 ---
-title: How Haystack Searches Bookmarks by Need With Jev, and What D1 Full-Text Search Could Not Do
+title: Searching Bookmarks by Need With Jev, and What D1 Full-Text Search Could Not Do
 pubDate: 2026-11-08
 description: How Haystack prepares each bookmark for search, decides what may be sent to Jev, asks two questions per bookmark, and what the first day of production searches showed compared with SQLite FTS5 on the same data.
 author: Schalk Neethling
-tags: [typescript]
+tags: [ai]
 ---
 
 The first search I ran against Haystack in production was "something about a select element". It returned one bookmark, an article titled "A select should tell you something", in a little over half a second. That is the result I wanted. SQLite full-text search, run over the same data, returns nothing for it.
 
-Haystack is a bookmarking tool I am building on Cloudflare Workers and D1. Search is the part of it that matters most to me, because I save links so that I can find them again when I need them, and when I need them I rarely remember the words in the title. I remember the problem I had. This post explains how search works in Haystack today: what we store for each bookmark, how we decide what may be sent to Jev, the two questions we ask Jev about every bookmark at search time, and what the first day of real searches showed.
+Haystack is a bookmarking tool I am building on Cloudflare Workers and D1. Search is the part of it that matters most to me, because I save links so that I can find them again when I need them, and when I need them I rarely remember the words in the title. I remember the problem I had. This post explains how search works in Haystack today: what Haystack stores for each bookmark, how it decides what may be sent to Jev, the two questions it asks Jev about every bookmark at search time, and what the first day of real searches showed.
 
 > **Note**: Everything here describes Haystack as deployed on November 7, 2026, with Jev model `jev-1.14.0`. The collection is small (14 bookmarks), and every search so far is mine. The findings are a first look, not an evaluation. The evaluation is the next phase of the project, and the end of this post describes what it will measure.
 
 ## What Jev Is
 
-[Jev](https://docs.typesafe.ai/) is a model from TypeSafe that answers questions about structured data with probabilities instead of prose. We send it a JSON `state` and a set of questions about that state, and it returns a number for each question. The two question types Haystack uses for search are a [Noul](https://docs.typesafe.ai/primitives/noul.md), which returns the probability that the answer to a yes-or-no question is yes, and a [Score](https://docs.typesafe.ai/primitives/score.md), which places the answer on a set of ordered levels that we define.
+[Jev](https://docs.typesafe.ai/) is a model from TypeSafe that answers questions about structured data with probabilities instead of prose. A request sends Jev a JSON `state` and a set of questions about that state, and Jev returns a number for each question. The two question types Haystack uses for search are a [Noul](https://docs.typesafe.ai/primitives/noul.md), which returns the probability that the answer to a yes-or-no question is yes, and a [Score](https://docs.typesafe.ai/primitives/score.md), which places the answer on a set of ordered levels defined in the question.
 
-What I care about is that each answer is a number we can store, compare and threshold in code. Ranking search results needs one number per bookmark, and a model that writes a paragraph about relevance would need another step to turn that paragraph into a number.
+What I care about is that each answer is a number I can store, compare and threshold in code. Ranking search results needs one number per bookmark, and a model that writes a paragraph about relevance would need another step to turn that paragraph into a number.
 
 ## Preparing a Bookmark for Search
 
@@ -45,7 +45,7 @@ A bookmark whose Noul is at or above 0.5 is Held unless I confirm on Haystack's 
 
 ### Classifying the Kind of Link
 
-The second Jev question during enrichment is a [Choice](https://docs.typesafe.ai/primitives/choice.md) between eight options: `tool`, `library`, `reference`, `tutorial`, `article`, `discussion`, `collection` and `other`. The options describe what a person does with the link, not where it is hosted, so a GitHub repository for a test runner is a `tool`. `other` is listed last, because TypeSafe's documentation for Jev 1.13 notes that Jev favors the first option when several options fit.
+The second Jev question during enrichment is a [Choice](https://docs.typesafe.ai/primitives/choice.md) between eight options: `tool`, `library`, `reference`, `tutorial`, `article`, `discussion`, `collection` and `other`. The options describe what a person does with the link, not where it is hosted, so a GitHub repository for a test runner is a `tool`. `other` is listed last, because TypeSafe's documentation for Jev 1.13 notes that Jev favors the first option when several options fit. The order is unchanged for `jev-1.14.0`.
 
 ### What the Language Model Writes
 
@@ -53,7 +53,7 @@ A language model, currently `claude-haiku-5-5` called through Cloudflare AI Gate
 
 ### Deriving `match_text` in Code
 
-The language model does not write `match_text`. Our code derives it from the stored enrichment, one line per part, in a fixed order. This is the `match_text` for the select article:
+The language model does not write `match_text`. Haystack's code derives it from the stored enrichment, one line per part, in a fixed order. This is the `match_text` for the select article:
 
 ```text
 A select should tell you something
@@ -64,7 +64,7 @@ Use when you want to understand what the customizable select element enables bey
 Other terms: customizable select, styled dropdown, custom select menu, select element design, dropdown UX, rich select options
 ```
 
-Because the text is derived in code, we can change the derivation and regenerate `match_text` for every stored enrichment without calling the language model or Jev again. Version 1 of the derivation leaves out technologies, topics and problems solved, because I expect the use cases to describe a need more directly than a list of topics does. The evaluation phase will test that expectation by comparing search results with and without those fields.
+Because the text is derived in code, I can change the derivation and regenerate `match_text` for every stored enrichment without calling the language model or Jev again. Version 1 of the derivation leaves out technologies, topics and problems solved, because I expect the use cases to describe a need more directly than a list of topics does. The evaluation phase will test that expectation by comparing search results with and without those fields.
 
 ## Deciding What Reaches Jev
 
@@ -89,7 +89,7 @@ flowchart TD
     LOG --> OUT[Results]
 ```
 
-A Flagship feature flag, `search-enabled`, decides whether the search page exists at all. While the flag is off, `/` redirects to the saved links and the header has no Search link. When the flag cannot be read, Haystack behaves as if it were off. This lets me turn search off without a deploy. The search API itself checks the session, as every route except sign-in does.
+Haystack manages its feature flags in Flagship, so a flag can change without a deploy. <!-- TODO: link to Flagship and describe it in a few words. --> One flag, `search-enabled`, decides whether the search page exists at all. While the flag is off, `/` redirects to the saved links and the header has no Search link. When the flag cannot be read, Haystack behaves as if it were off. This lets me turn search off without a deploy. The search API itself checks the session, as every route except sign-in does.
 
 The query is then validated against a shared schema: at least one character that is not a space, and at most 500 characters. A query that fails is rejected before anything is read from the database, sent to Jev or written to the log. The limit applies to every channel a search can arrive through, including the agent channels planned for later, because agents can send long queries and the query is included in every request sent to Jev.
 
@@ -97,7 +97,7 @@ The candidates are the bookmarks that have at least one enrichment and are not H
 
 ### What Jev Receives
 
-For each bookmark, Jev receives three fields: the title, the kind and the `match_text`. It does not receive the URL, the bookmark's ID or anything else from the row. Each bookmark is named by an alias, `b_0`, `b_1` and so on, and our code maps every answer back to the bookmark's ID after the response arrives. The aliases are also shorter than an ID, which keeps each request smaller, because every alias appears in both of the questions asked about its bookmark, which the section after next describes.
+For each bookmark, Jev receives three fields: the title, the kind and the `match_text`. It does not receive the URL, the bookmark's ID or anything else from the row. Each bookmark is named by an alias, `b_0`, `b_1` and so on, and Haystack maps every answer back to the bookmark's ID after the response arrives. The aliases are also shorter than an ID, which keeps each request smaller, because every alias appears in both of the questions asked about its bookmark, which the section after next describes.
 
 ### Batches and Token Budgets
 
@@ -157,7 +157,7 @@ The two answers are different kinds of number. A Noul of 0.5 means that yes and 
 
 Only one of the two signals ranks the results. Today that is the Score, with a threshold of 1.5, halfway between "same general area, but would not help" and "partially addresses the need". The Noul's threshold, which applies when the Noul is the ranking signal, is 0.5, the point where yes becomes more likely than no. Results at or above the threshold of the ranking signal are shown, highest first. When two results have the same value, the more recently saved bookmark comes first, followed by the lower ID, so that the order never depends on the order in which chunks came back.
 
-Asking both questions means two questions per bookmark instead of one, which uses more of the token budget and therefore more request capacity. We ask both for now so that every search records both signals. The evaluation phase can then choose between them using real data instead of my expectations.
+Asking both questions means two questions per bookmark instead of one, which uses more of the token budget and therefore more request capacity. Haystack asks both for now so that every search records both signals. The evaluation phase can then choose between them using real data instead of my expectations.
 
 ## Logging Every Answer
 
@@ -176,7 +176,7 @@ These are the numbers from the first evening, 11 searches against 14 bookmarks, 
 | Latency                 | 500 to 620 ms                       |
 | Input tokens per search | About 4,745, in one batched request |
 
-Each search sends all 14 bookmarks, so the token count, and the cost, grows with the collection. The 4,745 tokens include the query as well as each bookmark and both of its questions, so dividing by 14 gives only a rough cost per bookmark. At about 340 tokens per bookmark, a single request is no longer enough at somewhere around a hundred bookmarks. Haystack's own estimate is conservative, so in practice it will start splitting searches into several requests earlier than that.
+Each search sends all 14 bookmarks, so the token count, and the cost, grows with the collection. The 4,745 tokens include the query as well as each bookmark and both of its questions, so dividing by 14 gives only a rough cost per bookmark. Dividing Jev's 32,000-token limit by about 340 tokens per bookmark gives roughly 94, so a single request is no longer enough at somewhere around a hundred bookmarks. Haystack's own estimate is conservative, so in practice it will start splitting searches into several requests earlier than that.
 
 ### What Worked
 
@@ -220,7 +220,7 @@ WHERE bookmark_search MATCH 'something about a select element'
 ORDER BY bm25(bookmark_search);
 ```
 
-> **Note**: I ran this with the SQLite 3.54.0 that ships with macOS, not on D1 itself, and with the Porter stemming tokenizer. I expect D1's FTS5 to behave the same way for these queries, but I have not run them on D1. A different tokenizer, or a trigram index, would change some of the details below, but I do not expect it to change the general result.
+> **Note**: I ran this with the SQLite 3.54.0 that ships with macOS, not on D1 itself, and with the Porter stemming tokenizer. I expect D1's FTS5 to behave the same way for these queries, but I have not run them on D1. A [trigram index](https://www.sqlite.org/fts5.html#the_trigram_tokenizer) would change two rows of the table below. It matches any run of three or more characters, so `NOT mcp` would also exclude webmcp-skills, and a query term shorter than three characters, such as "Uh", places no constraint on the match, so "Uh select element" would find the select article. The first row would still fail, because "about" does not appear in the stored text, and a query for `ai` would match nothing, because the term is shorter than three characters. I checked this trigram behavior with a small test table in SQLite 3.53.1, not against the production export.
 
 | Query                            | FTS5                                  | Jev                         |
 | -------------------------------- | ------------------------------------- | --------------------------- |
@@ -232,11 +232,11 @@ ORDER BY bm25(bookmark_search);
 
 The first two rows fail because FTS5 treats every word in the query as required by default, and the stored text does not contain words such as "about" or "Uh". The third row succeeds once I remove the words the index does not have. Doing that automatically means writing a query parser that removes filler words, decides which terms are optional and rewrites a sentence into `select OR element`. That parser would have to guess which words are meaningful, and the person searching would have to learn how it guesses.
 
-The "ai" query shows a second difference. Searching FTS5 for the single token `ai` matches seven bookmarks, because the token appears in the title or `match_text` of seven bookmarks. It misses "Defeating Nondeterminism in LLM Inference", "Introducing Clairic" and "Getting the most out of Opus 5.5", which are about AI but never use the token. It also misses `perplexityai/bumblebee`, because the tokenizer reads "perplexityai" as one word. Jev showed the first three, because it judges whether a bookmark is about the topic, not whether the text contains the token.
+The "ai" query shows a second difference. Searching FTS5 for the single token `ai` matches seven bookmarks, because the token appears in the title or `match_text` of seven bookmarks. It misses "Defeating Nondeterminism in LLM Inference", "Introducing Clairic" and "Getting the most out of Opus 5.5", which are about AI but never use the token. It also misses `perplexityai/bumblebee`, because the tokenizer reads "perplexityai" as one word. Jev showed the first three, because it judges whether a bookmark is about the topic, not whether the text contains the token. It also showed `perplexityai/bumblebee`, but that is the 1.51 result from the threshold table: the Score let it through even though the Noul of 0.28 said it would not help.
 
 The last row shows the difference most clearly. FTS5 supports `NOT`, but `web guidance NOT mcp` still returns webmcp-skills, because the index contains the token `webmcp`, which is not the token `mcp`. Jev treated a bookmark about WebMCP as a bookmark about MCP.
 
-Full-text search answers the question "which bookmarks contain these words?". The question I ask when I search my bookmarks is "which bookmark helps with what I am trying to do?". Jev answers the second question directly, with a probability per bookmark that we can rank, threshold, log and replay. Getting the same behavior from D1 alone would mean writing a query-understanding layer on top of FTS5, and that layer would be a less capable version of what Jev already does.
+Full-text search answers the question "which bookmarks contain these words?". The question I ask when I search my bookmarks is "which bookmark helps with what I am trying to do?". Jev answers the second question directly, with a probability per bookmark that Haystack can rank, threshold, log and replay. Getting the same behavior from D1 alone would mean writing a query-understanding layer on top of FTS5, and that layer would be a less capable version of what Jev already does.
 
 FTS5 has clear advantages. It runs inside D1 with no external request, no token cost and no rate limit, and its latency does not depend on an external service's load. As the collection grows, sending every bookmark to Jev on every search will not scale, and at that point a cheap first pass that selects candidates becomes necessary. The project plan defers that shortlisting step. When it arrives, it is more likely to use embeddings with [Cloudflare Vectorize](https://developers.cloudflare.com/vectorize/) than FTS5, because the failures above are failures of exact matching, and an FTS5 shortlist would exclude the same bookmarks before Jev ever saw them.
 
@@ -248,7 +248,7 @@ The next phase of the project is the evaluation. I will write a labeled set of q
 
 Haystack searches by need, not by words, because Jev answers the question "would this bookmark help with this query?" with a probability per bookmark. Most of the work around that question decides what may be sent to Jev: a sensitivity check that keeps links that grant access on their own away from every external service, a `match_text` field derived in code so that the URL is never sent, and token budgets and a rate limiter that keep each search within Jev's limits.
 
-The trap I hit was in my own starting values. A Score threshold of 1.5 looked reasonable when I chose it. The first evening of searches showed results at 1.50 and 1.51 that the Noul had already rejected, and one query that returned a different number of results on each of its two runs. I found the problem only because we log both signals for every search. If you build something similar, log the numbers you are not using yet. They can show you when the numbers you are using are wrong.
+The trap I hit was in my own starting values. A Score threshold of 1.5 looked reasonable when I chose it. The first evening of searches showed results at 1.50 and 1.51 that the Noul had already rejected, and one query that returned a different number of results on each of its two runs. I found the problem only because Haystack logs both signals for every search. If you build something similar, log the numbers you are not using yet. They can show you when the numbers you are using are wrong.
 
 ## Further Reading
 

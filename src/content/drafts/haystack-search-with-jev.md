@@ -1,7 +1,7 @@
 ---
-title: Searching Bookmarks by Need With Jev, and What D1 Full-Text Search Could Not Do
+title: Finding Bookmarks by Need, Not by Words
 pubDate: 2026-11-08
-description: How Haystack prepares each bookmark for search, decides what may be sent to Jev, asks two questions per bookmark, and what the first day of production searches showed compared with SQLite FTS5 on the same data.
+description: I rarely remember the title of a link I saved, only what I needed it for. This is how Haystack uses Jev to search my bookmarks by that need, and what SQLite full-text search missed on the same data.
 author: Schalk Neethling
 tags: [ai]
 ---

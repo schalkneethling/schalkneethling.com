@@ -254,7 +254,7 @@ Next up is the evaluation. I will write a labeled set of queries, with the bookm
 
 ## Wrapping Up
 
-Haystack searches by need, not by words, because Jev answers the question "would this bookmark help with this query?" with a probability per bookmark. Much of what I built around that question decides what may be sent to Jev: a sensitivity check that keeps links that grant access on their own away from every external service, a `match_text` field derived in code so that the URL is never sent, and token budgets and a rate limiter that keep each search within Jev's limits.
+Haystack searches by need, not by words, because Jev answers the question "would this bookmark help with this query?" with a probability per bookmark. Much of what I built around that question decides what may be sent to Jev: a two-step sensitivity check that keeps links that might work like a key away from the services that describe them, a `match_text` field derived in code so that the URL is never sent, and token budgets and a rate limiter that keep each search within Jev's limits.
 
 The trap I fell into was my own starting values. A Score threshold of 1.5 looked reasonable when I chose it. Then the first evening of searches showed results at 1.50 and 1.51 that the Noul had already rejected, and one query that returned a different number of results on each of its two runs. I only found this because I log both signals for every search. If you build something similar, log the numbers you are not using yet. They can show you when the numbers you are using are wrong.
 

@@ -8,9 +8,11 @@ tags: [ai]
 
 The first search I ran against Haystack in production was "something about a select element". It returned one bookmark, an article titled "A select should tell you something", in a little over half a second. That is the result I wanted. SQLite full-text search, run over the same data, returns nothing for it.
 
-Haystack is a bookmarking tool I am building on Cloudflare Workers and D1. Search is the part of it that matters most to me, because I save links so that I can find them again when I need them, and when I need them I rarely remember the words in the title. I remember the problem I had. This post explains how search works in Haystack today: what Haystack stores for each bookmark, how it decides what may be sent to Jev, the two questions it asks Jev about every bookmark at search time, and what the first day of real searches showed.
+Haystack is a bookmarking tool I am building on Cloudflare Workers and D1. Search is the part of it that matters most to me, and the part where I want to experiment. We save links so that we can find them again, but a lot of time can pass between saving a link and looking for it. By then, we often no longer remember the title, who wrote it or the website. What we do remember is the topic, or a general sense of what the article was about.
 
-> **Note**: Everything here describes Haystack as deployed on November 7, 2026, with Jev model `jev-1.14.0`. The collection is small (14 bookmarks), and every search so far is mine. The findings are a first look, not an evaluation. The evaluation is the next phase of the project, and the end of this post describes what it will measure.
+Some of this is possible with well-designed SQL queries and full-text search, and the section on D1 shows how far that goes with my bookmarks. I wanted to try a different approach: enrich each link's metadata with AI when it is saved, and then ask a decision model such as Jev to find the link again later. This post explains how search works in Haystack today: what Haystack stores for each bookmark, how it decides what may be sent to Jev, the two questions it asks Jev about every bookmark at search time, and what the first day of real searches showed.
+
+> **Note**: Everything here describes Haystack as deployed on November 7, 2026, with `jev-1.14.0`. The findings are a first look, not an evaluation. The evaluation is the next phase of the project. More on that at the end of the post.
 
 ## What Jev Is
 

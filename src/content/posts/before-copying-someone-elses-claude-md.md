@@ -3,9 +3,10 @@ title: "Before Copying Someone Else's CLAUDE.md, Find the Style That Works for Y
 pubDate: 2026-10-25
 description: "How naming writing styles, and seeing one passage rewritten in each, helped me write CLAUDE.md instructions for how coding agents communicate with me."
 author: "Schalk Neethling"
-tags: ["ai"]
+tags: [ "ai" ]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3mzvhvuqazs2a
 ---
 
 I was working through how the TypeScript checker narrows types, specifically the flow analysis in `internal/checker/flow.go`, and asked Claude to walk me through an example. The explanation was accurate, but I still had to read it three times. Here is part of it:

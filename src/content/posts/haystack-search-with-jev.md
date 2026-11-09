@@ -3,9 +3,10 @@ title: Searching Bookmarks by Purpose With Decision Models
 pubDate: 2026-11-09
 description: I rarely remember the title of a link I saved, only what I needed it for. Haystack uses decision models such as Jev to search my bookmarks by purpose, not keywords.
 author: Schalk Neethling
-tags: [ai]
+tags: [ ai ]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3mzvhvvbtjs2a
 ---
 
 The first search I ran against Haystack in production was "something about a select element". It returned one bookmark, an article titled "A select should tell you something", in a little over half a second. That is the result I wanted. SQLite full-text search, run over the same data, returns nothing for it.

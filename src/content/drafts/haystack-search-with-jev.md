@@ -1,7 +1,7 @@
 ---
-title: Finding Bookmarks by Need, Not by Words
+title: Searching for Purpose With Decision Models
 pubDate: 2026-11-08
-description: I rarely remember the title of a link I saved, only what I needed it for. This is how Haystack uses Jev to search my bookmarks by that need, and what SQLite full-text search missed on the same data.
+description: I rarely remember the title of a link I saved, only what I needed it for. Haystack uses decision models such as Jev to search my bookmarks by purpose, not keywords.
 author: Schalk Neethling
 tags: [ai]
 ---

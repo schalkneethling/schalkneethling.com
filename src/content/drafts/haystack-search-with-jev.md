@@ -39,9 +39,7 @@ flowchart TD
 
 ### The Sensitivity Gate
 
-Some links work like a key: anyone who has the link can open what is behind it, as with a private document share, an invitation or a password reset link. Many still ask for a one-time code or a sign-in, but the address rarely says which ones do, and I do not want any of them sent to an external model.
-
-Haystack checks in two steps. First, a function called `detectSensitiveUrl` recognizes addresses that contain an access token, a user name and password, or a signed storage access key. Haystack refuses to save those, and the browser extension refuses them before the address leaves the browser. A private share, though, can look like any other address. So for every link that passes the first step, Haystack asks Jev one Noul question before anything else: would this web address give anyone who has it access to something private?
+Haystack is careful with links that might be sensitive, and checks for them in two steps. First, a function called `detectSensitiveUrl` recognizes addresses that contain an access token, a user name and password, or a signed storage access key. Haystack refuses to save those, and the browser extension refuses them before the address leaves the browser. A private share, though, can look like any other address. So for every link that passes the first step, Haystack asks Jev one Noul question before anything else: would this web address give anyone who has it access to something private?
 
 Asking it directly would mean sending Jev the URL, which is exactly what I want to avoid. Instead, the request contains a description of the URL from a function called `describeUrlForJudgment`. It keeps the scheme, the host and the names of any query and fragment parameters, and replaces every parameter value, and every path segment that does not read as words, with a placeholder such as `<hex:32>` or `<digits:6>`. I also include the page title, because "Reset your password" is strong evidence on its own. The question's instructions explain the placeholders, because Jev takes a question's wording literally and nothing else in the request explains them.
 

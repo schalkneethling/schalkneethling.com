@@ -1,5 +1,5 @@
 ---
-title: Searching for Purpose With Decision Models
+title: Searching Bookmarks by Purpose With Decision Models
 pubDate: 2026-11-08
 description: I rarely remember the title of a link I saved, only what I needed it for. Haystack uses decision models such as Jev to search my bookmarks by purpose, not keywords.
 author: Schalk Neethling
@@ -70,7 +70,7 @@ Use when you want to understand what the customizable select element enables bey
 Other terms: customizable select, styled dropdown, custom select menu, select element design, dropdown UX, rich select options
 ```
 
-Deriving it in code leaves me room to change my mind: I can change the derivation and regenerate `match_text` for every stored enrichment without calling the language model or Jev. Version 1 of the derivation leaves out technologies, topics and problems solved. I expect the use cases to describe a need more directly than a list of topics does, but that is an expectation, not a finding, and the evaluation phase will test it by comparing results with and without those fields.
+Deriving it in code leaves me room to change my mind: I can change the derivation and regenerate `match_text` for every stored enrichment without calling the language model or Jev. Version 1 of the derivation leaves out technologies, topics and problems solved. I expect the use cases to describe a purpose more directly than a list of topics does, but that is an expectation, not a finding, and the evaluation phase will test it by comparing results with and without those fields.
 
 ## Deciding What Reaches Jev
 
@@ -188,7 +188,7 @@ Each search sends all 14 bookmarks, so the token count, and the cost, grows with
 
 The select queries found the select article every time, with Scores between 2.80 and 2.98. My favorite is "Uh select element", which the browser's speech recognition transcribed complete with my hesitation at the start. The filler word made no difference to the result.
 
-Searching for "web guidance" showed Modern Web Guidance first, followed by several bookmarks about WebMCP, a proposal for exposing tools on web pages to AI agents. When I tried "web guidance not mcp", it showed only Modern Web Guidance. Jev treated "not mcp" as an instruction about the need, not as two more words to match.
+Searching for "web guidance" showed Modern Web Guidance first, followed by several bookmarks about WebMCP, a proposal for exposing tools on web pages to AI agents. When I tried "web guidance not mcp", it showed only Modern Web Guidance. Jev treated "not mcp" as an instruction about the purpose, not as two more words to match.
 
 ### Where the Starting Threshold Lets Weak Results Through
 

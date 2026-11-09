@@ -4,6 +4,8 @@ pubDate: 2026-10-25
 description: "How naming writing styles, and seeing one passage rewritten in each, helped me write CLAUDE.md instructions for how coding agents communicate with me."
 author: "Schalk Neethling"
 tags: ["ai"]
+standardSite:
+  publish: true
 ---
 
 I was working through how the TypeScript checker narrows types, specifically the flow analysis in `internal/checker/flow.go`, and asked Claude to walk me through an example. The explanation was accurate, but I still had to read it three times. Here is part of it:

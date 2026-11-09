@@ -22,7 +22,7 @@ Structured answers my code can use directly are what I care about. For both ques
 
 ## Preparing a Bookmark for Search
 
-Most of what decides search quality happens before I type a query. When I save a bookmark, Haystack enriches it in the background and produces a short text field called `match_text`. Jev reads that field when I search, and the URL is never part of it.
+Most of what decides search quality happens before I type a query. When I save a bookmark, Haystack enriches it in the background and produces a short text field called `match_text`. Jev reads that field when I search, and the URL is not one of its parts.
 
 ```mermaid
 flowchart TD
@@ -41,7 +41,7 @@ flowchart TD
 
 Haystack is careful with links that might be sensitive, and checks for them in two steps. First, a function called `detectSensitiveUrl` recognizes addresses that contain an access token, a user name and password, or a signed storage access key. Haystack refuses to save those, and the browser extension refuses them before the address leaves the browser. A private share, though, can look like any other address. So for every link that passes the first step, Haystack asks Jev one Noul question before anything else: would this web address give anyone who has it access to something private?
 
-Asking it directly would mean sending Jev the URL, which is exactly what I want to avoid. Instead, the request contains a description of the URL from a function called `describeUrlForJudgment`. It keeps the scheme, the host and the names of query and fragment parameters that read as words, and replaces every parameter value, and every path segment that does not read as words, with a placeholder such as `<hex:32>` or `<digits:6>`. I also include the page title, because "Reset your password" is strong evidence on its own. The question's instructions explain the placeholders, because Jev takes a question's wording literally and nothing else in the request explains them.
+Asking it directly would mean sending Jev a URL before I know it is safe to send, which is exactly what I want to avoid. Instead, the request contains a description of the URL from a function called `describeUrlForJudgment`. It keeps the scheme, the host, and the path segments and parameter names that read as words, and replaces every parameter value, and every other segment or name, with a placeholder such as `<hex:32>` or `<digits:6>`. I also include the page title, because "Reset your password" is strong evidence on its own. The question's instructions explain the placeholders, because Jev takes a question's wording literally and nothing else in the request explains them.
 
 If Jev's answer is 0.5 or higher, Haystack holds the bookmark back until I confirm that the link is not private. A held-back bookmark goes no further: Haystack does not request repository details from the GitHub API, ask Jev what kind of link it is or send anything to the language model, and the bookmark never appears in a search. The "Links to review" page at `/held` lists held-back bookmarks and lets me release, retry or delete each one.
 
@@ -51,7 +51,7 @@ Because I am waiting on the form, this check gets one attempt and a two-second t
 
 ### Classifying the Kind of Link
 
-The second enrichment question asks Jev what kind of link this is. It is a [Choice](https://docs.typesafe.ai/primitives/choice.md) between eight options: `tool`, `library`, `reference`, `tutorial`, `article`, `discussion`, `collection` and `other`. The options describe what I do with the link, not where it is hosted, so a GitHub repository for a test runner is a `tool`. I put `other` last, because TypeSafe AI's [model jaggedness page](https://docs.typesafe.ai/model-jaggedness.md#choice-option-order) notes that option order can affect the answer, with Jev leaning toward the first option.
+The second enrichment question asks Jev what kind of link this is. It is a [Choice](https://docs.typesafe.ai/primitives/choice.md) between eight options: `tool`, `library`, `reference`, `tutorial`, `article`, `discussion`, `collection` and `other`. The options describe what I do with the link, not where it is hosted, so a GitHub repository for a test runner is a `tool`. I put `other` last, because TypeSafe AI's [model jaggedness page](https://docs.typesafe.ai/model-jaggedness.md#choice-option-order) notes that option order can affect the answer, with Jev leaning toward the first option. This question gets the same evidence as the language model, the URL included, which is why it only runs after the sensitivity check.
 
 ### What the Language Model Writes
 
@@ -169,7 +169,7 @@ Asking both doubles the questions per bookmark, which uses more of the token bud
 
 I can search by typing, or, in a browser with speech recognition such as Chrome or Safari, by speaking the query. Either way, I log every search that passes validation, whatever its outcome, in two D1 tables. `search_runs` has one row per search: the query, whether it was typed or spoken, the request mode, the Jev model, both thresholds, the input tokens Jev reported, the latency and the outcome. `search_answers` has one row per bookmark per search, with the Noul, the Score, the Score's probabilities and confidence, whether the result was shown, and whether I clicked its link.
 
-With both signals stored for every answer and both thresholds for every run, I can replay any past search with a different signal or threshold without calling Jev. That is why I log this much, and it is how I found the threshold problem below.
+With both signals stored for every answer, and the thresholds each run used, I can replay any past search with a different signal or threshold without calling Jev. That is why I log this much, and it is how I found the threshold problem below.
 
 ## Early Findings
 
@@ -182,7 +182,7 @@ These are the numbers from the first evening: 11 searches against 14 bookmarks, 
 | Latency                 | 500 to 620 ms                       |
 | Input tokens per search | About 4,745, in one batched request |
 
-Each search sends all 14 bookmarks, so the token count, and the cost, grows with my collection. Dividing the 4,745 tokens by 14 gives about 340 tokens per bookmark, counting each bookmark's two questions and a share of the query. Both of Jev's limits apply, though. The 32k limit counts every bookmark's fields but only one question, while the 64k limit counts every question too. Depending on how long each `match_text` is, either limit can be the one that fills first, so one request should stop being enough somewhere above a hundred bookmarks. Haystack's estimate is conservative, so it will split searches before Jev's real limits are reached, and the evaluation will measure where that happens.
+Each search sends all 14 bookmarks, so the token count, and the cost, grows with my collection. Dividing the 4,745 tokens by 14 gives about 340 tokens per bookmark, counting each bookmark's two questions and a share of the query. At about 340 tokens each, 64k would hold roughly 180 bookmarks, but both of Jev's limits apply. The 32k limit counts every bookmark's fields but only one question, while the 64k limit counts every question too. Depending on how long each `match_text` is, either limit can be the one that fills first, so one request should stop being enough somewhere above a hundred bookmarks. Haystack's estimate is conservative, so it will split searches before Jev's real limits are reached, and the evaluation will measure where that happens.
 
 ### What Worked
 
@@ -201,7 +201,7 @@ Not everything went the way I hoped. The Score threshold of 1.5 shows some resul
 | guidance             | Example Agentic Chrome Extension to test WebMCP | 1.53  | 0.31 |
 | guidance             | WebMCP - Chrome for Developers                  | 1.60  | 0.35 |
 
-The first row had a visible effect. I searched for "web guidance" twice: the first search showed four results and the second five, because the select article scored 1.45 the first time and 1.50 the second. A small variation in Jev's answer decided whether a result appeared at all. Ranking by the Noul with its 0.5 threshold would have removed every row in this table, and so would a higher Score threshold. I do not have to guess which to choose: the logs hold both answers for every search.
+The first row had a visible effect. I searched for "web guidance" twice: the first search showed four results and the second five, because the select article scored 1.45 the first time and 1.50 the second. A small variation in Jev's answer decided whether a result appeared at all. Ranking by the Noul with its 0.5 threshold would have removed every row in this table, and so would a Score threshold above 1.60. I do not have to guess which to choose: the logs hold both answers for every search.
 
 ## What Jev Adds Over D1 Alone
 
@@ -248,11 +248,11 @@ None of this makes FTS5 the wrong tool. It runs inside D1 with no external reque
 
 ## What Comes Next
 
-Next up is the evaluation. I will write a labeled set of queries, with the bookmarks that should and should not match each one, and use the logs to replay every search under different signals and thresholds without calling Jev. The evaluation will compare the Noul with the Score as the ranking signal, and batched mode with pair mode. It will also measure how latency grows with collection size and when shortlisting becomes necessary, and test whether adding technologies, topics and problems solved to `match_text` improves the results. The ranking signal, the thresholds and the request mode are already Flagship flags, so acting on those results will not need a deploy. Changing `match_text` is a code change, followed by a sweep that regenerates the stored text. I also want to run the same labeled queries against other decision models, such as Snap from SubQ and OpenAI's decisions API.
+Next up is the evaluation. I will write a labeled set of queries, with the bookmarks that should and should not match each one, and use the logs to replay every search under different signals and thresholds without calling Jev. The evaluation will compare the Noul with the Score as the ranking signal, and batched mode with pair mode. It will also measure how latency grows with collection size and when shortlisting becomes necessary, and test whether adding technologies, topics and problems solved to `match_text` improves the results. The ranking signal, the thresholds and the request mode are already Flagship flags, so acting on the signal, threshold and mode comparisons will not need a deploy. Changing `match_text` is a code change, followed by a sweep that regenerates the stored text. I also want to run the same labeled queries against other decision models, such as Snap from SubQ and OpenAI's decisions API.
 
 ## Wrapping Up
 
-Full-text search finds the words I typed. Haystack finds the bookmark I need, because Jev rates how well each bookmark serves the query, with a number my code can rank, threshold, log and replay. Most of the work is not in that question but around it: a two-step sensitivity check that keeps possibly sensitive links away from the services that describe them, a `match_text` field that never contains the URL, and token budgets and a rate limiter that keep each search within Jev's limits.
+Full-text search finds the words I typed. Haystack finds the bookmark I need, because Jev rates how well each bookmark serves the query, with a number my code can rank, threshold, log and replay. Most of the work is not in that question but around it: a two-step sensitivity check that keeps possibly sensitive links away from the services that describe them, a `match_text` field that is never built from the URL, and token budgets and a rate limiter that keep each search within Jev's limits.
 
 The trap I fell into was my own starting value. A Score threshold of 1.5 looked reasonable until the first evening of searches let through results at 1.50 and 1.51 that the Noul had already rejected, and one query returned a different number of results on each of its two runs because an answer sat right at the threshold. I only saw it because I log both signals for every search. If you build something similar, log the numbers you are not using yet. They are how you find out that the numbers you are using are wrong.
 

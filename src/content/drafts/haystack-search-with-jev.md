@@ -27,7 +27,7 @@ Most of what decides search quality happens before I type a query. When I save a
 ```mermaid
 flowchart TD
     A[Bookmark saved] --> B{Sensitivity check:<br>Jev Noul on a description<br>of the URL}
-    B -- "Noul at or above 0.5,<br>not confirmed by the user" --> H[Held:<br>nothing more is sent anywhere]
+    B -- "Noul at or above 0.5,<br>not confirmed by the user" --> H[Held back:<br>nothing more is sent anywhere]
     B -- "below 0.5, or confirmed<br>not private" --> G{GitHub repository?}
     G -- yes --> GH[Fetch repository data<br>from the GitHub API]
     G -- no --> K
@@ -39,11 +39,17 @@ flowchart TD
 
 ### The Sensitivity Gate
 
-Some links grant access on their own. A link to a shared document, a password reset link or a signed download URL gives access to whoever has it, and I do not want any of those sent to an external model. So before anything else, I have Haystack ask Jev one Noul question: would this web address give anyone who has it access to something private?
+Some links work like a key: anyone who has the link can open what is behind it. A private share of a document, an invitation or a password reset link can work that way. Many of them still ask for a one-time code or a sign-in before they open anything, but the address alone rarely says which ones do, and I do not want any of them sent to an external model.
 
-There is a problem here: asking whether a URL is private normally means sending the URL. So Jev never sees it. Instead, it sees a description produced by a function called `describeUrlForJudgment`, which replaces every query value, every fragment value and every path segment that does not read as words with a placeholder such as `<hex:32>` or `<digits:6>`. I include the page title, because "Reset your password" is strong evidence on its own. The question's instructions explain what the placeholders mean, because Jev interprets the question literally and has no other way to learn what they stand for.
+Haystack handles this in two steps. The first is a fixed check in code, `detectSensitiveUrl`, which recognizes addresses that contain an access token, a user name and password, or a signed storage access key. Haystack refuses to save those at all, and the browser extension refuses them before the address leaves the browser. A private share, though, can look like any other address, with nothing in it that a fixed rule could recognize. So for every link that passes the first step, I have Haystack ask Jev one Noul question before anything else: would this web address give anyone who has it access to something private?
 
-If the Noul is at or above 0.5, the bookmark is Held until I confirm on Haystack's review page that the link is not private. For a Held bookmark, enrichment stops right there: nothing is sent to GitHub, to the `kind` question or to the language model, and the bookmark never becomes a search candidate. The same check also runs when I submit the save form, with one attempt and a two-second time limit, so the form can warn me before the bookmark is saved. I did not want a slow answer to get in the way of saving, so a timeout there never blocks it. The bookmark is saved, and the background enrichment asks the question again, with retries.
+Asking that question directly would mean including the URL in the request to Jev, which is exactly what I want to avoid sending to an external service. So Haystack never sends the URL to Jev. Instead, the request contains a description produced by a function called `describeUrlForJudgment`. The description keeps the scheme, the host and the names of any query and fragment parameters, and replaces every parameter value, and every path segment that does not read as words, with a placeholder such as `<hex:32>` or `<digits:6>`. I also include the page title, because "Reset your password" is strong evidence on its own. The question's instructions explain what the placeholders mean, because Jev takes the wording of a question literally, and nothing else in the request explains them.
+
+If Jev's answer is 0.5 or higher, Haystack holds the bookmark back until I confirm that the link is not private. A held-back bookmark goes no further. Haystack does not request the repository's details from the GitHub API, does not ask the `kind` question, sends nothing to the language model, and never includes the bookmark in a search. The "Links to review" page at `/held` lists every held-back bookmark, and lets me release, retry or delete each one.
+
+I can save a link in two ways: with the browser extension, or by pasting its address into the "Save a link" form on my saved links page. Both lead to the same save form at `/save`, filled in with the page's title and description, and that form asks Jev the same question when it opens, and again when I press Save. If the answer is 0.5 or higher, the form warns me and shows a checkbox, "This link does not give access to anything private", which I have to tick before I can save. Ticking it is the confirmation, so the bookmark is not held back.
+
+I am waiting on the form while this check runs, so it gets one attempt and a two-second time limit. If Jev does not answer in time, the form shows no warning and saves the bookmark without an answer, so a slow or unavailable Jev never stops me from saving. Haystack asks again right after saving, before it sends anything about the link to the services that describe it, and in a later run, with retries, if that gets no answer either. The rest of the enrichment, including the language model's description, also happens after the "Saved" page appears, so I never wait on that.
 
 ### Classifying the Kind of Link
 
@@ -82,7 +88,7 @@ flowchart TD
     S -- no --> X1[401]
     S -- yes --> V{Query 1 to 500 characters,<br>not only spaces?}
     V -- no --> X3[400, nothing read,<br>sent or logged]
-    V -- yes --> C[Read candidates from D1:<br>enriched and not Held]
+    V -- yes --> C[Read candidates from D1:<br>enriched and not held back]
     C --> CH[Split into chunks that fit<br>Jev's token budgets]
     CH --> LIM[Rate limiter:<br>requests and tokens per second]
     LIM --> J[Jev: two questions<br>per bookmark]
@@ -95,7 +101,7 @@ I manage Haystack's feature flags in [Flagship](https://developers.cloudflare.co
 
 Next comes the query itself, which Haystack validates against a shared schema: at least one character that is not a space, and at most 500 characters. A query that fails is rejected before anything is read from the database, sent to Jev or written to the log. I apply the same limit to every channel a search can arrive through, including the agent channels I plan to add later. Agents can send long queries, and the query is included in every request sent to Jev, so a long query adds to the size of every request.
 
-The candidates are the bookmarks that have at least one enrichment and are not Held. I wanted exactly one answer to "is this bookmark Held?", so search uses the same function as the background enrichment and the review page, and the three cannot disagree. Today, every valid query is sent to Jev together with every candidate. There is no keyword filter in front of Jev, and the section on D1 explains why.
+The candidates are the bookmarks that have at least one enrichment and are not held back. I wanted exactly one answer to "is this bookmark held back?", so search uses the same function as the background enrichment and the "Links to review" page, and the three cannot disagree. Today, every valid query is sent to Jev together with every candidate. There is no keyword filter in front of Jev, and the section on D1 explains why.
 
 ### What Jev Receives
 

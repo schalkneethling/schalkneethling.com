@@ -74,7 +74,7 @@ Deriving it in code leaves me room to change my mind: I can change the derivatio
 
 ## Deciding What Reaches Jev
 
-Every search sends my query and some of my bookmarks to an external service. That made me careful: most of the search code decides what may be sent, and how much goes in each request.
+Every search sends my query and some of my bookmarks to Jev, an external service. Most of the search code therefore controls two things: what may be sent, and how much is sent in each request.
 
 ```mermaid
 flowchart TD

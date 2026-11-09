@@ -1,6 +1,6 @@
 ---
 title: Searching Bookmarks by Purpose With Decision Models
-pubDate: 2026-11-09
+pubDate: 2026-11-08
 description: I rarely remember the title of a link I saved, only what I needed it for. Haystack uses decision models such as Jev to search my bookmarks by purpose, not keywords.
 author: Schalk Neethling
 tags: [ai]

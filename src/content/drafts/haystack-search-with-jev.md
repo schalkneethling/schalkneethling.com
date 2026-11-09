@@ -16,7 +16,7 @@ Full-text search gets part of the way there, and the section on D1 shows where i
 
 ## What Jev Is
 
-[Jev](https://docs.typesafe.ai/) is a model from TypeSafe that answers questions about structured data with probabilities instead of prose. I send it a JSON `state` and a set of questions about that state, and it returns a number for each question. For search, I use two of its question types: a [Noul](https://docs.typesafe.ai/primitives/noul.md), which returns the probability that the answer to a yes-or-no question is yes, and a [Score](https://docs.typesafe.ai/primitives/score.md), which places the answer on a set of ordered levels that I define in the question.
+[Jev](https://docs.typesafe.ai/) is a model from TypeSafe AI that answers questions about structured data with probabilities instead of prose. I send it a JSON `state` and a set of questions about that state, and it returns a number for each question. For search, I use two of its question types: a [Noul](https://docs.typesafe.ai/primitives/noul.md), which returns the probability that the answer to a yes-or-no question is yes, and a [Score](https://docs.typesafe.ai/primitives/score.md), which places the answer on a set of ordered levels that I define in the question.
 
 That number is the part I care about. I can store it, compare it and set a threshold on it in code. To rank search results, I need one number per bookmark, and a model that writes a paragraph about relevance would need another step to turn that paragraph into a number.
 

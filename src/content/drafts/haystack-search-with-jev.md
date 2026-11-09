@@ -16,9 +16,9 @@ Full-text search gets part of the way there, and the section on D1 shows where i
 
 ## What Jev Is
 
-[Jev](https://docs.typesafe.ai/) is a model from TypeSafe AI that answers questions about structured data with probabilities instead of prose. I send it a JSON `state` and a set of questions about that state, and it returns a number for each question. For search, I use two of its question types: a [Noul](https://docs.typesafe.ai/primitives/noul.md), which returns the probability that the answer to a yes-or-no question is yes, and a [Score](https://docs.typesafe.ai/primitives/score.md), which places the answer on a set of ordered levels that I define in the question.
+[Jev](https://docs.typesafe.ai/introduction) is a model from TypeSafe AI, and its documentation sums it up in one line: "Send state and typed questions; get structured answers your code can use directly." Jev does not generate text. I send it a JSON `state` and a set of questions about that state, and it returns a typed answer for each question, along with the probabilities behind it. For search, I use two of its question types: a [Noul](https://docs.typesafe.ai/primitives/noul.md), which returns the probability that the answer to a yes-or-no question is yes, and a [Score](https://docs.typesafe.ai/primitives/score.md), which places the answer on a set of ordered levels that I define in the question.
 
-That number is the part I care about. I can store it, compare it and set a threshold on it in code. To rank search results, I need one number per bookmark, and a model that writes a paragraph about relevance would need another step to turn that paragraph into a number.
+That phrase, structured answers my code can use directly, is the part I care about. For both of these question types, the answer is a number. I can store it, compare it and set a threshold on it in code. To rank search results, I need one number per bookmark, and a model that writes a paragraph about relevance would need another step to turn that paragraph into a number.
 
 ## Preparing a Bookmark for Search
 
@@ -47,7 +47,7 @@ If the Noul is at or above 0.5, the bookmark is Held until I confirm on Haystack
 
 ### Classifying the Kind of Link
 
-Next, I ask Jev what kind of link this is. The second question during enrichment is a [Choice](https://docs.typesafe.ai/primitives/choice.md) between eight options: `tool`, `library`, `reference`, `tutorial`, `article`, `discussion`, `collection` and `other`. The options describe what I do with the link, not where it is hosted, so a GitHub repository for a test runner is a `tool`. I put `other` last, because TypeSafe's [Jev 1.13 jaggedness page](https://docs.typesafe.ai/model-jaggedness/jev-1.13.md) notes that the model can favor the first option. As of October 28, 2026, TypeSafe had published no such page for Jev 1.14, so I kept the same order for `jev-1.14.0`.
+Next, I ask Jev what kind of link this is. The second question during enrichment is a [Choice](https://docs.typesafe.ai/primitives/choice.md) between eight options: `tool`, `library`, `reference`, `tutorial`, `article`, `discussion`, `collection` and `other`. The options describe what I do with the link, not where it is hosted, so a GitHub repository for a test runner is a `tool`. I put `other` last, because TypeSafe AI's [model jaggedness page](https://docs.typesafe.ai/model-jaggedness.md#choice-option-order) notes that the order of a Choice's options can affect the answer, and that Jev leans toward the option that comes first.
 
 ### What the Language Model Writes
 
@@ -103,7 +103,7 @@ For each bookmark, Jev receives three fields: the title, the kind and the `match
 
 ### Batches and Token Budgets
 
-Jev's [models page](https://docs.typesafe.ai/models.md) gives two context limits: 32,000 tokens for the state plus any one question, and 64,000 tokens for the whole request. In batched mode, the state holds the query and every bookmark in the request, and every bookmark adds two questions, so both totals grow as my collection grows.
+Jev's [models page](https://docs.typesafe.ai/models.md#context-length) gives two context limits: 32k tokens for the state plus any one question, and 64k tokens for the whole request. I read those as 32,000 and 64,000, the smaller of the two possible readings. A long-context header raises both limits, but the same page says it is slower and less accurate, so Haystack does not send it. In batched mode, the state holds the query and every bookmark in the request, and every bookmark adds two questions, so both totals grow as my collection grows.
 
 I would have liked to count tokens exactly, but as of November 4, 2026, TypeSafe does not publish a token-counting endpoint or name its tokenizer. So Haystack estimates. It counts one token for every three UTF-8 bytes of the request's JSON, which overestimates the token count of English text, and it keeps 10 percent of each budget unused. I would rather send one request too many than have Jev reject one. A collection that does not fit in one request is split into chunks, and when Jev still rejects a chunk as too long, Haystack splits that chunk in half and sends both halves again.
 
@@ -178,7 +178,7 @@ These are the numbers from the first evening: 11 searches against 14 bookmarks, 
 | Latency                 | 500 to 620 ms                       |
 | Input tokens per search | About 4,745, in one batched request |
 
-Each search sends all 14 bookmarks, so the token count, and the cost, grows with my collection. The 4,745 tokens include the query as well as each bookmark and both of its questions, so dividing by 14 gives only a rough cost per bookmark. Dividing Jev's 32,000-token limit by about 340 tokens per bookmark gives roughly 94, so a single request is no longer enough at somewhere around a hundred bookmarks. Haystack's own estimate is conservative, so in practice it will start splitting searches into several requests earlier than that.
+Each search sends all 14 bookmarks, so the token count, and the cost, grows with my collection. The 4,745 tokens include the query as well as each bookmark and both of its questions, so dividing by 14 gives only a rough cost per bookmark. Dividing the 32,000-token limit by about 340 tokens per bookmark gives roughly 94, so a single request is no longer enough at somewhere around a hundred bookmarks. Haystack's own estimate is conservative, so in practice it will start splitting searches into several requests earlier than that.
 
 ### What Worked
 
@@ -254,9 +254,11 @@ The trap I fell into was my own starting values. A Score threshold of 1.5 looked
 
 ## Further Reading
 
-- [TypeSafe's System One API reference](https://docs.typesafe.ai/api/system-one.md), which defines the request's `model`, `state` and `questions` fields.
+- [TypeSafe AI's introduction to Jev](https://docs.typesafe.ai/introduction), for what a System One model is and why it returns structured answers instead of text.
+- [TypeSafe AI's System One API reference](https://docs.typesafe.ai/api/system-one.md), which defines the request's `model`, `state` and `questions` fields.
 - [The Noul primitive](https://docs.typesafe.ai/primitives/noul.md), for what the probability means and how `criteria` works.
 - [The Score primitive](https://docs.typesafe.ai/primitives/score.md), which is worth reading twice: it explains why two different distributions can give the same score.
-- [Jev's models page](https://docs.typesafe.ai/models.md), for the two context limits that decide how many bookmarks fit in one request.
+- [Jev's models page](https://docs.typesafe.ai/models.md), for the two context limits that decide how many bookmarks fit in one request, and the rate limits on tokens and requests per second.
+- [Model jaggedness](https://docs.typesafe.ai/model-jaggedness.md), TypeSafe AI's list of known weak spots, including the bias toward the first Choice option.
 - [D1's SQL statements page](https://developers.cloudflare.com/d1/sql-api/sql-statements/), which lists FTS5 among the supported SQLite extensions and notes that exports do not include virtual tables.
 - [SQLite's FTS5 documentation](https://www.sqlite.org/fts5.html), for the query syntax, the tokenizers and the `bm25()` ranking function used in the comparison.

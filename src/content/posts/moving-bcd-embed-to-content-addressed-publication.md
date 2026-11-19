@@ -1,6 +1,6 @@
 ---
 title: "Moving bcd-embed to content-addressed publication"
-pubDate: 2026-11-10
+pubDate: 2026-11-19
 description: Two failed attempts to upload 125,640 objects led to a redesign in which each BCD release uploads only the few thousand objects that changed, each stored under the hash of its content.
 author: Schalk Neethling
 tags: [nodejs, frontend-engineering-explained]

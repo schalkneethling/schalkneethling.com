@@ -348,6 +348,6 @@ The measurement passed its threshold, and the design went ahead as proposed. The
 
 - [Document 8: Incremental publication](https://github.com/schalkneethling/bcd-embed/pull/131): the original proposal for the content-addressed design, including the implementation sequence
 - [How publication works](https://github.com/schalkneethling/bcd-embed/blob/main/apps/website/src/content/docs/publication.md): how publication works today, with diagrams
-- [`If-None-Match`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/If-None-Match) on MDN: the header behind every conditional write in the publisher, and the header a browser sends when it revalidates a cached `ETag`
+- [`If-None-Match`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/If-None-Match) on MDN: the header behind the publisher's conditional writes of immutable objects, and the header a browser sends when it revalidates a cached `ETag`
 - [R2 pricing](https://developers.cloudflare.com/r2/pricing/) on Cloudflare Docs: the free allowances and per-operation prices used in this post
 - [Git internals: Git objects](https://git-scm.com/book/en/v2/Git-Internals-Git-Objects) in Pro Git (2014): a hands-on explanation of how Git names content by its hash, the same idea at a smaller scale

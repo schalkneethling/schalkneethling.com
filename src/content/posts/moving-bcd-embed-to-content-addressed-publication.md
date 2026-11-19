@@ -44,6 +44,8 @@ Every write the publisher makes is conditional. It sends the HTTP header [`If-No
 
 In both cases, the publisher then reads the object back and compares its size and SHA-256 hash with what it meant to upload. This rule has two benefits. A published object can never be silently replaced, and a second run over a half-finished upload continues where the first stopped instead of failing.
 
+The one exception is `v1/meta.json`, which every publication after the first replaces. For that write, the publisher sends `If-Match` with the ETag it last read, so the switch fails if the file changed in the meantime.
+
 ## Two runs that did not finish
 
 The two runs failed for different reasons, so it helps to look at them one at a time.
@@ -245,7 +247,7 @@ The `<sha256>` in all three blob names is the hash of the plain bytes. That way,
 
 ### Why each level names the one below by hash
 
-A shard names its blobs by hash, so a shard's own bytes change only if one of its blobs changed or a pointer was added or removed. The root names its shards by hash, so the root changes only if a shard changed. A change at the bottom therefore produces new objects only along the path from that blob up to the root. Everything else is shared with the previous snapshot.
+A shard names its blobs by hash, so a shard's own bytes change only if one of its blobs changed or a pointer was added or removed. The root names its shards and the structural files by hash, so the root changes only if a shard or one of those files changed. A change at the bottom therefore produces new objects only along the path from that blob up to the root. Everything else is shared with the previous snapshot.
 
 The following diagram shows two snapshots, 8.1.7 and 8.1.8, when exactly one feature changes between them. An arrow means "points to," and objects marked "(new)" are the only ones the 8.1.8 publication uploads:
 
@@ -292,7 +294,7 @@ The following table compares one publication under each design. The "New design"
 | Class A (writes) | 125,640 | about 3900: 3600 blobs, 256 shards, a root |
 | Class B (reads) | about 377,000 | about 4200 |
 | Storage added | 0.57 GB | about 20 MB |
-| Cost of a rerun | up to 125,640 writes | only the writes not yet made |
+| Cost of a rerun | up to 125,640 writes | the same writes again; R2 refuses the ones already stored but still bills them |
 
 The read figure for the old design counts one read-back per object, plus downloading the live snapshot twice, once in each of the two workflow runs. That figure was counted from the code, not measured.
 
@@ -302,7 +304,7 @@ BCD releases about weekly, which averages about 4.3 publications a month. At tha
 | --- | --- | --- | --- |
 | Class A (writes) | about 540,000 (54%) | about 17,000 (2%) | 1,000,000 |
 
-The old design fit inside the free allowance, but only with room for about three wasted full passes a month. After that, every further write was billed.
+The old design fit inside the free allowance, but only with room for about 3.7 wasted full passes a month. After that, every further write was billed.
 
 The estimate had a known weak point. The diff report counts features whose _meaning_ changed, but a blob changes whenever any _byte_ changes. If a block that every feature file repeats, such as `browsers`, changes in a release, every normalized file changes with it. The first implementation step was therefore a measurement: generate real 8.1.7 and 8.1.8 snapshots without the release fields, and count the identical files and the changed shards. The threshold for going ahead was 90% identical files.
 

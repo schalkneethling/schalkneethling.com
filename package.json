@@ -46,7 +46,7 @@
     "varlock": "^1.23.0"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.13.0",
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.63.0",
     "@schalkneethling/axe-aggregate-reporter": "0.6.2",
     "@schalkneethling/opengraph-cards-maker": "^0.3.0",

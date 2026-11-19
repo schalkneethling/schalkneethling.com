@@ -3,9 +3,10 @@ title: "Moving bcd-embed to content-addressed publication"
 pubDate: 2026-11-19
 description: Two failed attempts to upload 125,640 objects led to a redesign in which each BCD release uploads only the few thousand objects that changed, each stored under the hash of its content.
 author: Schalk Neethling
-tags: [nodejs, frontend-engineering-explained]
+tags: [ nodejs, frontend-engineering-explained ]
 standardSite:
   publish: true
+  documentAtUri: at://did:plc:brimpw7k46xczmr4pqst45df/site.standard.document/3n2oyx25ak22v
 ---
 
 On November 10, 2026, I tried to publish bcd-embed's data for the first time. Both attempts failed. The first ran for six hours before GitHub canceled it. The second stopped after 19 minutes with the error `R2 request exceeded its deadline.`

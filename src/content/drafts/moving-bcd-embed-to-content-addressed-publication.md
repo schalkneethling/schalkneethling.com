@@ -97,7 +97,7 @@ R2 never throttled the publisher, which would have shown up as status 429, and n
 
 ### Ruling out large files
 
-The first explanation, which Claude Code proposed, was that a cluster of large files sat at the point where the run stopped and that they were too slow to upload in time. Claude Code then checked this against the manifest, and the manifest disproved it. There was no cluster of large files near the failure point, and files as large as 876 KB had passed earlier in the same run. File size alone could not explain a run that handled large files at full speed for about 14 minutes and then stopped.
+The first explanation, which Claude Code proposed, was that a cluster of large files sat at the point where the run stopped and that they were too slow to upload in time. Claude Code then checked this against the manifest, and the manifest disproved it. There was no cluster of large files near the failure point, and files as large as 876 KB had passed earlier in the same run. File size alone could not explain a run that handled large files at full speed for about 13 minutes and then stopped.
 
 Size still turned out to matter, but in a different way.
 
@@ -148,10 +148,10 @@ The diagnosis explained why the second run stopped. It did not answer a better q
 
 The repository already contained the answer. [Dependabot](https://docs.github.com/en/code-security/dependabot), GitHub's dependency update bot, opens a pull request whenever a new BCD version is released. A freshness workflow then generates the API's output for both the old and the new BCD version and compares them in a diff report. The reports show how little changes:
 
-| Update | Added | Removed | Changed | Share of all 20,933 features |
+| Update | Added | Removed | Changed | Share of the newer release's features |
 | --- | --- | --- | --- | --- |
 | 8.1.7 to 8.1.8 (one release) | 35 | 0 | 557 | 2.8% |
-| 8.1.3 to 8.1.7 (four releases) | 366 | 115 | 892 | 6.0% |
+| 8.1.3 to 8.1.7 (four releases) | 366 | 115 | 892 | 6.6% |
 
 The system computed this to decide whether a release was safe to publish, and then uploaded everything anyway. Or, in the words I used that afternoon: "Seems wasteful to blow away 100,000+ records every week."
 
@@ -245,7 +245,7 @@ The `<sha256>` in all three blob names is the hash of the plain bytes. That way,
 
 ### Why each level names the one below by hash
 
-A shard names its blobs by hash, so a shard's own bytes change only if one of its blobs changed. The root names its shards by hash, so the root changes only if a shard changed. A change at the bottom therefore produces new objects only along the path from that blob up to the root. Everything else is shared with the previous snapshot.
+A shard names its blobs by hash, so a shard's own bytes change only if one of its blobs changed or a pointer was added or removed. The root names its shards by hash, so the root changes only if a shard changed. A change at the bottom therefore produces new objects only along the path from that blob up to the root. Everything else is shared with the previous snapshot.
 
 The following diagram shows two snapshots, 8.1.7 and 8.1.8, when exactly one feature changes between them. An arrow means "points to," and objects marked "(new)" are the only ones the 8.1.8 publication uploads:
 
@@ -296,17 +296,17 @@ The following table compares one publication under each design. The "New design"
 
 The read figure for the old design counts one read-back per object, plus downloading the live snapshot twice, once in each of the two workflow runs. That figure was counted from the code, not measured.
 
-BCD releases about weekly. At five publications a month, the difference looks like this:
+BCD releases about weekly, which averages about 4.3 publications a month. At that rate, the difference looks like this:
 
 | Per month | Old design | New design (estimate) | Free allowance |
 | --- | --- | --- | --- |
-| Class A (writes) | 628,000 (63%) | about 20,000 (2%) | 1,000,000 |
+| Class A (writes) | about 540,000 (54%) | about 17,000 (2%) | 1,000,000 |
 
 The old design fit inside the free allowance, but only with room for about three wasted full passes a month. After that, every further write was billed.
 
 The estimate had a known weak point. The diff report counts features whose _meaning_ changed, but a blob changes whenever any _byte_ changes. If a block that every feature file repeats, such as `browsers`, changes in a release, every normalized file changes with it. The first implementation step was therefore a measurement: generate real 8.1.7 and 8.1.8 snapshots without the release fields, and count the identical files and the changed shards. The threshold for going ahead was 90% identical files.
 
-The result was 97.6%. Of the 41,880 files in 8.1.8, 40,871 are byte-identical to 8.1.7, 939 changed, and 70 are new. That release needs 972 new blobs, each stored in three encodings, plus 241 shards and one root: 3158 writes, where the estimate was about 3900. One number was worse than expected. A changed pointer changes its shard, and the changed features are spread across almost all of them, so 241 of the 256 shards are rewritten.
+The result was 97.6%. Of the 41,880 files in 8.1.8, 40,871 are byte-identical to 8.1.7, 939 changed, and 70 are new. Those 1009 files need only 972 new blobs, because some of them have content that is already stored. With each blob stored in three encodings, plus 241 shards and one root, that is 3158 writes, where the estimate was about 3900. Two numbers were worse than expected. The new objects add about 55.5 MB of storage, where the estimate was about 20 MB. And because a changed pointer changes its shard, and the changed features are spread across almost all of them, 241 of the 256 shards are rewritten.
 
 ## Trade-offs
 
@@ -338,14 +338,14 @@ The idea worth taking away is that the system already knew how little had change
 
 A few traps along the way are worth restating. A third run was the tempting next step, even though the evidence that explained the failure was already in the log and the metrics. The first explanation, a cluster of large files, was wrong, and the manifest showed it. The explanation that replaced it is reproduced locally but not proven against R2. And the cost figures for the new design were estimates until the measurement was done. It put a routine release at 3158 writes, below the estimate of about 3900. That figure comes from comparing two snapshots on disk. As of November 19, 2026, only the first publication has run against R2, so I have not yet measured an update from one release to the next in production.
 
-The measurement passed its threshold, and the design went ahead as proposed. The first publication ran on November 14, 2026, and the API has served from the new layout since November 15.
+The measurement passed its threshold, and the design went ahead as proposed. The first publication, which made BCD 8.1.9 current, ran on November 14, 2026, and the API has served from the new layout since November 15.
 
 **How this work was done:** I did this work together with Claude Code. I asked the questions and made the decisions. Claude Code did much of the investigation, wrote much of the code, and helped draft this post.
 
 ## See also
 
 - [Document 8: Incremental publication](https://github.com/schalkneethling/bcd-embed/pull/131): the original proposal for the content-addressed design, including the implementation sequence
-- [How publication works](https://github.com/schalkneethling/bcd-embed/blob/main/apps/website/src/content/docs/publication.md): the old publication flow, with diagrams
+- [How publication works](https://github.com/schalkneethling/bcd-embed/blob/main/apps/website/src/content/docs/publication.md): how publication works today, with diagrams
 - [`If-None-Match`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/If-None-Match) on MDN: the header behind every conditional write in the publisher, and the header a browser sends when it revalidates a cached `ETag`
 - [R2 pricing](https://developers.cloudflare.com/r2/pricing/) on Cloudflare Docs: the free allowances and per-operation prices used in this post
 - [Git internals: Git objects](https://git-scm.com/book/en/v2/Git-Internals-Git-Objects) in Pro Git (2014): a hands-on explanation of how Git names content by its hash, the same idea at a smaller scale

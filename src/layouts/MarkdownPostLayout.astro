@@ -62,8 +62,12 @@ const tags = frontmatter.tags;
 <style>
   .u-container {
 
-    p,
-    ul {
+    /*
+     * Prose paragraphs and lists only. Text inside a table, such as the notes
+     * in a <bcd-compat-table> cell, keeps the table's own size, because the
+     * larger size wraps a narrow column every word or two.
+     */
+    :is(p, ul):not(table *) {
       font-size: var(--typography-size-small-medium);
     }
     .post-header {

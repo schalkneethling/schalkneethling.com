@@ -23,11 +23,9 @@ npm install @schalkneethling/bcd-embed@beta
 Then name the feature with its BCD key, and put a link to the same table on MDN inside the element:
 
 ```html
-<link rel="stylesheet" href="/node_modules/@schalkneethling/bcd-embed/dist/base.css">
-
 <bcd-compat-table query="css.properties.display">
   <p>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/display#browser_compatibility">
+    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/display#browser_compatibility">
       Browser compatibility for <code>display</code> on MDN Web Docs
     </a>
   </p>
@@ -35,10 +33,11 @@ Then name the feature with its BCD key, and put a link to the same table on MDN 
 
 <script type="module">
   import "@schalkneethling/bcd-embed";
+  import "@schalkneethling/bcd-embed/base.css";
 </script>
 ```
 
-Importing the module defines the element, so the import statement does not need to bind any names. A bare module specifier like this one needs a bundler such as Vite, or an import map, to resolve it.
+Importing the module defines the element, so the import statement does not need to bind any names. The second import loads the optional base stylesheet. Bare module specifiers like these need a bundler such as Vite to resolve them.
 
 The link inside the element is its fallback content. A reader sees it before the script runs, while the table loads, if the request fails, and when JavaScript is turned off. Once the table renders, the optional base stylesheet hides the fallback. A page that leaves the stylesheet out shows the link next to the table, so the reader always has a way to reach MDN.
 
@@ -46,7 +45,7 @@ Here is the element on this page, rendering the table for `line-clamp` from the 
 
 <BcdCompatTable query="css.properties.line-clamp">
   <p>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/line-clamp#browser_compatibility">
+    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/line-clamp#browser_compatibility">
       Browser compatibility for <code>line-clamp</code> on MDN Web Docs
     </a>
   </p>
@@ -56,9 +55,9 @@ Here is the element on this page, rendering the table for `line-clamp` from the 
 
 ## Three Ways to Give It Data
 
-The example above uses fetch mode: when the element comes near the viewport, it requests `https://api.browser-compat.dev/v1/current/features/css.properties.display.json` and renders the response. The other two modes make no request at all.
+Both examples above use fetch mode: when the element comes near the viewport, it requests its feature from the API, such as `https://api.browser-compat.dev/v1/current/features/css.properties.line-clamp.json` for the live table, and renders the response. The other two modes make no request at all.
 
-In data mode, a script assigns a payload to the element's `data` property, for example one that a build step saved earlier. In source mode, the element's `source` attribute names a `<script type="application/json">` on the same page, and the element reads the JSON from it. The introduction page uses source mode for its four examples: the build reads the installed BCD package and writes each payload into the page, so the browser makes no request to show them.
+In data mode, a script assigns a payload to the element's `data` property, for example one that a build step saved earlier. In source mode, the element's `source` attribute names a `<script type="application/json">` on the same page, and the element reads the JSON from it. [browser-compat.dev](https://browser-compat.dev) uses source mode for its four examples: the build reads the installed BCD package and writes each payload into the page, so the browser makes no request to show them.
 
 The [data modes page](https://docs.browser-compat.dev/component/data-modes/) covers both, including the one escaping rule that source mode depends on: every `<` in the JSON must be written as `\u003c`, so that the text `</script>` inside a note cannot end the script element early.
 
@@ -70,7 +69,7 @@ A Cloudflare rate limiting rule blocks an IP address for 10 seconds when it send
 
 ### The Load Test
 
-Before calling this a beta, I wanted to know that the API stays correct and fast under sustained traffic. On November 23, 2026, one machine in Johannesburg sent 13,510 requests over about 11 minutes, ramping up to 22.5 requests per second, through Cloudflare's Johannesburg data center.
+Before calling this a beta, I wanted to know that the API stays correct and fast under sustained traffic. On November 23, 2026, one machine in Johannesburg sent 13,510 requests over about 11 minutes in three phases, peaking at 22.5 requests per second, through Cloudflare's Johannesburg data center.
 
 | Phase | Requests | Rate | Median | 95th percentile |
 | --- | --- | --- | --- | --- |
@@ -78,9 +77,9 @@ Before calling this a beta, I wanted to know that the API stays correct and fast
 | Steady, 300 s | 6,118 | 20.4 per second | 26 ms | 775 ms |
 | Ceiling, 300 s | 6,755 | 22.5 per second | 23 ms | 596 ms |
 
-The run produced no server errors and no rate-limited responses, and all 95,019 checks passed. Those checks included decompressing a sample of compressed responses and comparing each one with the uncompressed version byte for byte, and confirming that every conditional request with a current `ETag` received a `304`. The Worker's median CPU time was 1.87 ms per request, and the whole run stayed inside the free allowances of the Workers and R2 plans.
+The run produced no server errors and no rate-limited responses, and all 95,019 checks passed. Those checks included decompressing a sample of compressed responses and comparing each one with the uncompressed version byte for byte, and confirming that every conditional request with a current `ETag` received a `304`. The Worker's median CPU time was 1.87 ms per request, and the whole run stayed inside the monthly allowances included in the $5 Workers Paid plan and R2's free tier, so it cost nothing extra.
 
-The median fell from 91 ms to 23 ms over the run because the share of requests answered from Cloudflare's edge cache rose from 58% to 84%. The slower figures are closer to what a first visit looks like: a request that misses the cache reads from R2, and the slowest of those took up to about 1.5 seconds.
+The median fell from 91 ms to 23 ms over the run because the share of requests answered from Cloudflare's edge cache rose from 58% to 84%. The slower figures are closer to what a first visit looks like, because a request that misses the cache reads from R2. The slowest request in the run took 1.56 seconds.
 
 > **Note**: One machine in one location shows how the API behaves for one busy client near one data center. It does not show a traffic spike, thousands of readers at once, or what a cache miss costs a reader on another continent. The [load test plan](https://github.com/schalkneethling/bcd-embed/blob/main/docs/planning/11-load-test.md) records these limits next to the results.
 
@@ -88,7 +87,7 @@ The median fell from 91 ms to 23 ms over the run because the share of requests a
 
 A compatibility table is a grid of small facts, and the visual version relies on icons and colors. For each cell, the element renders a full sentence, such as "Supported since Chrome 29", in a visually hidden span, and hides the icon and short version number from assistive technology. A screen reader user moving through the table hears that sentence instead of "check mark, 29". Each table is a real `<table>` with a `<caption>`, column headers grouped by platform, a row header per feature, and native `<details>` elements for the history and notes behind a cell. The element never uses a live region and never moves focus, so a page with ten tables stays quiet while they load.
 
-Every change to the component runs three screen reader walks in continuous integration: VoiceOver on macOS, NVDA on Windows, and Orca on Linux. Each walk drives the real screen reader through a loaded table and records what it says, and the NVDA walk compares that output against approved wording. I changed the markup more than once because of what the transcripts showed. My first version of the hidden sentence used a positioned span, which is the usual visually hidden pattern, and NVDA read the words of a row header as one run-on word. An `inline-block` span made NVDA announce an empty item. The version that works is an unpositioned inline span with `font-size: 0`, `clip-path: inset(50%)` and `white-space: nowrap`, and I would not have found it without the transcripts.
+Every pull request that changes the component runs three screen reader walks in continuous integration: VoiceOver on macOS, NVDA on Windows, and Orca on Linux. Each walk drives the real screen reader through a loaded table and records what it says, and the NVDA walk compares that output against approved wording. I changed the markup more than once because of what the transcripts showed. My first version of the hidden sentence used a positioned span, which is the usual visually hidden pattern, and NVDA read the words of a row header as one run-on word. An `inline-block` span made NVDA announce an empty item. The version that works is an unpositioned inline span with `font-size: 0`, `clip-path: inset(50%)` and `white-space: nowrap`, and I would not have found it without the transcripts.
 
 A transcript is still not the judgment of someone who uses a screen reader every day. The walks run Playwright's browser builds, not released versions of Safari or Firefox, and they cover a loaded table, not the loading and error states or a table wide enough to scroll. The [release gate](https://docs.browser-compat.dev/component/accessibility/#the-release-gate) for version 1.0 requires two more checks: a manual pass with VoiceOver and Safari, and a reviewed transcript from NVDA with Firefox. The betas ship before that gate, and I would rather the 1.0 pass be informed by screen reader users than by me alone. I am not proficient enough with a screen reader to judge what is clear and what is only technically correct, so during the beta, I am asking you.
 
@@ -96,7 +95,7 @@ If you use a screen reader, please try the tables on [browser-compat.dev](https:
 
 ## What Beta Means Here
 
-Until version 1.0, releases go out under the `beta` dist-tag, and an attribute, event or styling token can still change between betas. Each release lists its changes in the [changelog](https://github.com/schalkneethling/bcd-embed/blob/main/packages/element/CHANGELOG.md).
+Until version 1.0, releases go out under the `beta` dist-tag, and an attribute, event or styling token can still change between betas. For now, the `latest` dist-tag points at the same beta, so `npm install @schalkneethling/bcd-embed` without a tag installs it too. Each release lists its changes in the [changelog](https://github.com/schalkneethling/bcd-embed/blob/main/packages/element/CHANGELOG.md).
 
 A continuous integration workflow stages each release through npm's trusted publishing, so no npm token is stored anywhere, and a version goes live only after I approve it with two-factor authentication. Every version includes a provenance statement that links it to the commit and workflow that built it, which `npm audit signatures` can verify.
 

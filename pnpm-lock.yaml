@@ -32,6 +32,9 @@ importers:
       '@lucide/astro':
         specifier: ^1.59.0
         version: 1.59.0(astro@7.4.0(@types/node@26.6.5)(esbuild@0.28.2)(yaml@2.9.1))
+      '@schalkneethling/bcd-embed':
+        specifier: 0.1.0-beta.0
+        version: 0.1.0-beta.0
       '@schalkneethling/masonry-gridlanes-wc':
         specifier: ^0.1.0
         version: 0.1.0
@@ -930,6 +933,15 @@ packages:
   '@jridgewell/sourcemap-codec@1.6.0':
     resolution: {integrity: sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw==}
 
+  '@lit-labs/ssr-dom-shim@1.6.0':
+    resolution: {integrity: sha512-VHb0ALPMTlgKjM6yIxxoQNnpKyUKLD04VzeQdsiXkMqkvYlAHxq9glGLmgbb889/1GsohSOAjvQYoiBppXFqrQ==}
+
+  '@lit/reactive-element@2.1.2':
+    resolution: {integrity: sha512-pbCDiVMnne1lYUIaYNN5wrwQXDtHaYtg7YEFPeW+hws6U47WeFvISGUWekPGKWOP1ygrs0ef0o1VJMk1exos5A==}
+
+  '@lit/task@1.0.3':
+    resolution: {integrity: sha512-1gJGJl8WON+2j0y9xfcD+XsS1rvcy3XDgsIhcdUW++yTR8ESjZW6o7dn8M8a4SZM8NnJe6ynS2cKWwsbfLOurg==}
+
   '@lucide/astro@1.59.0':
     resolution: {integrity: sha512-vIRK8jLnCEsWuUbtj6xh+U75P4NAiwMhediygpNz4tdQVmjmZqd/oTgrP5F2Va3EoKCnhVvel/ssm66SUgCa1A==}
     peerDependencies:
@@ -1188,6 +1200,9 @@ packages:
     resolution: {integrity: sha512-8BiTaHpkXP9L6gHzkSD7g+cZKcn+FEqOTT1OzsKvGuNgXZMbPDzByHl1QyToIEuaVK0vx8TAMp+Jw0Q72uUYYQ==}
     engines: {node: '>=24.8.0'}
     hasBin: true
+
+  '@schalkneethling/bcd-embed@0.1.0-beta.0':
+    resolution: {integrity: sha512-sekzDxLgRIP6FrIS8ypJJYsJtmJYUWDXl/osw9eiuZI7bDqLZTwiXCA2j0FzqXWYdqdQftTaW6xu7F7oWYhRvw==}
 
   '@schalkneethling/masonry-gridlanes-wc@0.1.0':
     resolution: {integrity: sha512-E5OZF8DORpsqZ7RWNxmnh0qIF/hgjsZOW5S6FkJuoem2J1onItVbpCWHboFlklu1RauNH3WMVUgRZCDkLqebvw==}
@@ -2430,6 +2445,15 @@ packages:
     peerDependenciesMeta:
       canvas:
         optional: true
+
+  lit-element@4.2.2:
+    resolution: {integrity: sha512-aFKhNToWxoyhkNDmWZwEva2SlQia+jfG0fjIWV//YeTaWrVnOxD89dPKfigCUspXFmjzOEUQpOkejH5Ly6sG0w==}
+
+  lit-html@3.3.3:
+    resolution: {integrity: sha512-el8M6jK2o3RXBnrSHX3ZKrsN8zEV63pSExTO1wYJz7QndGYZ8353e2a5PPX+qHe2aGayfnchQmkAojaWAREOIA==}
+
+  lit@3.3.3:
+    resolution: {integrity: sha512-fycuvZg/hkpozL00lm1pEJH5nN/lr9ZXd6mJI2HSN4+Bzc+LDNdEApJ6HFbPkdFNHLvOplIIuJvxkS4XUxqirw==}
 
   lite-youtube-embed@0.3.4:
     resolution: {integrity: sha512-aXgxpwK7AIW58GEbRzA8EYaY4LWvF3FKak6B9OtSJmuNyLhX2ouD4cMTxz/yR5HFInhknaYd2jLWOTRTvT8oAw==}
@@ -4460,6 +4484,16 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.6.0': {}
 
+  '@lit-labs/ssr-dom-shim@1.6.0': {}
+
+  '@lit/reactive-element@2.1.2':
+    dependencies:
+      '@lit-labs/ssr-dom-shim': 1.6.0
+
+  '@lit/task@1.0.3':
+    dependencies:
+      '@lit/reactive-element': 2.1.2
+
   '@lucide/astro@1.59.0(astro@7.4.0(@types/node@26.6.5)(esbuild@0.28.2)(yaml@2.9.1))':
     dependencies:
       astro: 7.4.0(@types/node@26.6.5)(esbuild@0.28.2)(yaml@2.9.1)
@@ -4642,6 +4676,11 @@ snapshots:
   '@rolldown/pluginutils@1.0.1': {}
 
   '@schalkneethling/axe-aggregate-reporter@0.6.2': {}
+
+  '@schalkneethling/bcd-embed@0.1.0-beta.0':
+    dependencies:
+      '@lit/task': 1.0.3
+      lit: 3.3.3
 
   '@schalkneethling/masonry-gridlanes-wc@0.1.0':
     dependencies:
@@ -4917,8 +4956,7 @@ snapshots:
     dependencies:
       undici-types: 8.9.0
 
-  '@types/trusted-types@2.0.7':
-    optional: true
+  '@types/trusted-types@2.0.7': {}
 
   '@types/unist@2.0.11': {}
 
@@ -6080,6 +6118,22 @@ snapshots:
       html-escaper: 3.0.3
       htmlparser2: 10.1.0
       uhyphen: 0.2.0
+
+  lit-element@4.2.2:
+    dependencies:
+      '@lit-labs/ssr-dom-shim': 1.6.0
+      '@lit/reactive-element': 2.1.2
+      lit-html: 3.3.3
+
+  lit-html@3.3.3:
+    dependencies:
+      '@types/trusted-types': 2.0.7
+
+  lit@3.3.3:
+    dependencies:
+      '@lit/reactive-element': 2.1.2
+      lit-element: 4.2.2
+      lit-html: 3.3.3
 
   lite-youtube-embed@0.3.4: {}
 

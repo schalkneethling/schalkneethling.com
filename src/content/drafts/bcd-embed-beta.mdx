@@ -1,0 +1,116 @@
+---
+title: "bcd-embed Beta: Browser Compatibility Tables for Any Page"
+pubDate: 2026-11-24
+description: The first beta of bcd-embed is on npm. It is a web component that renders a browser compatibility table from MDN Browser Compatibility Data, backed by a free public API, and I would like screen reader users to tell me how it sounds.
+author: Schalk Neethling
+tags: [html, javascript, accessibility]
+---
+
+import BcdCompatTable from "../../components/BcdCompatTable.astro";
+
+When I write about a web platform feature, I want the reader to see which browsers support it, and I want that information to be current on the day they read the post, not on the day I wrote it. MDN Web Docs shows a compatibility table near the end of most reference pages, built from [MDN Browser Compatibility Data](https://github.com/mdn/browser-compat-data) (BCD), but there has been no simple way to put that same table on another site. I could paste a screenshot that goes out of date, link to MDN and hope the reader follows the link, or install the full BCD package and write the rendering code myself.
+
+bcd-embed is my answer to that. Its first beta, `@schalkneethling/bcd-embed@0.1.0-beta.0`, was published to npm on November 22, 2026. It is a web component, `<bcd-compat-table>`, that renders the compatibility table for a feature and every feature nested under it, using data from a public API at `api.browser-compat.dev`.
+
+## What It Looks Like on a Page
+
+Install the beta:
+
+```sh
+npm install @schalkneethling/bcd-embed@beta
+```
+
+Then name the feature with its BCD key, and put a link to the same table on MDN inside the element:
+
+```html
+<bcd-compat-table query="css.properties.display">
+  <p>
+    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/display#browser_compatibility">
+      Browser compatibility for <code>display</code> on MDN Web Docs
+    </a>
+  </p>
+</bcd-compat-table>
+
+<script type="module">
+  import "@schalkneethling/bcd-embed";
+  import "@schalkneethling/bcd-embed/base.css";
+</script>
+```
+
+Importing the module defines the element, so the import statement does not need to bind any names. The second import loads the optional base stylesheet. Bare module specifiers like these need a bundler such as Vite to resolve them.
+
+The link inside the element is its fallback content. A reader sees it before the script runs, while the table loads, if the request fails, and when JavaScript is turned off. Once the table renders, the optional base stylesheet hides the fallback. A page that leaves the stylesheet out shows the link next to the table, so the reader always has a way to reach MDN.
+
+Here is the element on this page, rendering the table for `line-clamp` from the API:
+
+<BcdCompatTable query="css.properties.line-clamp">
+  <p>
+    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/line-clamp#browser_compatibility">
+      Browser compatibility for <code>line-clamp</code> on MDN Web Docs
+    </a>
+  </p>
+</BcdCompatTable>
+
+[browser-compat.dev](https://browser-compat.dev) shows four example tables, for `loading` on `<video>`, `line-clamp`, `Error.isError()` and `navigator.share()`, and a fifth, for `<dialog>`, that requests its data from the API when it scrolls into view.
+
+## Three Ways to Give It Data
+
+Both examples above use fetch mode: when the element comes near the viewport, it requests its feature from the API, such as `https://api.browser-compat.dev/v1/current/features/css.properties.line-clamp.json` for the live table, and renders the response. The other two modes make no request at all.
+
+In data mode, a script assigns a payload to the element's `data` property, for example one that a build step saved earlier. In source mode, the element's `source` attribute names a `<script type="application/json">` on the same page, and the element reads the JSON from it. [browser-compat.dev](https://browser-compat.dev) uses source mode for its four examples: the build reads the installed BCD package and writes each payload into the page, so the browser makes no request to show them.
+
+The [data modes page](https://docs.browser-compat.dev/component/data-modes/) covers both, including the one escaping rule that source mode depends on: every `<` in the JSON must be written as `\u003c`, so that the text `</script>` inside a note cannot end the script element early.
+
+## The API Behind It
+
+The API is free and needs no key. It serves BCD 8.1.9 as static JSON files, one per feature, generated ahead of time from the published BCD package and stored in Cloudflare R2. A small Worker answers each request. It serves Brotli and gzip variants, sends `ETag` headers for conditional requests, and sends CORS headers so any page can call it. Every response names the snapshot it came from. A pinned URL such as `/v1/bcd-8.1.9-gen-0.1.0/features/css.properties.display.json` returns the same bytes for as long as that snapshot is kept, which gives a page that needs a fixed version a way to ask for one. Once a snapshot is no longer current, it is removed no later than 90 days after it was generated.
+
+A Cloudflare rate limiting rule blocks an IP address for 10 seconds when it sends more than 300 requests within 10 seconds. A page that renders a handful of tables stays far below that. A site that needs more, or that wants to keep the data in its own infrastructure, can run its own copy of the API; the [self-hosting page](https://docs.browser-compat.dev/component/self-hosting/) explains how to point the element at it.
+
+### The Load Test
+
+Before calling this a beta, I wanted to know that the API stays correct and fast under sustained traffic. On November 23, 2026, one machine in Johannesburg sent 13,510 requests over about 11 minutes in three phases, peaking at 22.5 requests per second, through Cloudflare's Johannesburg data center.
+
+| Phase | Requests | Rate | Median | 95th percentile |
+| --- | --- | --- | --- | --- |
+| Ramp, 61 s | 637 | 10.4 per second | 91 ms | 1.05 s |
+| Steady, 300 s | 6,118 | 20.4 per second | 26 ms | 775 ms |
+| Ceiling, 300 s | 6,755 | 22.5 per second | 23 ms | 596 ms |
+
+The run produced no server errors and no rate-limited responses, and all 95,019 checks passed. Those checks included decompressing a sample of compressed responses and comparing each one with the uncompressed version byte for byte, and confirming that every conditional request with a current `ETag` received a `304`. The Worker's median CPU time was 1.87 ms per request, and the whole run stayed inside the monthly allowances included in the $5 Workers Paid plan and R2's free tier, so it cost nothing extra.
+
+The median fell from 91 ms to 23 ms over the run because the share of requests answered from Cloudflare's edge cache rose from 58% to 84%. The slower figures are closer to what a first visit looks like, because a request that misses the cache reads from R2. The slowest request in the run took 1.56 seconds.
+
+> **Note**: One machine in one location shows how the API behaves for one busy client near one data center. It does not show a traffic spike, thousands of readers at once, or what a cache miss costs a reader on another continent. The [load test plan](https://github.com/schalkneethling/bcd-embed/blob/main/docs/planning/11-load-test.md) records these limits next to the results.
+
+## Accessibility, and Where I Need Help
+
+A compatibility table is a grid of small facts, and the visual version relies on icons and colors. For each cell, the element renders a full sentence, such as "Supported since Chrome 29", in a visually hidden span, and hides the icon and short version number from assistive technology. A screen reader user moving through the table hears that sentence instead of "check mark, 29". Each table is a real `<table>` with a `<caption>`, column headers grouped by platform, a row header per feature, and native `<details>` elements for the history and notes behind a cell. The element never uses a live region and never moves focus, so a page with ten tables stays quiet while they load.
+
+Every pull request that changes the component runs three screen reader walks in continuous integration: VoiceOver on macOS, NVDA on Windows, and Orca on Linux. Each walk drives the real screen reader through a loaded table and records what it says, and the NVDA walk compares that output against approved wording. I changed the markup more than once because of what the transcripts showed. My first version of the hidden sentence used a positioned span, which is the usual visually hidden pattern, and NVDA read the words of a row header as one run-on word. An `inline-block` span made NVDA announce an empty item. The version that works is an unpositioned inline span with `font-size: 0`, `clip-path: inset(50%)` and `white-space: nowrap`, and I would not have found it without the transcripts.
+
+A transcript is still not the judgment of someone who uses a screen reader every day. The walks run Playwright's browser builds, not released versions of Safari or Firefox, and they cover a loaded table, not the loading and error states or a table wide enough to scroll. The [release gate](https://docs.browser-compat.dev/component/accessibility/#the-release-gate) for version 1.0 requires two more checks: a manual pass with VoiceOver and Safari, and a reviewed transcript from NVDA with Firefox. The betas ship before that gate, and I would rather the 1.0 pass be informed by screen reader users than by me alone. I am not proficient enough with a screen reader to judge what is clear and what is only technically correct, so during the beta, I am asking you.
+
+If you use a screen reader, please try the tables on [browser-compat.dev](https://browser-compat.dev) or the [getting started page](https://docs.browser-compat.dev/component/getting-started/), and [open an issue](https://github.com/schalkneethling/bcd-embed/issues/new) that says which screen reader and browser you used, what you heard, and what you expected to hear. A report that something is confusing, too long, or in the wrong order is as useful as a report that something is broken.
+
+## What Beta Means Here
+
+Until version 1.0, releases go out under the `beta` dist-tag, and an attribute, event or styling token can still change between betas. For now, the `latest` dist-tag points at the same beta, so `npm install @schalkneethling/bcd-embed` without a tag installs it too. Each release lists its changes in the [changelog](https://github.com/schalkneethling/bcd-embed/blob/main/packages/element/CHANGELOG.md).
+
+A continuous integration workflow stages each release through npm's trusted publishing, so no npm token is stored anywhere, and a version goes live only after I approve it with two-factor authentication. Every version includes a provenance statement that links it to the commit and workflow that built it, which `npm audit signatures` can verify.
+
+The data follows BCD's releases. When BCD publishes a new release, a workflow generates the API files from it and compares them with the live snapshot. If the difference is larger than expected, the workflow holds the new snapshot for my review before publishing it.
+
+## Wrapping Up
+
+bcd-embed puts MDN's compatibility table on any page with one element and one import, and the data updates without anyone editing the page. The API handled 22.5 requests per second from one client without an error, and three screen readers walk the component on every change. It is a beta: the API is ready to call, but the component's attributes and tokens may still change, and its accessibility has not yet been judged by people who use screen readers every day. That judgment is the feedback I would value most.
+
+**How this work was done:** I built bcd-embed with Claude Code. I made the product and design decisions, from the API contract to how the table should read in a screen reader, and reviewed each change. Claude Code researched, wrote and tested most of the code and documentation, ran the load test and the publication steps I approved, and drafted this post.
+
+## Further Reading
+
+- [Getting started](https://docs.browser-compat.dev/component/getting-started/), the full guide to the component, including events, styling tokens and the React, Vue and Svelte examples.
+- [The accessibility page](https://docs.browser-compat.dev/component/accessibility/), which describes the markup and lists what the automated walks do not cover.
+- [MDN Browser Compatibility Data](https://github.com/mdn/browser-compat-data), the source of every table, published under CC0.
+- [The load test plan and results](https://github.com/schalkneethling/bcd-embed/blob/main/docs/planning/11-load-test.md), for the request mix, pass marks and the limits of a test from one location.
+- [The repository](https://github.com/schalkneethling/bcd-embed), MIT licensed, where issues and screen reader reports go.

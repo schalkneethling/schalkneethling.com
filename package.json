@@ -38,6 +38,7 @@
     "@atproto/lex-password-session": "^0.3.0",
     "@atproto/syntax": "^0.7.7",
     "@lucide/astro": "^1.59.0",
+    "@schalkneethling/bcd-embed": "0.1.0-beta.0",
     "@schalkneethling/masonry-gridlanes-wc": "^0.1.0",
     "astro": "^7.4.0",
     "astro-embed": "^0.14.0",

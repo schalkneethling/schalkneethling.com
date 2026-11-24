@@ -1,0 +1,73 @@
+---
+/**
+ * Renders a live browser compatibility table with the <bcd-compat-table>
+ * element from @schalkneethling/bcd-embed. The element requests its data from
+ * https://api.browser-compat.dev when it nears the viewport, so the table is
+ * current on the day a reader opens the post.
+ *
+ * The slot is the element's fallback content: a link to the same table on MDN
+ * Web Docs, shown before the script runs, while the table loads, if the
+ * request fails, and when JavaScript is turned off.
+ */
+import "@schalkneethling/bcd-embed/base.css";
+
+interface Props {
+  /** The BCD dotted key of the feature, such as `css.properties.line-clamp`. */
+  query: string;
+}
+
+const { query } = Astro.props;
+---
+
+<bcd-compat-table query={query}>
+  <slot />
+</bcd-compat-table>
+
+<script>
+  import "@schalkneethling/bcd-embed";
+</script>
+
+<style is:global>
+  bcd-compat-table {
+    /*
+     * The sticky feature column covers the cells that scroll beneath it, so
+     * it needs the page's background, not the default Canvas colour.
+     */
+    --bcd-color-sticky-background: var(--color-background);
+
+    /*
+     * The body sets overflow-wrap: anywhere, which lets a narrow screen break
+     * words such as "preview" inside a cell instead of scrolling the table.
+     * The element's own scroll region handles narrow screens, and its base
+     * stylesheet still lets long feature names wrap.
+     */
+    overflow-wrap: normal;
+
+    margin-block: var(--size-32, 2rem);
+  }
+
+  /*
+   * The sticky "Feature" header sits on the site's table header colour, not
+   * the page background, because the header text uses the light
+   * --table-thead-color and would vanish on the light page background.
+   */
+  bcd-compat-table .bcd-table thead tr:first-child > :first-child {
+    background-color: var(--table-thead-bg-color);
+  }
+
+  /*
+   * The element names its hidden cell sentences with the class
+   * visually-hidden, which the minimalist utilities also style. The element's
+   * base rule sets only font-size, clip-path and white-space, so nothing
+   * opposes the minimalist position, size and overflow, and each sentence
+   * becomes an absolutely positioned 1px box. That is the pattern that made
+   * NVDA misread row headers. These values restore the element's own
+   * pattern: an unpositioned inline span, sized to nothing by font-size: 0.
+   */
+  bcd-compat-table .bcd-table .visually-hidden {
+    block-size: auto;
+    inline-size: auto;
+    overflow: visible;
+    position: static;
+  }
+</style>

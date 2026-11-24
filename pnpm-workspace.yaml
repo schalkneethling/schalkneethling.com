@@ -14,3 +14,8 @@ onlyBuiltDependencies:
 # entry, so a proposed lockfile can still fail when a transitive dependency is
 # newer than this age.
 minimumReleaseAge: 2880
+# Packages the site owner publishes are exempt, so a new release of one of them
+# can be used on this site straight away. Their releases are approved with
+# two-factor authentication and carry npm provenance.
+minimumReleaseAgeExclude:
+  - '@schalkneethling/bcd-embed'

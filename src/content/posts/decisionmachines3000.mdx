@@ -1,0 +1,121 @@
+---
+title: "DecisionMachines3000: Ask Several Decision Models the Same Question"
+pubDate: 2026-11-27
+description: DecisionMachines3000 is an open source page for asking decision models such as Jev typed questions about text, data, or images, and comparing what each provider answers, question by question. You can deploy your own copy to Cloudflare.
+author: Schalk Neethling
+tags: [ai]
+standardSite:
+  publish: true
+---
+
+import PostScreenshot from "../../components/PostScreenshot.astro";
+import requestForm from "../../assets/posts/decisionmachines3000/request-form.png";
+import comparisonTable from "../../assets/posts/decisionmachines3000/comparison-table.png";
+import moreActions from "../../assets/posts/decisionmachines3000/more-actions.png";
+import phoneRequest from "../../assets/posts/decisionmachines3000/phone-request.png";
+
+When I wrote about [searching my bookmarks with Jev](/posts/haystack-search-with-jev), I had already spent weeks sending Jev questions by hand to learn how it answers. Most of that happened in a small page I built for the purpose. The page has grown since then: it now talks to three providers, accepts images, and, as of this week, sends one request to several providers at once and lines their answers up question by question. It is called DecisionMachines3000, the source is on [GitHub](https://github.com/schalkneethling/decision-machines-3000), and you can deploy your own copy to Cloudflare.
+
+> **Note**: Everything here describes DecisionMachines3000 as deployed on November 26, 2026. The providers and models it lists are TypeSafe Jev (`jev-1.13.0`), SubQ Snap (`subq-snap-preview`), and OpenAI Decisions (`gpt-6-luna`).
+
+## What a Decision Model Answers
+
+A decision model does not write text. I send it a `state`, which is the text, object, or list I want to ask about, and a set of questions about that state. It returns a typed answer to each question, with the probabilities behind it. DecisionMachines3000 supports three question types. The page uses a plain name for each, with each provider's API term as a second line:
+
+- **Yes or no** (`noul` in TypeSafe Jev and SubQ Snap, `predicate` in OpenAI Decisions): how likely a statement is to be true, judged from the state.
+- **Pick one option** (`choice`): one option from a fixed set, with a probability for every option.
+- **Score on a scale** (`score`): a position on ordered levels I describe, with a probability for each level.
+
+Here is the request the "Yes or no" film example sends, shortened to two of its four questions:
+
+```json
+{
+  "primitive": "noul",
+  "state": {
+    "review": "Saw this at the Roxie last night with a packed house. The first hour drags and the score is intrusive, but the final act [...] had the whole room gasping. Not perfect, but go see it before someone ruins it for you."
+  },
+  "questions": {
+    "recommends": {
+      "instructions": "Does the reviewer recommend watching the film?"
+    },
+    "saw_in_theater": {
+      "instructions": "Did the reviewer watch the film in a cinema?",
+      "criteria": {
+        "true": "The review names or clearly describes a theater screening with other people present.",
+        "false": "The review describes home viewing, streaming, or does not say where the film was watched."
+      }
+    }
+  }
+}
+```
+
+The answer to `recommends` is a single number, such as `0.93`. The `criteria` on `saw_in_theater` tell the model what yes and no mean for that question. A request can also set shared criteria, which apply to every question that does not define its own.
+
+## Building a Request on the Page
+
+The page holds one request. A "Question type" choice at the top picks the type, and each type keeps its own questions, so I can switch from "Yes or no" to "Pick one option" and back without losing anything. What the model reads and the attached images belong to the request, so they stay the same whichever type is chosen. To ask all three kinds of question about one review, I choose each type in turn and run it.
+
+<PostScreenshot src={requestForm} alt="The request form with the Yes or no film example loaded. Three bordered options at the top choose the question type, and each names its API term. Below them are the Load film example and Load image example buttons, the Tree and JSON choice, the film review as the state, and the first question. The Run bar at the bottom has a checkbox for TypeSafe Jev, SubQ Snap, and OpenAI Decisions, all ticked, and the Run button." />
+
+The request can be edited in two views. The tree view has a labeled field for every part of the request: what the model reads, the shared criteria, and each question with its id, instructions, and its own criteria. The JSON view shows the same request with the API's own keys, which is the quicker way to paste in a request from code. Switching between the views keeps the request.
+
+Two example sets load a complete request for the chosen type. The film set asks about fictional film reviews, and the image set attaches four small drawings and asks about them as "image 1" to "image 4". The "Pick one option" film example, for instance, sorts six films into genres with one question that the page asks once for each film in a list.
+
+## Comparing Providers Side by Side
+
+The Run bar at the bottom of the request has a checkbox for each provider the instance has a key for. One press of Run sends the request to every ticked provider at the same time. With one provider, the result reads as before: a sentence that names the provider, the model, how long the call took, and how many input tokens it used, followed by each question's answer, with the probabilities drawn as bars.
+
+With more than one provider, the result is a table, with a row for each question, headed by the question as it was asked, and a column for each provider. To compare two providers, I no longer run the request twice and try to remember the first set of numbers. Below the table, each provider has its own section with its metadata and the exact JSON that was sent and received.
+
+<PostScreenshot src={comparisonTable} alt="A comparison table with four questions about the film review as rows and TypeSafe Jev, SubQ Snap, and OpenAI Decisions as columns. TypeSafe Jev answers 0.92, 0.97, 0.98, and 0.98. SubQ Snap and OpenAI Decisions answer 1.00 to every question." />
+
+In this run, all three providers agree on every answer, but TypeSafe Jev is the only one that is less than certain. The bars make that visible at a glance, where two separate runs would have hidden it.
+
+If one provider fails, for example because it rate limits the request, its column says "No answer" for every question and its section holds the error. The answers from the other providers stay in their columns.
+
+Images follow each provider's limits. On this instance, a provider that takes images accepts PNG, JPEG, or WebP, up to 64 KB per request. SubQ Snap takes up to four images and OpenAI Decisions up to eight, while TypeSafe Jev is text only. When I tick a text-only provider next to one that takes images, the text-only provider gets the request without them, and its result says "Sent without the 2 attached images." Before sending anything, the page checks the images against the strictest limits of the ticked providers and names the provider whose limit an image exceeds.
+
+## What Changed in This Release
+
+The previous version repeated the whole request editor three times, once per question type. A usability and accessibility audit on October 25, 2026, counted 101 tab stops with two examples loaded. On a 375 px wide screen the page was about 13,000 px tall, and the answers started about 4,800 px below the first Run button. The results also sat in a box that scrolled on its own, which Safari's keyboard navigation could not reach.
+
+This release replaces the three panels with the single request described above. The results now come after the request and scroll with the page, and a "Skip to results" link is the first tab stop. Moving and removing a question are now behind one "More" button per question, so a question costs one tab stop instead of three until its actions are opened. Alt and an arrow key still move a question from any field in it.
+
+<PostScreenshot src={moreActions} alt="One question in the tree view with its actions open: the More button, followed by Move up, which is unavailable for the first question, Move down, and Remove question." />
+
+Text buttons are at least 44 px tall, and the borders of fields and buttons have a contrast of at least 3:1 against their background in both color schemes, which is what WCAG 2.2 success criterion 1.4.11 asks for.
+
+On a phone, the question types, the example buttons, and the Tree and JSON choice each take the full width of the screen, so each is a large target.
+
+<PostScreenshot src={phoneRequest} alt="The top of the request form on a phone in the dark color scheme. The three question types are stacked full width, followed by the two example buttons and the Tree and JSON choice, each as wide as the screen." />
+
+The new layout has not been tested with a screen reader yet. If you use one, I would like to hear how the comparison table reads.
+
+## Running Your Own Copy
+
+The quickest way is the "Deploy to Cloudflare" button in the [README](https://github.com/schalkneethling/decision-machines-3000#deploy-your-own). It copies the repository into your GitHub account and deploys a Worker to your Cloudflare account. The form asks for all three provider keys, because the button makes each one a required input. Enter the word `unset` for each provider you do not have a key for; at least one must be a real key. A provider whose key is not set does not appear on the page.
+
+A fresh instance refuses every run until it is protected, because the Worker holds your provider keys and anyone who can reach its address could otherwise spend your credit. The [deployment guide](https://github.com/schalkneethling/decision-machines-3000/blob/main/docs/deploy.md) explains how to put the Worker behind Cloudflare Access, so that only the people you allow can open it, and how to give the Worker the two values it needs to check the Access token. The provider keys never reach the browser: the page sends each run to the Worker, which adds the key and calls the provider from the server.
+
+To run it locally, clone the repository and install its dependencies with [Vite+](https://viteplus.dev), the toolchain the project uses:
+
+```sh
+vp install
+vp dev
+```
+
+`vp dev` reads the provider keys from 1Password through [Varlock](https://varlock.dev). Without 1Password, the README describes how to put the keys in a `.env.local` file instead, with the trade-off that they then sit unencrypted on disk. Locally, the page also shows a warm-connection demo, which compares a run over a new connection with a run over a connection that is already open.
+
+## Wrapping Up
+
+DecisionMachines3000 is a place to learn how decision models answer before building something on them. The part I use most now is the comparison table, where every provider's answer to a question sits in the same row. If you deploy your own copy and something in the guide does not match what you see, please [open an issue](https://github.com/schalkneethling/decision-machines-3000/issues).
+
+**How this work was done:** I build and write in collaboration with AI, mostly Claude Code. So the work described and the post itself were made through this collaboration. I hope you find both the work and the words meaningful, or at least useful. Thank you.
+
+## Further Reading
+
+- [The DecisionMachines3000 repository](https://github.com/schalkneethling/decision-machines-3000), whose README explains how the key stays on the server
+- [The deployment guide](https://github.com/schalkneethling/decision-machines-3000/blob/main/docs/deploy.md), worth reading before you press the Deploy button, because the protection step comes straight after the deploy
+- [Jev's documentation](https://docs.typesafe.ai/introduction), including the pages on [Noul](https://docs.typesafe.ai/primitives/noul.md) and [Score](https://docs.typesafe.ai/primitives/score.md)
+- [Searching Bookmarks by Purpose With Decision Models](/posts/haystack-search-with-jev), the earlier post on what I built with Jev after learning it here
+- [Understanding WCAG 2.2 Success Criterion 1.4.11: Non-text Contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html), for the contrast requirement on field and button borders
